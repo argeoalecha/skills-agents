@@ -16,6 +16,7 @@ Reads the project's PRD and TDD, cross-references the current codebase and any e
 | `product-planner` (built-in agent) | Creates a plan and PRD from a vague idea | Before docs exist |
 | `/prd-tdd-writer` | Writes or reviews formal PRD and TDD documents | To spec or critique |
 | **`/plan-todo`** | **Reads PRD + TDD → ordered, refreshable TODO list** | **Any stage of development** |
+| `/ui-builder` | Locks theme, logo + tagline, component conventions | Phase 1 Foundation — web app projects only |
 | `/feature-dev` | Executes the full build lifecycle for a feature | Implementing a specific feature |
 | `/checkpoint` | Saves session state for resuming | End of session |
 
@@ -138,6 +139,7 @@ Based on: PRD (<Status field value>), TDD (<Status field value>)
 ## Phase 1: Foundation
 - [x] Initialize project with TypeScript strict
 - [x] Set up Supabase project and local dev
+- [ ] Run /ui-builder — lock theme, logo + tagline, component conventions (produces BRAND.md and/or tailwind.config.js with theme tokens)
 - [ ] Configure error monitoring (Sentry)
 
 ## Phase 2: Database & Auth

@@ -497,6 +497,6 @@ This audit does NOT cover the items below. They are surfaced in the **Recommende
 
 - Load testing / performance benchmarking under realistic traffic — use `/load-test`
 - Manual penetration testing — engage professional firm at Stage E
-- UX research / usability testing — heuristic review available via `/ux-review` (when built); real user research requires actual users
+- UX research / usability testing — heuristic review available via `/ux-review`; real user research requires actual users
 - Content review / copy editing
 - Legal review of terms of service or privacy policy — `/legal-docs` (when built) generates templates only; binding review requires qualified counsel

@@ -495,7 +495,7 @@ When the user runs `/audit` after a previous audit:
 
 This audit does NOT cover the items below. They are surfaced in the **Recommended Follow-ups** section of AUDIT.md, gated by detected project stage:
 
-- Load testing / performance benchmarking under realistic traffic — use `/load-test` (when built)
+- Load testing / performance benchmarking under realistic traffic — use `/load-test`
 - Manual penetration testing — engage professional firm at Stage E
 - UX research / usability testing — heuristic review available via `/ux-review` (when built); real user research requires actual users
 - Content review / copy editing

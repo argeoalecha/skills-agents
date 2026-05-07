@@ -339,6 +339,77 @@ On: YYYY-MM-DD
 
 ---
 
+## Stage Detection & Recommended Follow-ups
+
+After the sign-off block, generate stage-appropriate follow-ups in the AUDIT.md report. These are *not* gates — they are forward-looking recommendations that flag work the audit explicitly does not cover.
+
+### Detect project stage
+
+Infer from these signals (default to the most conservative match):
+
+| Stage | Signals |
+|---|---|
+| **A. Pre-MVP** | PRD Status = Draft/Review; no production env vars set; <50% TODO complete; no custom domain |
+| **B. Pre-launch** | PRD Approved; >75% TODO complete; production env staged but not live; about to deploy publicly |
+| **C. Launched (V1)** | Production deploy live; custom domain configured; real (non-test) users; payment integration absent or new |
+| **D. Growth / Scale** | Active paid users; multiple deploys/week; payment + analytics integrated; user has mentioned scaling concerns |
+| **E. Pre-Enterprise / Compliance** | User mentions SOC2, ISO 27001, enterprise customers, regulated industry, BAA, or DPIA |
+
+If signals are ambiguous, ask the user to confirm stage in one short question before generating follow-ups.
+
+### Follow-up library (output relevant ones for current + next stage)
+
+**Stage A → B (before launch)**
+- `/ux-review` — heuristic review of signup → first-value flow
+- `/load-test` — initial capacity check at projected launch traffic
+- `/legal-docs` — generate template ToS, Privacy Policy, Refund Policy
+- `/ph-dpa-compliance` — if Philippines-targeted and not yet implemented
+- Smoke test on production-equivalent environment
+
+**Stage C → D (after launch, before scale)**
+- Set up incident response runbook
+- Schedule recurring `/audit` cadence (every 30 days or per major release)
+- Manual user research session (5–10 real users) — Claude cannot do this
+- Privacy policy review by qualified counsel if not yet done
+- Tune monitoring alert thresholds based on real traffic baselines
+
+**Stage D → E (scaling / pre-enterprise)**
+- Re-run `/load-test` with realistic traffic patterns (replay production logs)
+- Capacity planning + DB scaling review
+- Disaster recovery drill (restore from backup, run end-to-end)
+- Cost optimization audit (AI token usage, DB query cost, CDN, egress)
+- Bug bounty program scoped to public-facing surface
+
+**Stage E (enterprise / compliance milestones)**
+- Engage external pen testing firm (manual + automated, not just OWASP ZAP)
+- Legal review of ToS, DPA, vendor contracts by qualified counsel
+- SOC2 / ISO 27001 readiness assessment
+- Vendor risk management documentation
+- Privacy Impact Assessment (DPIA) if handling sensitive PII or EU users
+- Annual compliance refresh on `/ph-dpa-compliance` and equivalent regulations
+
+### Recommended Follow-ups Block (output)
+
+```markdown
+## Recommended Follow-ups
+
+Detected project stage: <A. Pre-MVP / B. Pre-launch / C. Launched / D. Growth / E. Pre-Enterprise>
+
+### Recommended now (current stage)
+- [ ] <stage-appropriate item> — <one-line why>
+- [ ] <stage-appropriate item> — <one-line why>
+
+### Plan for next stage (<next stage name>)
+- [ ] <next-stage item> — <when this typically becomes relevant>
+
+### Out of scope for this audit
+- Manual penetration testing — engage professional firm <when stage E>
+- Real user research — qualitative interviews, usability sessions
+- Legal review by counsel — template generation possible via `/legal-docs`, not legal advice
+```
+
+---
+
 ## Output: AUDIT.md
 
 Always write a full report to `AUDIT.md` at the project root.
@@ -389,6 +460,9 @@ Verdict: GO / NO-GO
 
 ## Sign-off
 <sign-off block from Phase 5>
+
+## Recommended Follow-ups
+<recommended follow-ups block — see Stage Detection section>
 ```
 
 ---
@@ -419,11 +493,10 @@ When the user runs `/audit` after a previous audit:
 
 ## Out of Scope
 
-This audit does NOT cover:
-- Load testing / performance benchmarking under realistic traffic (separate tooling)
-- Manual penetration testing
-- UX research / usability testing
-- Content review / copy editing
-- Legal review of terms of service or privacy policy
+This audit does NOT cover the items below. They are surfaced in the **Recommended Follow-ups** section of AUDIT.md, gated by detected project stage:
 
-If those are needed, surface as separate follow-up tasks.
+- Load testing / performance benchmarking under realistic traffic — use `/load-test` (when built)
+- Manual penetration testing — engage professional firm at Stage E
+- UX research / usability testing — heuristic review available via `/ux-review` (when built); real user research requires actual users
+- Content review / copy editing
+- Legal review of terms of service or privacy policy — `/legal-docs` (when built) generates templates only; binding review requires qualified counsel

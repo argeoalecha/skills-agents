@@ -1,57 +1,163 @@
 ---
 name: prd-tdd-writer
-description: Create Product Requirements Documents (PRDs) and Technical Design Documents (TDDs) for software and AI/automation projects. Use this skill whenever the user wants to spec out a product, plan a feature, document architecture, or define system behavior. Trigger on phrases like "write a PRD", "create a TDD", "spec this out", "document this feature", "let's plan the system", "design doc", "spec doc", "system design", or when the user describes an app or agent they want to build and needs formal documentation.
+description: Create OR review Product Requirements Documents (PRDs) and Technical Design Documents (TDDs) for software, web app, AI agent, and automation projects. Use when the user wants to write a PRD/TDD, spec out a product, plan a feature, document architecture, define system behavior, OR review/evaluate/critique an existing draft. Trigger on phrases like "write a PRD", "create a TDD", "spec this out", "document this feature", "design doc", "spec doc", "system design", "review my PRD", "evaluate this TDD", "critique this spec", "what's missing from this PRD", "is this TDD complete", or when the user describes an app or agent they want to build and needs formal documentation.
 ---
 
-# PRD & TDD Writer — Hayah-AI Services
+# PRD & TDD Writer / Reviewer — Hayah-AI Services
 
-A skill for producing lean, professional PRDs and TDDs for web apps, AI agents, automation systems, and data products.
-
----
-
-## Workflow
-
-1. **Identify doc type**: PRD (what + why) or TDD (how). Often both are needed.
-2. **Extract context** from the conversation — don't ask for things already described.
-3. **Fill gaps** by asking only what's missing (1–3 targeted questions max). Ask all missing questions in a **single block** before drafting. Never ask follow-ups mid-draft.
-4. **Draft document** using the templates below.
-5. **Offer follow-up**: companion doc, architecture diagram, task breakdown (`/plan-todo`).
-6. **Output**: Render the document as clean Markdown. Offer to save as a `.md` file if the user is in a project context.
+A skill for producing and reviewing lean, professional PRDs and TDDs for web apps, AI agents, automation systems, and data products.
 
 ---
 
-## PRD Template
+## Mode Detection
+
+Determine mode from the user's intent:
+
+- **Write mode**: user wants to create a new PRD and/or TDD
+- **Review mode**: user has an existing draft and wants critique, gaps identified, or quality assessed
+
+If ambiguous, ask in one sentence before proceeding.
+
+---
+
+## Write Mode
+
+### Workflow
+
+1. **Identify doc type**: PRD (what + why), TDD (how), or both.
+2. **Identify project type**: web app, AI/agent/automation, or data product. This determines which TDD template to use.
+3. **Extract context** from the conversation:
+   - Problem / goal
+   - Target users / personas
+   - Core features (MVP vs. later)
+   - Tech constraints already stated
+   - Timeline or budget constraints
+   - Philippines market relevance (Y/N)
+4. **Fill gaps** — ask only what is missing, in a single block before drafting. Max 3 questions. Never ask follow-ups mid-draft.
+5. **Draft document** using the matching template below.
+6. **Offer follow-up**: companion doc (PRD → TDD or vice versa), task breakdown (`/plan-todo`), or save as `.md` file using Write tool at `~/projects-mvp/<project-name>/docs/`.
+
+---
+
+## Review Mode
+
+### Workflow
+
+1. Read the full document the user provides.
+2. Identify doc type (PRD or TDD) and project type (web app / AI agent / data product).
+3. Score against the relevant rubric below.
+4. Output a structured critique.
+5. Offer to produce a revised draft inline.
+
+### PRD Review Rubric
+
+Score each dimension: **Strong / Adequate / Weak / Missing**
+
+| Dimension | What to check |
+|---|---|
+| Problem statement | Is the problem specific, bounded, and user-facing? Or vague/solution-first? |
+| Goals | Are goals measurable (with numbers/targets)? Or aspirational filler? |
+| Non-goals | Are exclusions explicit? Or left implicit? |
+| User personas | Are personas distinct with real behavioral differences? Or generic? |
+| User stories | Do stories follow As a / I can / so that? Are MVP vs. future items separated? |
+| Success metrics | Are metrics tied to goals? Is measurement method defined? |
+| Constraints | Are budget, timeline, technical, and regulatory constraints stated? |
+| Open questions | Are unresolved decisions surfaced? Or buried/ignored? |
+| Scope clarity | Can an engineer read this and know what to build and what NOT to build? |
+| Philippines DPA | Required if PII is collected — is consent mechanism mentioned? |
+
+Output format:
+
+```
+## PRD Review
+
+### Scores
+| Dimension | Rating | Notes |
+|---|---|---|
+| Problem statement | Strong/Adequate/Weak/Missing | <one-line note> |
+...
+
+### Critical Gaps (must fix before building)
+- <gap 1>
+- <gap 2>
+
+### Improvement Suggestions
+- <suggestion 1>
+- <suggestion 2>
+
+### Verdict
+<One paragraph: is this ready to hand to an engineer? What's the single most important thing to fix?>
+```
+
+### TDD Review Rubric
+
+Score each dimension: **Strong / Adequate / Weak / Missing**
+
+**Web App TDD:**
+
+| Dimension | What to check |
+|---|---|
+| Architecture overview | Is the component interaction clear? Is there a diagram or ASCII flow? |
+| Tech stack justification | Is every layer chosen with a reason? Or just defaults listed? |
+| Database schema | Are all entities defined with types and constraints? Soft deletes? Audit fields? |
+| RLS policies | Is row-level security defined for every user-facing table? |
+| API design | Are endpoints, auth requirements, and error shapes defined? |
+| Request/response shapes | Are TypeScript interfaces or Zod schemas specified? |
+| Security | Auth, input validation, PII handling, DPA compliance |
+| Performance | Caching, pagination, N+1 avoidance |
+| Testing strategy | Unit, integration, E2E coverage defined? |
+| Open questions | Unresolved technical decisions surfaced? |
+
+**AI/Agent TDD:**
+
+| Dimension | What to check |
+|---|---|
+| Agent flow | Is the trigger → decision → action → output loop defined? |
+| Prompt design | Are system prompt, user prompt templates, and output format specified? |
+| Tool definitions | Are all tools defined with schema and purpose? |
+| Model selection | Is the model chosen with rationale? Is there a fallback? |
+| Token cost estimate | Estimated input/output tokens per run? Frequency? Monthly cost? |
+| Error / fallback handling | What happens on API failure, bad model output, or tool error? |
+| Orchestration | Multi-agent: is delegation and handoff logic defined? |
+| Data flow | What data enters, transforms, and exits the agent? |
+| Security | Prompt injection risks? Tool permission scope? |
+| Testing strategy | How is agent behavior validated? Evals defined? |
+
+Output format: same structure as PRD review, adapted to TDD dimensions.
+
+---
+
+## Write Mode Templates
+
+### PRD Template
 
 ```markdown
 # Product Requirements Document
 **Product:** <name>
-**Author:** <name>
+**Author:** argeoalecha
 **Date:** YYYY-MM-DD
-**Status:** Draft | Review | Approved
+**Status:** Draft
 
 ---
 
 ## 1. Problem Statement
-<2–3 sentences on the problem being solved and who it affects>
+<2–3 sentences: who is affected, what is the problem, why does it matter now>
 
 ## 2. Goals
-- <measurable goal 1>
-- <measurable goal 2>
+- <measurable goal with target: e.g., "Reduce booking time from 15 min to under 3 min">
 
 ## 3. Non-Goals (out of scope)
-- <explicit exclusion 1>
-- <explicit exclusion 2>
+- <explicit exclusion — what this product will NOT do>
 
 ## 4. User Personas
-| Persona | Description | Primary Need |
+| Persona | Who they are | Primary need |
 |---|---|---|
-| <name> | <who they are> | <what they need from this product> |
+| <name> | <role/context> | <what they need from this product> |
 
 ## 5. User Stories / Requirements
 
 ### Must Have (MVP)
 - [ ] As a <persona>, I can <action> so that <benefit>
-- [ ] ...
 
 ### Should Have (V1+)
 - [ ] ...
@@ -62,50 +168,49 @@ A skill for producing lean, professional PRDs and TDDs for web apps, AI agents, 
 ## 6. Success Metrics
 | Metric | Target | How Measured |
 |---|---|---|
-| <metric> | <value> | <method> |
+| <metric> | <value> | <measurement method> |
 
 ## 7. Constraints
 - **Budget:** <if relevant>
 - **Timeline:** <if relevant>
-- **Technical:** <limitations>
-- **Regulatory:** Philippines DPA compliance required / not required
+- **Technical:** <known limitations>
+- **Regulatory:** Philippines DPA (RA 10173) — <required / not required>
 
 ## 8. Open Questions
-- <question that needs an answer before building>
+- <question that must be answered before building begins>
 ```
 
 ---
 
-## TDD Template
+### TDD Template — Web App
 
 ```markdown
 # Technical Design Document
 **Feature/System:** <name>
-**Author:** <name>
+**Author:** argeoalecha
 **Date:** YYYY-MM-DD
-**Status:** Draft | Review | Approved
+**Status:** Draft
 **Related PRD:** [link or "see PRD above"]
 
 ---
 
 ## 1. Overview
-<2–3 sentence technical summary of what this builds and how>
+<2–3 sentences: what this builds technically and the key design approach>
 
 ## 2. Architecture
 
 ### System Diagram
-<ASCII diagram or description of how components interact>
+<ASCII diagram or component interaction description>
 
 ### Tech Stack
 | Layer | Technology | Why |
 |---|---|---|
-| Frontend | Next.js 14 App Router + TypeScript | <reason> |
-| Styling | Tailwind CSS + shadcn/ui | <reason> |
-| Backend | Next.js API Routes | <reason> |
-| Database | Supabase (PostgreSQL) | <reason> |
-| Auth | Supabase Auth | <reason> |
-| AI | Claude API (claude-sonnet-4-6) | <reason> |
-| Deployment | Vercel | <reason> |
+| Frontend | <e.g. Next.js 15 App Router + TypeScript> | <reason> |
+| Styling | <e.g. Tailwind CSS + shadcn/ui> | <reason> |
+| Backend | <e.g. Next.js API Routes / Express> | <reason> |
+| Database | <e.g. Supabase PostgreSQL> | <reason> |
+| Auth | <e.g. Supabase Auth> | <reason> |
+| Deployment | <e.g. Vercel> | <reason> |
 
 ## 3. Database Schema
 
@@ -123,7 +228,7 @@ A skill for producing lean, professional PRDs and TDDs for web apps, AI agents, 
 
 ### RLS Policies
 ```sql
--- <table>: users see only their own rows
+-- Users see only their own rows
 CREATE POLICY "<table>_own" ON <table>
   USING (auth.uid() = user_id);
 ```
@@ -131,37 +236,33 @@ CREATE POLICY "<table>_own" ON <table>
 ## 4. API Design
 
 ### Endpoints
-
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | /api/<resource> | Required | List user's resources |
-| POST | /api/<resource> | Required | Create resource |
-| GET | /api/<resource>/[id] | Required | Get single resource |
-| PATCH | /api/<resource>/[id] | Required | Update resource |
-| DELETE | /api/<resource>/[id] | Required | Soft delete resource |
+| GET | /api/<resource> | Required | List |
+| POST | /api/<resource> | Required | Create |
+| GET | /api/<resource>/[id] | Required | Get single |
+| PATCH | /api/<resource>/[id] | Required | Update |
+| DELETE | /api/<resource>/[id] | Required | Soft delete |
 
 ### Request/Response Shapes
 
 #### POST /api/<resource>
 ```typescript
-// Request body
 interface CreateRequest {
   name: string
-  // ...
 }
 
-// Success response (201)
+// 201 Created
 interface ResourceResponse {
   id: string
   name: string
   created_at: string
 }
 
-// Error response (4xx/5xx)
+// 4xx/5xx
 interface ErrorResponse {
   error: string
-  code: string
-  details?: unknown
+  code?: string
 }
 ```
 
@@ -169,57 +270,149 @@ interface ErrorResponse {
 
 ```
 app/
-├── (auth)/
-│   ├── login/page.tsx
-│   └── signup/page.tsx
+├── (auth)/login/page.tsx
 ├── dashboard/
-│   ├── layout.tsx          # Protected layout
+│   ├── layout.tsx
 │   └── page.tsx
-└── api/
-    └── <resource>/
-        └── route.ts
-components/
-├── <feature>/
-│   ├── <Component>.tsx
-│   └── index.ts
-lib/
-├── supabase/
-│   ├── client.ts
-│   └── server.ts
-└── validations/
-    └── <resource>.ts
+└── api/<resource>/route.ts
+components/<feature>/
+lib/supabase/
+lib/validations/
 ```
 
 ## 6. Key Technical Decisions
-
 | Decision | Choice | Rationale | Trade-off |
 |---|---|---|---|
-| <decision> | <what was chosen> | <why> | <what was given up> |
+| <decision> | <choice> | <why> | <what was given up> |
 
 ## 7. Security Considerations
-- Auth: <how auth is enforced>
+- Auth: <how auth is enforced at the route level>
 - RLS: <which tables have RLS and the policy logic>
-- Input validation: <Zod schemas on all inputs>
+- Input validation: Zod schemas on all API inputs
 - PII: <what personal data is handled and how>
-- Philippines DPA: <consent mechanism, data rights endpoints>
+- Philippines DPA: <consent mechanism, data rights endpoints — or "not applicable">
 
 ## 8. Performance Considerations
-- Caching: <what is cached and for how long>
-- Pagination: <how list endpoints paginate>
-- N+1 queries: <how joins are structured to avoid N+1>
+- Caching: <what is cached and TTL>
+- Pagination: <cursor-based / offset, page size>
+- N+1 avoidance: <join strategy>
 
 ## 9. Testing Strategy
-- Unit tests: <what is unit tested>
-- Integration tests: <what is integration tested>
-- E2E tests: <critical user journeys covered by Playwright>
+- Unit tests: <what is unit tested, e.g. validation logic, utilities>
+- Integration tests: <e.g. API routes against real DB>
+- E2E tests: <critical user journeys — Playwright>
 
 ## 10. Deployment
 - Environment: Vercel (preview + production)
 - Migrations: `supabase db push` before app deploy
-- Env vars: <list of required vars without values>
+- Required env vars: `<VAR_NAME>`, `<VAR_NAME>`
 
 ## 11. Open Questions
-- <technical question that needs resolution>
+- <technical decision that needs resolution before implementation>
+```
+
+---
+
+### TDD Template — AI / Agent
+
+```markdown
+# Technical Design Document — AI Agent / Automation
+**System:** <name>
+**Author:** argeoalecha
+**Date:** YYYY-MM-DD
+**Status:** Draft
+**Related PRD:** [link or "see PRD above"]
+
+---
+
+## 1. Overview
+<2–3 sentences: what this agent does, how it's triggered, and what it produces>
+
+## 2. Agent Flow
+
+```
+[Trigger] → [Input parsing] → [Decision / routing] → [Tool calls] → [Output generation] → [Delivery]
+```
+
+<Narrative description of each step: what data flows in/out, what decisions are made>
+
+## 3. Model Configuration
+| Parameter | Value | Rationale |
+|---|---|---|
+| Model | claude-sonnet-4-6 | <reason — or justify if using Opus/Haiku> |
+| Max tokens | <value> | <expected output size> |
+| Temperature | <value> | <deterministic vs. creative> |
+| Caching | <yes/no — which prompt parts> | <cost/latency reason> |
+| Fallback model | <model or "none"> | <if primary fails> |
+
+## 4. Prompt Design
+
+### System Prompt
+```
+<system prompt content or description of what it contains>
+```
+
+### User Prompt Template
+```
+<template with {{variable}} placeholders>
+```
+
+### Output Format
+<How the model is instructed to format output: JSON schema, markdown, plain text, structured fields>
+
+## 5. Tools / Functions
+| Tool name | Purpose | Input schema | Output |
+|---|---|---|---|
+| <tool_name> | <what it does> | `{ field: type }` | <what it returns> |
+
+## 6. Multi-Agent Orchestration (if applicable)
+| Agent | Role | Triggered by | Hands off to |
+|---|---|---|---|
+| <agent> | <role> | <trigger> | <next agent or output> |
+
+## 7. Token Cost Estimate
+| Item | Tokens | Notes |
+|---|---|---|
+| System prompt | ~<N> | Cached after first call |
+| User prompt (avg) | ~<N> | Per run |
+| Tool results (avg) | ~<N> | Per run |
+| Output (avg) | ~<N> | Per run |
+| **Total per run** | ~<N> | |
+| **Est. monthly cost** | $<X> | At <N> runs/day |
+
+## 8. Error & Fallback Handling
+| Failure mode | Behavior |
+|---|---|
+| Claude API error | <retry logic / fallback / notify> |
+| Bad model output (parse failure) | <retry with stricter prompt / default value / escalate> |
+| Tool call failure | <retry / skip / abort run> |
+| Timeout | <max wait, then fallback> |
+
+## 9. Data Flow & Storage
+- **Input source**: <where data comes from — DB, webhook, user input>
+- **Output destination**: <DB table, file, API call, notification>
+- **PII handled**: <yes/no — what fields, how stored>
+- **Retention**: <how long data is kept>
+
+## 10. Security Considerations
+- Prompt injection: <mitigations — input sanitization, output validation>
+- Tool permission scope: <least-privilege — what each tool can access>
+- API key handling: env vars only, never in prompts or logs
+- Philippines DPA: <consent / data rights — or "not applicable">
+
+## 11. Testing Strategy
+- Unit: <test individual tools and parsing logic with mocked model responses>
+- Evals: <define golden set of input/output pairs for regression testing>
+- Integration: <run agent end-to-end in staging with real Claude API>
+- Monitoring: <log token usage, latency, error rate per run>
+
+## 12. Deployment
+- Runtime: <Vercel function / cron / local script / Supabase Edge Function>
+- Trigger: <HTTP endpoint / cron schedule / event webhook>
+- Required env vars: `ANTHROPIC_API_KEY`, `<other vars>`
+
+## 13. Open Questions
+- <unresolved technical decision — model choice, tool scope, output format>
 ```
 
 ---
@@ -229,6 +422,6 @@ lib/
 When the project targets the Philippines market, add to PRD constraints and TDD:
 - Currency: Philippine Peso (₱), format as `₱1,234.00`
 - Address structure: Barangay → Municipality → Province → Region
-- Primary payment: COD, GCash, Maya, bank transfer
+- Primary payments: COD, GCash, Maya, bank transfer
 - DPA compliance required (RA 10173) — add consent mechanism and data rights endpoints
 - Optimize for mobile-first, slower connections (target Core Web Vitals on 4G)

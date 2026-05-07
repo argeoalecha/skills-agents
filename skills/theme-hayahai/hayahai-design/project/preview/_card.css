@@ -1,0 +1,21 @@
+/* Shared style for preview cards (rendered in the Design System tab).
+   Each card is ~700px wide. Keep visuals dense but minimal — no titles,
+   the asset name is rendered OUTSIDE the card. */
+@import url("../colors_and_type.css");
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 700px;
+  background: var(--cream);
+  color: var(--fg-1);
+  font-family: var(--font-body);
+}
+body { padding: 24px; }
+
+.row { display: flex; gap: 12px; align-items: stretch; }
+.col { display: flex; flex-direction: column; gap: 12px; }
+.grid { display: grid; gap: 12px; }
+.muted { color: var(--fg-3); }
+.mono { font-family: var(--font-mono); font-size: 11px; }
+.label { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: var(--fg-3); }

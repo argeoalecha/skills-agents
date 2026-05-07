@@ -1,0 +1,171 @@
+{
+  "name": "Hayah Editorial",
+  "id": "hayah-editorial",
+  "version": "2.0",
+  "description": "Text-forward, brutally confident editorial design. Oversized display type dominates the hierarchy. Generous white space with strategic teal blocks and coral highlights. Minimal decoration — the typography IS the design. Best for thought leadership platforms, premium product launches, B2B SaaS hero sections, and high-conversion landing pages.",
+  "mood": "Bold, authoritative, confident, contemporary",
+  "inspiration": "Pitch.com, Raycast, Resend.com — editorial meets modern SaaS",
+  "colors": {
+    "brand": {
+      "primary": "#0F3836",
+      "primaryLight": "#1C5753",
+      "accent": "#ff6b47",
+      "accentHover": "#e55a38",
+      "highlight": "#25A497"
+    },
+    "interactive": {
+      "link": "#ff6b47",
+      "linkHover": "#0F3836",
+      "focus": "#ff6b47",
+      "secondary": "#1E6E66",
+      "muted": "#7a9b96"
+    },
+    "surface": {
+      "page": "#ffffff",
+      "block": "#0F3836",
+      "blockAccent": "#1a4d47",
+      "highlight": "#e8f4f1",
+      "rule": "#e8f4f1"
+    },
+    "text": {
+      "primary": "#0F3836",
+      "secondary": "#1C5753",
+      "muted": "#7a9b96",
+      "inverse": "#ffffff",
+      "accent": "#ff6b47",
+      "highlight": "#25A497"
+    },
+    "border": {
+      "default": "#0F3836",
+      "light": "#e8f4f1",
+      "accent": "#ff6b47",
+      "teal": "#25A497"
+    }
+  },
+  "typography": {
+    "fonts": {
+      "display": "Clash Display",
+      "heading": "Clash Display",
+      "body": "Satoshi",
+      "mono": "JetBrains Mono"
+    },
+    "fontshareUrls": [
+      "https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=satoshi@300,400,500,700&display=swap"
+    ],
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap",
+    "fallbacks": {
+      "display": "'Clash Display', 'Space Grotesk', sans-serif",
+      "body": "'Satoshi', 'General Sans', sans-serif"
+    },
+    "notes": "Clash Display and Satoshi are from Fontshare (free). If fontshare is unavailable, Space Grotesk (Google Fonts) is an excellent fallback for display, and Plus Jakarta Sans for body.",
+    "googleFontsFallbackUrl": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+    "scale": {
+      "hero": { "size": "96px", "lineHeight": "0.95", "weight": 700, "letterSpacing": "-0.045em", "font": "Clash Display" },
+      "display": { "size": "72px", "lineHeight": "1.0", "weight": 700, "letterSpacing": "-0.04em", "font": "Clash Display" },
+      "h1": { "size": "52px", "lineHeight": "1.1", "weight": 700, "letterSpacing": "-0.03em", "font": "Clash Display" },
+      "h2": { "size": "36px", "lineHeight": "1.2", "weight": 600, "letterSpacing": "-0.02em", "font": "Clash Display" },
+      "h3": { "size": "22px", "lineHeight": "1.35", "weight": 600, "letterSpacing": "-0.01em", "font": "Clash Display" },
+      "h4": { "size": "18px", "lineHeight": "1.4", "weight": 600, "font": "Satoshi" },
+      "bodyLg": { "size": "18px", "lineHeight": "1.7", "weight": 400, "font": "Satoshi" },
+      "body": { "size": "16px", "lineHeight": "1.75", "weight": 400, "font": "Satoshi" },
+      "bodySm": { "size": "14px", "lineHeight": "1.65", "weight": 400, "font": "Satoshi" },
+      "caption": { "size": "12px", "lineHeight": "1.5", "weight": 500, "letterSpacing": "0.02em", "font": "Satoshi" },
+      "label": { "size": "11px", "lineHeight": "1.4", "weight": 700, "letterSpacing": "0.12em", "font": "Satoshi", "textTransform": "uppercase" },
+      "code": { "size": "14px", "lineHeight": "1.5", "weight": 400, "font": "JetBrains Mono" }
+    }
+  },
+  "components": {
+    "button": {
+      "primary": {
+        "bg": "#0F3836", "text": "#ffffff", "hover": "#ff6b47",
+        "padding": "16px 32px", "borderRadius": "0px",
+        "font": "Clash Display", "fontSize": "15px", "fontWeight": 600,
+        "letterSpacing": "-0.01em", "border": "2px solid #0F3836",
+        "transition": "background 150ms, border-color 150ms"
+      },
+      "secondary": {
+        "bg": "transparent", "text": "#0F3836",
+        "border": "2px solid #0F3836",
+        "hover": "#0F3836", "hoverText": "#ffffff",
+        "padding": "14px 30px", "borderRadius": "0px",
+        "font": "Clash Display", "fontSize": "15px", "fontWeight": 600
+      },
+      "accent": {
+        "bg": "#ff6b47", "text": "#ffffff",
+        "border": "2px solid #ff6b47",
+        "hover": "#e55a38",
+        "padding": "16px 32px", "borderRadius": "0px",
+        "font": "Clash Display", "fontSize": "15px", "fontWeight": 600
+      }
+    },
+    "card": {
+      "default": {
+        "bg": "#ffffff",
+        "border": "1px solid #e8f4f1",
+        "borderTop": "3px solid #0F3836",
+        "borderRadius": "0px", "padding": "32px"
+      },
+      "block": {
+        "bg": "#0F3836", "text": "#ffffff",
+        "borderRadius": "0px", "padding": "48px"
+      },
+      "highlight": {
+        "bg": "#e8f4f1",
+        "border": "none",
+        "borderLeft": "4px solid #ff6b47",
+        "borderRadius": "0px", "padding": "24px 32px"
+      }
+    },
+    "nav": {
+      "bg": "#ffffff",
+      "border": "1px solid #e8f4f1",
+      "scrolledBorder": "1px solid #0F3836",
+      "logoColor": "#0F3836",
+      "linkColor": "#0F3836",
+      "linkHover": "#ff6b47",
+      "linkWeight": 600
+    },
+    "hero": {
+      "bg": "#ffffff",
+      "topRule": "4px solid #0F3836",
+      "headlineColor": "#0F3836",
+      "accentWord": "#ff6b47",
+      "bodyColor": "#1C5753",
+      "layout": "left-aligned, full-width headline spanning 2 columns",
+      "padding": "160px 0 120px"
+    },
+    "badge": {
+      "default": { "bg": "transparent", "text": "#0F3836", "border": "1.5px solid #0F3836", "borderRadius": "0px" },
+      "accent": { "bg": "#ff6b47", "text": "#ffffff", "borderRadius": "0px" },
+      "subtle": { "bg": "#e8f4f1", "text": "#0F3836", "borderRadius": "0px" }
+    },
+    "input": {
+      "bg": "#ffffff", "border": "2px solid #0F3836",
+      "borderFocus": "2px solid #ff6b47",
+      "borderRadius": "0px", "padding": "14px 16px",
+      "font": "Satoshi", "fontSize": "16px", "color": "#0F3836"
+    },
+    "divider": {
+      "horizontal": "1px solid #0F3836",
+      "decorative": "3px solid #ff6b47"
+    }
+  },
+  "landingPageSections": {
+    "hero": { "bg": "#ffffff", "borderTop": "4px solid #0F3836", "variant": "white-editorial" },
+    "features": { "bg": "#0F3836", "text": "#ffffff", "variant": "dark-block" },
+    "social-proof": { "bg": "#ffffff", "borderTop": "1px solid #e8f4f1", "variant": "white" },
+    "pricing": { "bg": "#faf7f5", "variant": "off-white" },
+    "cta": { "bg": "#ff6b47", "text": "#ffffff", "variant": "coral-full" },
+    "footer": { "bg": "#0F3836", "text": "#e8f4f1", "borderTop": "3px solid #ff6b47", "variant": "dark-forest" }
+  },
+  "spacing": {
+    "unit": 8,
+    "sectionPadding": "120px 0",
+    "cardPadding": "40px",
+    "cardGap": "2px",
+    "containerMaxWidth": "1280px",
+    "contentMaxWidth": "800px",
+    "borderRadius": { "sm": "0px", "md": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+    "notes": "This theme uses sharp corners (0 border radius) for a bold editorial feel. Only pill badges/tags use full radius."
+  }
+}

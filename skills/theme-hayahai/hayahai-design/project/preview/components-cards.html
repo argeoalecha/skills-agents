@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  body { padding: 24px; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { padding: 18px 20px; border-radius: 16px; }
+  .label { font-size: 10px; letter-spacing:0.08em; text-transform:uppercase; font-weight:600; color:#7a9b96; margin-bottom: 6px; }
+  .head { font-family: 'DM Serif Display', serif; font-size: 19px; line-height: 1.25; color: #0a3d3a; margin-bottom: 4px; }
+  .body { font-size: 13px; color: #1C5753; line-height: 1.55; }
+</style></head>
+<body>
+  <div class="grid">
+    <div class="card" style="background:#fff; border: 1px solid rgba(161,228,219,0.4); box-shadow: 0 2px 16px rgba(10,61,58,0.06);">
+      <div class="label">DEFAULT</div>
+      <div class="head">White card</div>
+      <div class="body">Soft mint border, subtle teal-tinted shadow. The workhorse.</div>
+    </div>
+    <div class="card" style="background:#e8f4f1; border: 1px solid #A1E4DB;">
+      <div class="label">SOFT</div>
+      <div class="head">Pearl card</div>
+      <div class="body">Mint-tinted background, no shadow. Quiet emphasis.</div>
+    </div>
+    <div class="card" style="background:#fff5f2; border: 1px solid #ffb5a0;">
+      <div class="label" style="color:#7d2d15;">WARM</div>
+      <div class="head">Warm card</div>
+      <div class="body" style="color:#7d4a38;">Coral-tinted. Use sparingly — appetite, not alarm.</div>
+    </div>
+    <div class="card" style="background: linear-gradient(135deg, #1a4d47 0%, #0a3d3a 100%);">
+      <div class="label" style="color:#A1E4DB;">FEATURE</div>
+      <div class="head" style="color:#faf7f5;">Dark feature</div>
+      <div class="body" style="color:#A1E4DB;">For metric blocks, hero callouts, CTA bands.</div>
+    </div>
+    <div class="card" style="background:#fff; border: 1px solid #e8f4f1; border-top: 3px solid #0F3836; border-radius: 0;">
+      <div class="label" style="color:#0F3836;">EDITORIAL</div>
+      <div class="head" style="color:#0F3836; font-family: 'Space Grotesk', sans-serif; font-weight:700;">Sharp card</div>
+      <div class="body">3px top rule. Sharp corners. Editorial only.</div>
+    </div>
+    <div class="card" style="background:rgba(28,87,83,0.4); backdrop-filter: blur(16px); border: 1px solid rgba(161,228,219,0.15); position: relative; overflow: hidden;">
+      <div style="position:absolute; inset:0; background: radial-gradient(ellipse at 0% 100%, rgba(37,164,151,0.4), transparent 60%); z-index: -1;"></div>
+      <div class="label" style="color:#A1E4DB;">GLASS</div>
+      <div class="head" style="color:#faf7f5;">Glass card</div>
+      <div class="body" style="color:#A1E4DB;">Bento + Midnight only. Blur over a colored bg.</div>
+    </div>
+  </div>
+</body></html>

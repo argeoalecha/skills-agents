@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  body { padding: 24px; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .grid { display:grid; grid-template-columns: repeat(8, 1fr); gap: 14px 8px; }
+  .icon { display:flex; flex-direction:column; align-items:center; gap: 6px; }
+  .icon svg { color:#0a3d3a; }
+  .icon .n { font-size: 10px; color:#7a9b96; }
+</style>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.js"></script>
+</head>
+<body>
+  <div class="grid">
+    <div class="icon"><i data-lucide="home"></i><span class="n">home</span></div>
+    <div class="icon"><i data-lucide="search"></i><span class="n">search</span></div>
+    <div class="icon"><i data-lucide="bell"></i><span class="n">bell</span></div>
+    <div class="icon"><i data-lucide="settings"></i><span class="n">settings</span></div>
+    <div class="icon"><i data-lucide="user"></i><span class="n">user</span></div>
+    <div class="icon"><i data-lucide="folder"></i><span class="n">folder</span></div>
+    <div class="icon"><i data-lucide="file-text"></i><span class="n">file</span></div>
+    <div class="icon"><i data-lucide="message-square"></i><span class="n">message</span></div>
+    <div class="icon"><i data-lucide="zap" style="color:#25A497"></i><span class="n">zap</span></div>
+    <div class="icon"><i data-lucide="sparkles" style="color:#25A497"></i><span class="n">sparkles</span></div>
+    <div class="icon"><i data-lucide="arrow-right"></i><span class="n">arrow</span></div>
+    <div class="icon"><i data-lucide="arrow-up-right"></i><span class="n">link out</span></div>
+    <div class="icon"><i data-lucide="check"></i><span class="n">check</span></div>
+    <div class="icon"><i data-lucide="x"></i><span class="n">close</span></div>
+    <div class="icon"><i data-lucide="plus"></i><span class="n">plus</span></div>
+    <div class="icon"><i data-lucide="alert-triangle" style="color:#ff6b47"></i><span class="n">warn</span></div>
+  </div>
+  <script>lucide.createIcons();</script>
+</body></html>

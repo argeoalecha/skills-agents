@@ -1,0 +1,161 @@
+{
+  "name": "Hayah Midnight",
+  "id": "hayah-midnight",
+  "version": "2.0",
+  "description": "Dark-first design. Deep teal and dark forest backgrounds command authority while vibrant coral cuts through with confidence. Glassmorphism cards, subtle glow effects, and an energy that suits AI products, fintech, and tech platforms. Best for dark-mode landing pages and dashboards.",
+  "mood": "Powerful, modern, cutting-edge",
+  "inspiration": "Linear, Vercel, Stripe — dark mode landing pages with depth and polish",
+  "colors": {
+    "brand": {
+      "primary": "#25A497",
+      "primaryLight": "#A1E4DB",
+      "primaryDark": "#1E6E66",
+      "accent": "#ff6b47",
+      "accentLight": "#ff8f73",
+      "accentSubtle": "rgba(255, 107, 71, 0.15)"
+    },
+    "interactive": {
+      "link": "#25A497",
+      "linkHover": "#A1E4DB",
+      "focus": "#25A497",
+      "secondary": "#A1E4DB",
+      "secondaryHover": "#ffffff",
+      "muted": "#7a9b96"
+    },
+    "surface": {
+      "page": "#0F3836",
+      "pageAlt": "#0a3d3a",
+      "card": "rgba(28, 87, 83, 0.5)",
+      "cardSolid": "#1C5753",
+      "panel": "rgba(37, 164, 151, 0.08)",
+      "overlay": "rgba(15, 56, 54, 0.8)",
+      "glass": "rgba(28, 87, 83, 0.35)"
+    },
+    "text": {
+      "primary": "#faf7f5",
+      "secondary": "#A1E4DB",
+      "muted": "#7a9b96",
+      "onLight": "#0a3d3a",
+      "onAccent": "#ffffff",
+      "dimmed": "rgba(250, 247, 245, 0.6)"
+    },
+    "border": {
+      "default": "rgba(161, 228, 219, 0.15)",
+      "subtle": "rgba(161, 228, 219, 0.08)",
+      "strong": "rgba(161, 228, 219, 0.4)",
+      "glow": "rgba(37, 164, 151, 0.4)"
+    },
+    "glow": {
+      "teal": "0 0 40px rgba(37, 164, 151, 0.2)",
+      "coral": "0 0 40px rgba(255, 107, 71, 0.3)",
+      "subtle": "0 0 20px rgba(37, 164, 151, 0.1)"
+    }
+  },
+  "typography": {
+    "fonts": {
+      "display": "Syne",
+      "heading": "Syne",
+      "body": "Inter",
+      "mono": "JetBrains Mono"
+    },
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap",
+    "scale": {
+      "hero": { "size": "80px", "lineHeight": "1.0", "weight": 800, "letterSpacing": "-0.04em", "font": "Syne" },
+      "display": { "size": "60px", "lineHeight": "1.05", "weight": 700, "letterSpacing": "-0.03em", "font": "Syne" },
+      "h1": { "size": "44px", "lineHeight": "1.15", "weight": 700, "letterSpacing": "-0.025em", "font": "Syne" },
+      "h2": { "size": "30px", "lineHeight": "1.25", "weight": 700, "letterSpacing": "-0.015em", "font": "Syne" },
+      "h3": { "size": "20px", "lineHeight": "1.4", "weight": 600, "letterSpacing": "-0.01em", "font": "Syne" },
+      "h4": { "size": "16px", "lineHeight": "1.5", "weight": 600, "font": "Inter" },
+      "bodyLg": { "size": "18px", "lineHeight": "1.7", "weight": 400, "font": "Inter" },
+      "body": { "size": "16px", "lineHeight": "1.7", "weight": 400, "font": "Inter" },
+      "bodySm": { "size": "14px", "lineHeight": "1.6", "weight": 400, "font": "Inter" },
+      "caption": { "size": "12px", "lineHeight": "1.5", "weight": 500, "letterSpacing": "0.02em", "font": "Inter" },
+      "label": { "size": "11px", "lineHeight": "1.4", "weight": 600, "letterSpacing": "0.1em", "font": "Inter", "textTransform": "uppercase" },
+      "code": { "size": "14px", "lineHeight": "1.5", "weight": 400, "font": "JetBrains Mono" }
+    }
+  },
+  "components": {
+    "button": {
+      "primary": {
+        "bg": "#ff6b47", "text": "#ffffff", "hover": "#e55a38",
+        "padding": "14px 28px", "borderRadius": "10px",
+        "font": "Inter", "fontSize": "15px", "fontWeight": 600,
+        "boxShadow": "0 4px 20px rgba(255, 107, 71, 0.4)"
+      },
+      "secondary": {
+        "bg": "rgba(37, 164, 151, 0.12)", "text": "#A1E4DB",
+        "border": "1px solid rgba(161, 228, 219, 0.3)",
+        "hover": "rgba(37, 164, 151, 0.2)",
+        "padding": "14px 28px", "borderRadius": "10px",
+        "font": "Inter", "fontSize": "15px", "fontWeight": 500
+      },
+      "ghost": {
+        "bg": "transparent", "text": "#7a9b96",
+        "hover": "rgba(161, 228, 219, 0.1)",
+        "padding": "14px 20px", "borderRadius": "10px",
+        "font": "Inter", "fontSize": "15px", "fontWeight": 400
+      }
+    },
+    "card": {
+      "glass": {
+        "bg": "rgba(28, 87, 83, 0.4)",
+        "border": "1px solid rgba(161, 228, 219, 0.15)",
+        "backdropFilter": "blur(16px)",
+        "borderRadius": "20px", "padding": "32px",
+        "boxShadow": "0 8px 32px rgba(0, 0, 0, 0.3)"
+      },
+      "solid": {
+        "bg": "#1C5753",
+        "border": "1px solid rgba(161, 228, 219, 0.2)",
+        "borderRadius": "20px", "padding": "32px"
+      },
+      "feature": {
+        "bg": "linear-gradient(135deg, #1a4d47 0%, #1C5753 100%)",
+        "border": "1px solid rgba(37, 164, 151, 0.3)",
+        "borderRadius": "24px", "padding": "40px",
+        "glowShadow": "0 0 40px rgba(37, 164, 151, 0.15)"
+      }
+    },
+    "nav": {
+      "bg": "rgba(15, 56, 54, 0.85)",
+      "border": "1px solid rgba(161, 228, 219, 0.1)",
+      "backdropFilter": "blur(20px)"
+    },
+    "hero": {
+      "bg": "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(37, 164, 151, 0.25) 0%, transparent 70%), #0F3836",
+      "eyebrowColor": "#25A497",
+      "headlineColor": "#faf7f5",
+      "bodyColor": "#A1E4DB",
+      "gridOverlay": "rgba(255, 255, 255, 0.02)"
+    },
+    "badge": {
+      "default": { "bg": "rgba(161, 228, 219, 0.1)", "text": "#A1E4DB", "border": "1px solid rgba(161, 228, 219, 0.25)" },
+      "accent": { "bg": "rgba(255, 107, 71, 0.15)", "text": "#ff8f73", "border": "1px solid rgba(255, 107, 71, 0.3)" },
+      "live": { "bg": "rgba(37, 164, 151, 0.15)", "text": "#25A497", "border": "1px solid rgba(37, 164, 151, 0.4)" }
+    },
+    "input": {
+      "bg": "rgba(28, 87, 83, 0.4)", "border": "1px solid rgba(161, 228, 219, 0.2)",
+      "borderFocus": "1px solid #25A497",
+      "borderRadius": "10px", "padding": "14px 16px",
+      "font": "Inter", "fontSize": "15px", "color": "#faf7f5",
+      "placeholder": "#7a9b96"
+    }
+  },
+  "landingPageSections": {
+    "hero": { "bg": "radial-gradient(ellipse at top, rgba(37,164,151,0.2) 0%, #0F3836 60%)", "variant": "dark-glow" },
+    "features": { "bg": "#0a3d3a", "variant": "dark-teal" },
+    "social-proof": { "bg": "#0F3836", "variant": "dark-forest" },
+    "pricing": { "bg": "#0a3d3a", "variant": "dark-teal-alt" },
+    "cta": { "bg": "linear-gradient(135deg, #1a4d47 0%, #0F3836 100%)", "accentBg": "#ff6b47", "variant": "dark-gradient" },
+    "footer": { "bg": "#0F3836", "border": "rgba(161,228,219,0.1)", "variant": "dark-forest" }
+  },
+  "spacing": {
+    "unit": 8,
+    "sectionPadding": "112px 0",
+    "cardPadding": "32px",
+    "cardGap": "20px",
+    "containerMaxWidth": "1240px",
+    "contentMaxWidth": "760px",
+    "borderRadius": { "sm": "10px", "md": "16px", "lg": "20px", "xl": "28px", "full": "9999px" }
+  }
+}

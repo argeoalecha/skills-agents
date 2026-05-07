@@ -1,0 +1,11 @@
+# Track only skills/ and agents/ — everything else is personal config or ephemeral
+
+# Ignore everything by default
+*
+
+# Re-include tracked directories
+!.gitignore
+!skills/
+!skills/**
+!agents/
+!agents/**

@@ -1,0 +1,161 @@
+{
+  "name": "Hayah Coral",
+  "id": "hayah-coral",
+  "version": "2.0",
+  "description": "Inverted palette. Coral takes the lead as the primary brand color — bold hero sections, warm surface treatments, and an approachable energy that converts. Deep teal becomes the anchor for text and CTAs. A warmer, more human feel. Best for consumer-facing products, marketplaces, wellness, and e-commerce landing pages.",
+  "mood": "Warm, approachable, energetic, trustworthy",
+  "inspiration": "Shopify, Airbnb, consumer SaaS with warm brand identity",
+  "colors": {
+    "brand": {
+      "primary": "#ff6b47",
+      "primaryLight": "#ff8f73",
+      "primaryDark": "#e55a38",
+      "primarySubtle": "#ffb5a0",
+      "primaryBg": "rgba(255, 107, 71, 0.08)",
+      "anchor": "#0a3d3a",
+      "anchorLight": "#1C5753"
+    },
+    "interactive": {
+      "link": "#0a3d3a",
+      "linkHover": "#ff6b47",
+      "focus": "#ff6b47",
+      "secondary": "#1E6E66",
+      "secondaryHover": "#0a3d3a",
+      "muted": "#7a9b96"
+    },
+    "surface": {
+      "page": "#faf7f5",
+      "card": "#ffffff",
+      "cardWarm": "#fff5f2",
+      "panel": "#ffb5a0",
+      "panelSubtle": "rgba(255, 181, 160, 0.2)",
+      "overlay": "rgba(255, 107, 71, 0.05)"
+    },
+    "text": {
+      "primary": "#0a3d3a",
+      "secondary": "#1C5753",
+      "muted": "#7a9b96",
+      "onDark": "#faf7f5",
+      "onAccent": "#ffffff",
+      "warm": "#7d4a38"
+    },
+    "border": {
+      "default": "#ffb5a0",
+      "subtle": "rgba(255, 181, 160, 0.3)",
+      "strong": "#ff6b47",
+      "teal": "#A1E4DB"
+    }
+  },
+  "typography": {
+    "fonts": {
+      "display": "Fraunces",
+      "heading": "Fraunces",
+      "body": "Outfit",
+      "mono": "JetBrains Mono"
+    },
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+    "notes": "Fraunces is an optical-size variable serif — use large sizes (opsz: 144) for hero text for a lush, editorial feel. Outfit pairs perfectly with warmth and friendliness.",
+    "scale": {
+      "hero": { "size": "76px", "lineHeight": "1.05", "weight": 700, "letterSpacing": "-0.03em", "font": "Fraunces", "fontVariationSettings": "'opsz' 144" },
+      "display": { "size": "56px", "lineHeight": "1.1", "weight": 400, "letterSpacing": "-0.02em", "font": "Fraunces", "fontVariationSettings": "'opsz' 72" },
+      "h1": { "size": "40px", "lineHeight": "1.2", "weight": 400, "letterSpacing": "-0.015em", "font": "Fraunces" },
+      "h2": { "size": "28px", "lineHeight": "1.3", "weight": 700, "letterSpacing": "-0.01em", "font": "Fraunces" },
+      "h3": { "size": "20px", "lineHeight": "1.4", "weight": 600, "font": "Outfit" },
+      "h4": { "size": "17px", "lineHeight": "1.5", "weight": 600, "font": "Outfit" },
+      "bodyLg": { "size": "18px", "lineHeight": "1.75", "weight": 400, "font": "Outfit" },
+      "body": { "size": "16px", "lineHeight": "1.75", "weight": 400, "font": "Outfit" },
+      "bodySm": { "size": "14px", "lineHeight": "1.6", "weight": 400, "font": "Outfit" },
+      "caption": { "size": "12px", "lineHeight": "1.5", "weight": 500, "font": "Outfit" },
+      "label": { "size": "12px", "lineHeight": "1.4", "weight": 600, "letterSpacing": "0.08em", "font": "Outfit", "textTransform": "uppercase" },
+      "code": { "size": "14px", "lineHeight": "1.5", "weight": 400, "font": "JetBrains Mono" }
+    }
+  },
+  "components": {
+    "button": {
+      "primary": {
+        "bg": "#ff6b47", "text": "#ffffff", "hover": "#e55a38",
+        "padding": "15px 32px", "borderRadius": "12px",
+        "font": "Outfit", "fontSize": "16px", "fontWeight": 600,
+        "boxShadow": "0 4px 20px rgba(255, 107, 71, 0.4), 0 1px 2px rgba(255, 107, 71, 0.2)"
+      },
+      "secondary": {
+        "bg": "#ffffff", "text": "#0a3d3a",
+        "border": "2px solid rgba(10, 61, 58, 0.15)",
+        "hover": "#faf7f5",
+        "padding": "13px 30px", "borderRadius": "12px",
+        "font": "Outfit", "fontSize": "16px", "fontWeight": 600,
+        "boxShadow": "0 2px 8px rgba(10, 61, 58, 0.08)"
+      },
+      "ghost": {
+        "bg": "transparent", "text": "#ff6b47",
+        "hover": "rgba(255, 107, 71, 0.08)",
+        "padding": "13px 20px", "borderRadius": "12px",
+        "font": "Outfit", "fontSize": "16px", "fontWeight": 500
+      }
+    },
+    "card": {
+      "default": {
+        "bg": "#ffffff",
+        "border": "1px solid rgba(255, 181, 160, 0.4)",
+        "borderRadius": "20px", "padding": "32px",
+        "boxShadow": "0 2px 20px rgba(255, 107, 71, 0.06)"
+      },
+      "warm": {
+        "bg": "#fff5f2",
+        "border": "1px solid #ffb5a0",
+        "borderRadius": "20px", "padding": "32px"
+      },
+      "feature": {
+        "bg": "#ff6b47", "text": "#ffffff",
+        "borderRadius": "24px", "padding": "40px"
+      },
+      "teal": {
+        "bg": "#0a3d3a", "text": "#faf7f5",
+        "borderRadius": "24px", "padding": "40px"
+      }
+    },
+    "nav": {
+      "bg": "rgba(250, 247, 245, 0.95)",
+      "border": "1px solid rgba(255, 181, 160, 0.3)",
+      "backdropFilter": "blur(12px)",
+      "logoColor": "#0a3d3a",
+      "linkColor": "#0a3d3a",
+      "linkHover": "#ff6b47"
+    },
+    "hero": {
+      "bg": "linear-gradient(160deg, #fff5f2 0%, #faf7f5 50%, #F3FFF9 100%)",
+      "decorativeBg": "radial-gradient(ellipse 60% 50% at 70% 50%, rgba(255, 107, 71, 0.1) 0%, transparent 70%)",
+      "eyebrowColor": "#ff6b47",
+      "headlineColor": "#0a3d3a",
+      "bodyColor": "#1C5753"
+    },
+    "badge": {
+      "default": { "bg": "rgba(255, 107, 71, 0.1)", "text": "#7d2d15", "border": "1px solid rgba(255, 107, 71, 0.25)" },
+      "teal": { "bg": "#e8f4f1", "text": "#0a3d3a", "border": "1px solid #A1E4DB" },
+      "new": { "bg": "#ff6b47", "text": "#ffffff" }
+    },
+    "input": {
+      "bg": "#ffffff", "border": "1.5px solid rgba(255, 181, 160, 0.5)",
+      "borderFocus": "1.5px solid #ff6b47",
+      "borderRadius": "12px", "padding": "14px 16px",
+      "font": "Outfit", "fontSize": "16px", "color": "#0a3d3a"
+    }
+  },
+  "landingPageSections": {
+    "hero": { "bg": "linear-gradient(160deg, #fff5f2 0%, #faf7f5 100%)", "variant": "warm-cream" },
+    "features": { "bg": "#ffffff", "variant": "pure-white" },
+    "social-proof": { "bg": "#faf7f5", "variant": "soft-cream" },
+    "pricing": { "bg": "#fff5f2", "variant": "warm-peach" },
+    "cta": { "bg": "#ff6b47", "text": "#ffffff", "variant": "coral-bold" },
+    "footer": { "bg": "#0a3d3a", "text": "#faf7f5", "variant": "deep-teal" }
+  },
+  "spacing": {
+    "unit": 8,
+    "sectionPadding": "100px 0",
+    "cardPadding": "32px",
+    "cardGap": "24px",
+    "containerMaxWidth": "1200px",
+    "contentMaxWidth": "680px",
+    "borderRadius": { "sm": "8px", "md": "12px", "lg": "20px", "xl": "28px", "full": "9999px" }
+  }
+}

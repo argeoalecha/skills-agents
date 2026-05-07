@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hayah-AI · Auth Pages — 5 Theme Variants</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal-500:      #25A497;
+      --coral-500:     #ff6b47;
+      --teal-900: #0a3d3a;
+      --teal-950: #0F3836;
+      --teal-400:      #A1E4DB;
+      --muted:      #7a9b96;
+      --cream:  #faf7f5;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0d1117;
+      color: #fff;
+      min-height: 100dvh;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────── */
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 48px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .site-logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .header-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(37,164,151,0.1);
+      border: 1px solid rgba(37,164,151,0.25);
+      color: var(--teal-500);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 8px;
+    }
+
+    .header-badge-dot {
+      width: 5px;
+      height: 5px;
+      background: var(--teal-500);
+      border-radius: 50%;
+    }
+
+    /* ── HERO ───────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 72px 48px 56px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,107,71,0.1);
+      border: 1px solid rgba(255,107,71,0.2);
+      color: var(--coral-500);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+
+    .hero h1 span { color: var(--teal-500); }
+
+    .hero p {
+      font-size: 16px;
+      color: rgba(255,255,255,0.45);
+      max-width: 520px;
+      margin: 0 auto 48px;
+      line-height: 1.75;
+    }
+
+    /* ── GRID ───────────────────────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 20px;
+      padding: 0 48px 80px;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    .theme-card {
+      border-radius: 20px;
+      overflow: hidden;
+      text-decoration: none;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      display: block;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .theme-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 56px rgba(0,0,0,0.5);
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    /* ── SWATCHES ─────────────────────────────────────── */
+    .card-swatch {
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Classic swatch */
+    .swatch-classic {
+      background: linear-gradient(135deg, #0a3d3a 0%, #1a4d47 100%);
+    }
+
+    .swatch-classic-inner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .swatch-classic-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .swatch-classic-line {
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(250,247,245,0.6);
+    }
+
+    /* Midnight swatch */
+    .swatch-midnight {
+      background: #0F3836;
+    }
+
+    .swatch-midnight-glow {
+      position: absolute;
+      top: -40px;
+      left: -40px;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(37,164,151,0.25) 0%, transparent 70%);
+    }
+
+    .swatch-midnight-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(37,164,151,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37,164,151,0.06) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* Coral swatch */
+    .swatch-coral {
+      background: linear-gradient(135deg, #fff9f7 0%, #faf7f5 100%);
+    }
+
+    /* Editorial swatch */
+    .swatch-editorial {
+      background: #0F3836;
+      border-bottom: 4px solid #0F3836;
+    }
+
+    /* Bento swatch */
+    .swatch-bento {
+      background: linear-gradient(135deg, #e8f4f1 0%, #faf7f5 100%);
+    }
+
+    /* ── CARD BODY ────────────────────────────────────── */
+    .card-body {
+      background: rgba(255,255,255,0.04);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 22px 24px;
+    }
+
+    .card-theme-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+
+    .card-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+
+    .card-variant {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 14px;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 5px;
+      color: rgba(255,255,255,0.65);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .card-action {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.35);
+      transition: color 0.15s;
+    }
+
+    .card-action svg { transition: transform 0.15s; }
+
+    .theme-card:hover .card-action {
+      color: #fff;
+    }
+
+    .theme-card:hover .card-action svg {
+      transform: translateX(3px);
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    .footer-note {
+      text-align: center;
+      padding: 0 48px 56px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.25);
+    }
+
+    .footer-note code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(255,255,255,0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--teal-500);
+    }
+
+    @media (max-width: 640px) {
+      .site-header { padding: 16px 24px; }
+      .hero { padding: 48px 24px 40px; }
+      .hero h1 { font-size: 32px; }
+      .grid { padding: 0 24px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="site-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 96" width="241" height="67" role="img" aria-label="Hayah-AI — business automation">
+      <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#faf7f5" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+      <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#faf7f5" letter-spacing="-1.2">hayah<tspan fill="#A1E4DB">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+      <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#faf7f5" textLength="230" lengthAdjust="spacing">business automation</text>
+    </svg>
+  </div>
+  <div class="header-badge">
+    <span class="header-badge-dot"></span>
+    5 theme variants
+  </div>
+</header>
+
+<!-- ── HERO ──────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-eyebrow">Design System · Auth Pages</div>
+  <h1>Hayah-AI <span>Auth Pages</span></h1>
+  <p>5 sign-in / sign-up pages — each faithfully reflecting the design system, mood, and typography of their parent theme variant.</p>
+</section>
+
+<!-- ── GRID ──────────────────────────────────────────────── -->
+<div class="grid">
+
+  <!-- CLASSIC -->
+  <a class="theme-card" href="auth-classic.html" id="link-auth-classic">
+    <div class="card-swatch swatch-classic">
+      <div class="swatch-classic-inner">
+        <div style="width:36px;height:36px;background:#ff6b47;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 3v14M16 3v14M4 10h12" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="swatch-classic-bar">
+          <div class="swatch-classic-line" style="width:72px;"></div>
+          <div class="swatch-classic-line" style="width:56px;opacity:0.4"></div>
+          <div class="swatch-classic-line" style="width:64px;opacity:0.25"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-theme-num">01 / 05</div>
+      <div class="card-name">Hayah Classic</div>
+      <div class="card-variant">Sign In · Split layout</div>
+      <div class="card-tags">
+        <span class="tag" style="background:rgba(10,61,58,0.3);border-color:rgba(10,61,58,0.5)">DM Serif</span>
+        <span class="tag" style="background:rgba(10,61,58,0.3);border-color:rgba(10,61,58,0.5)">Plus Jakarta</span>
+        <span class="tag" style="background:rgba(255,107,71,0.2);border-color:rgba(255,107,71,0.35)">SaaS</span>
+      </div>
+      <div class="card-action">
+        View auth page
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+  </a>
+
+  <!-- MIDNIGHT -->
+  <a class="theme-card" href="auth-midnight.html" id="link-auth-midnight">
+    <div class="card-swatch swatch-midnight">
+      <div class="swatch-midnight-glow"></div>
+      <div class="swatch-midnight-grid"></div>
+      <div style="position:relative;z-index:1;text-align:center;">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;color:#25A497;letter-spacing:-0.04em;line-height:1;">Hayah</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(161,228,219,0.5);margin-top:6px;letter-spacing:0.08em;">AI · DARK · POWERFUL</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-theme-num">02 / 05</div>
+      <div class="card-name">Hayah Midnight</div>
+      <div class="card-variant">Sign Up · Centered glassmorphism</div>
+      <div class="card-tags">
+        <span class="tag" style="background:rgba(37,164,151,0.15);border-color:rgba(37,164,151,0.35)">Syne</span>
+        <span class="tag" style="background:rgba(37,164,151,0.15);border-color:rgba(37,164,151,0.35)">Inter</span>
+        <span class="tag" style="background:rgba(255,107,71,0.2);border-color:rgba(255,107,71,0.35)">AI / Dark</span>
+      </div>
+      <div class="card-action">
+        View auth page
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+  </a>
+
+  <!-- CORAL -->
+  <a class="theme-card" href="auth-coral.html" id="link-auth-coral">
+    <div class="card-swatch swatch-coral">
+      <div style="text-align:center;">
+        <div style="font-family:'Georgia',serif;font-size:36px;font-weight:700;color:#ff6b47;letter-spacing:-0.02em;line-height:1;">Hayah·</div>
+        <div style="font-size:11px;font-weight:600;color:#7a9b96;margin-top:8px;letter-spacing:0.06em;text-transform:uppercase;">Consumer · Warm · Creator</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-theme-num">03 / 05</div>
+      <div class="card-name">Hayah Coral</div>
+      <div class="card-variant">Sign Up · Full layout with features</div>
+      <div class="card-tags">
+        <span class="tag" style="background:rgba(255,107,71,0.2);border-color:rgba(255,107,71,0.35)">Fraunces</span>
+        <span class="tag" style="background:rgba(255,107,71,0.2);border-color:rgba(255,107,71,0.35)">Outfit</span>
+        <span class="tag" style="background:rgba(255,107,71,0.2);border-color:rgba(255,107,71,0.35)">Consumer</span>
+      </div>
+      <div class="card-action">
+        View auth page
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+  </a>
+
+  <!-- EDITORIAL -->
+  <a class="theme-card" href="auth-editorial.html" id="link-auth-editorial">
+    <div class="card-swatch swatch-editorial">
+      <div style="text-align:left;padding:0 24px;width:100%;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#7a9b96;margin-bottom:10px;">The future of enterprise AI</div>
+        <div style="font-family:'Arial Black','Impact',sans-serif;font-size:40px;font-weight:900;color:#ff6b47;letter-spacing:-0.05em;line-height:0.9;">WHERE<br>IDEAS<br><span style="color:#fff">BECOME</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-theme-num">04 / 05</div>
+      <div class="card-name">Hayah Editorial</div>
+      <div class="card-variant">Sign In · Bold newspaper grid</div>
+      <div class="card-tags">
+        <span class="tag" style="background:rgba(122,155,150,0.2);border-color:rgba(122,155,150,0.35)">Clash Display</span>
+        <span class="tag" style="background:rgba(122,155,150,0.2);border-color:rgba(122,155,150,0.35)">Satoshi</span>
+        <span class="tag" style="background:rgba(122,155,150,0.2);border-color:rgba(122,155,150,0.35)">B2B</span>
+      </div>
+      <div class="card-action">
+        View auth page
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+  </a>
+
+  <!-- BENTO -->
+  <a class="theme-card" href="auth-bento.html" id="link-auth-bento">
+    <div class="card-swatch swatch-bento">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:16px;width:100%">
+        <div style="background:linear-gradient(140deg,#1E6E66,#0a3d3a);border-radius:12px;height:52px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;color:#fff;letter-spacing:-0.03em;">98.7%</div>
+        <div style="background:#ff6b47;border-radius:12px;height:52px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;font-family:'Space Grotesk',sans-serif;letter-spacing:-0.03em;">12K</div>
+        <div style="background:#fff;border:1px solid rgba(37,164,151,0.35);border-radius:12px;height:36px;grid-column:span 2;display:flex;align-items:center;padding:0 14px;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:#25A497;letter-spacing:-0.01em;">Hayah. · Always on</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-theme-num">05 / 05</div>
+      <div class="card-name">Hayah Bento</div>
+      <div class="card-variant">Sign In · Bento grid + auth card</div>
+      <div class="card-tags">
+        <span class="tag" style="background:rgba(37,164,151,0.15);border-color:rgba(37,164,151,0.35)">Space Grotesk</span>
+        <span class="tag" style="background:rgba(37,164,151,0.15);border-color:rgba(37,164,151,0.35)">Inter</span>
+        <span class="tag" style="background:rgba(37,164,151,0.15);border-color:rgba(37,164,151,0.35)">AI SaaS</span>
+      </div>
+      <div class="card-action">
+        View auth page
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+  </a>
+
+</div>
+
+<p class="footer-note">
+  Auth pages live in <code>theme-hayahai/auth-pages/</code> · Part of the Hayah-AI design skill system
+</p>
+
+</body>
+</html>

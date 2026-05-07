@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  body { padding: 24px; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .badge { display: inline-flex; align-items:center; gap: 6px; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; line-height: 1.4; }
+  .pill { border-radius: 9999px; padding: 4px 12px; }
+  .row { display:flex; gap: 8px; flex-wrap:wrap; align-items:center; margin-bottom: 14px; }
+  .row:last-child { margin: 0; }
+  .label { font-size: 10px; letter-spacing:0.08em; text-transform:uppercase; font-weight:600; color:#7a9b96; width: 100%; margin-bottom: 2px; }
+  .dot { width: 6px; height: 6px; border-radius: 9999px; display: inline-block; }
+</style></head>
+<body>
+  <div class="row"><span class="label">Default · teal</span>
+    <span class="badge" style="background: rgba(37,164,151,0.1); color:#1E6E66; border: 1px solid rgba(37,164,151,0.3);">Default</span>
+    <span class="badge" style="background:#e8f4f1; color:#0a3d3a; border: 1px solid #A1E4DB;">Pearl</span>
+    <span class="badge pill" style="background:#e8f4f1; color:#0a3d3a;">Pill style</span>
+  </div>
+  <div class="row"><span class="label">Accent · coral</span>
+    <span class="badge" style="background: rgba(255,107,71,0.1); color:#7d2d15; border: 1px solid rgba(255,107,71,0.3);">Beta</span>
+    <span class="badge" style="background:#ff6b47; color:#fff;">New</span>
+    <span class="badge" style="background:#ffb5a0; color:#7d2d15;">Subtle</span>
+  </div>
+  <div class="row"><span class="label">Status · live</span>
+    <span class="badge" style="background:rgba(37,164,151,0.15); color:#25A497; border: 1px solid rgba(37,164,151,0.4);"><span class="dot" style="background:#25A497;"></span>Live</span>
+    <span class="badge" style="background:rgba(255,107,71,0.15); color:#e55a38; border: 1px solid rgba(255,107,71,0.3);"><span class="dot" style="background:#ff6b47;"></span>Warning</span>
+    <span class="badge" style="background:rgba(122,155,150,0.15); color:#7a9b96; border: 1px solid rgba(122,155,150,0.3);"><span class="dot" style="background:#7a9b96;"></span>Idle</span>
+  </div>
+  <div class="row"><span class="label">Editorial · sharp</span>
+    <span class="badge" style="background:transparent; color:#0F3836; border: 1.5px solid #0F3836; border-radius: 0;">DEFAULT</span>
+    <span class="badge" style="background:#ff6b47; color:#fff; border-radius: 0;">ACCENT</span>
+    <span class="badge" style="background:#e8f4f1; color:#0F3836; border-radius: 0;">SUBTLE</span>
+  </div>
+</body></html>

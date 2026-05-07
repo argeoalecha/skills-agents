@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hayahai · 5 Theme Variants</title>
+
+  <!-- Google Fonts: all variants -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- Fontshare: Clash Display + Satoshi -->
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Shared palette tokens */
+      --teal-950: #0F3836;
+      --teal-900: #0a3d3a;
+      --teal-800: #1a4d47;
+      --teal-700: #1C5753;
+      --teal-600: #1E6E66;
+      --teal-500: #25A497;
+      --teal-400: #A1E4DB;
+      --muted: #7a9b96;
+      --coral-500: #ff6b47;
+      --coral-400: #ff8f73;
+      --coral-300: #ffb5a0;
+      --cream: #faf7f5;
+      --teal-200: #e8f4f1;
+      --teal-100: #F3FFF9;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #111;
+      color: #fff;
+    }
+
+    /* ── NAV ─────────────────────────────────── */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 10, 10, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      height: 80px;
+      gap: 8px;
+      /* Promote to own compositor layer to prevent flicker */
+      will-change: transform;
+      transform: translateZ(0);
+      isolation: isolate;
+    }
+    .top-nav-logo { display: flex; align-items: center; margin-right: 16px; }
+    .nav-pill {
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.65);
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .nav-pill:hover { color: #fff; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.06); }
+    .nav-pill[data-accent="coral"] { border-color: rgba(255,107,71,0.35); color: #ff8f73; }
+    .nav-pill[data-accent="teal"] { border-color: rgba(37,164,151,0.35); color: var(--teal-500); }
+
+    /* ── SECTION WRAPPER ─────────────────────── */
+    .theme-section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── THEME LABEL ─────────────────────────── */
+    .theme-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+    .theme-label .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* ── COMPONENTS ROW ──────────────────────── */
+    .comp-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+    .swatch-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .swatch { width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0; }
+
+    /* ── SECTION TITLE ───────────────────────── */
+    .section-divider {
+      padding: 80px 64px 0;
+    }
+
+    /* ══════════════════════════════════════════════════
+       THEME 1 · HAYAH CLASSIC
+    ══════════════════════════════════════════════════ */
+    #classic {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--cream);
+      color: var(--teal-900);
+    }
+
+    .classic-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 88px;
+      background: rgba(250,247,245,0.95);
+      border-bottom: 1px solid rgba(161,228,219,0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      will-change: transform;
+      transform: translateZ(0);
+    }
+    .classic-nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .classic-nav-links a {
+      text-decoration: none;
+      color: var(--teal-700);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .classic-hero {
+      padding: 100px 64px 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .classic-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--teal-200);
+      border: 1px solid var(--teal-400);
+      color: var(--teal-600);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+    .classic-h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 58px;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--teal-900);
+      margin-bottom: 24px;
+    }
+    .classic-h1 em { color: var(--coral-500); font-style: italic; }
+    .classic-body {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--teal-700);
+      margin-bottom: 40px;
+      max-width: 480px;
+    }
+    .btn-coral {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--coral-500);
+      color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(255,107,71,0.35);
+    }
+    .btn-outline-teal {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--teal-900);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 13px 26px;
+      border-radius: 10px;
+      border: 2px solid var(--teal-900);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .classic-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .classic-card {
+      background: var(--teal-200);
+      border: 1px solid rgba(161,228,219,0.5);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 2px 16px rgba(10,61,58,0.06);
+    }
+    .classic-card:first-child {
+      grid-column: span 2;
+      background: var(--teal-900);
+      color: var(--cream);
+    }
+    .classic-card-icon {
+      width: 40px; height: 40px;
+      background: rgba(37,164,151,0.15);
+      border-radius: 10px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .classic-card-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    .classic-card-text { font-size: 14px; line-height: 1.6; opacity: 0.75; }
+
+    .classic-components {
+      background: #fff;
+      padding: 64px;
+      border-top: 1px solid var(--teal-200);
+    }
+    .section-h2 {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* ══════════════════════════════════════════════════
+       THEME 2 · HAYAH MIDNIGHT
+    ══════════════════════════════════════════════════ */
+    #midnight {
+      font-family: 'Inter', sans-serif;
+      background: var(--teal-950);
+      color: var(--cream);
+    }
+
+    .midnight-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 88px;
+      background: rgba(15,56,54,0.85);
+      border-bottom: 1px solid rgba(161,228,219,0.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      will-change: transform;
+      transform: translateZ(0);
+    }
+    .midnight-nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+    .midnight-nav-links a {
+      text-decoration: none;
+      color: rgba(250,247,245,0.6);
+      font-size: 14px;
+      font-weight: 400;
+    }
+    .midnight-hero {
+      position: relative;
+      padding: 100px 64px 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .midnight-glow {
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      /* Use translate3d to keep on GPU layer — prevents layout thrash */
+      transform: translate3d(-50%, 0, 0);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(37,164,151,0.2) 0%, transparent 70%);
+      pointer-events: none;
+      will-change: transform;
+    }
+    .midnight-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(37,164,151,0.12);
+      border: 1px solid rgba(161,228,219,0.25);
+      color: var(--teal-500);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+    }
+    .midnight-live-dot {
+      width: 6px; height: 6px;
+      background: var(--teal-500);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+      /* Own layer so the animation doesn't repaint parent */
+      will-change: opacity;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+    .midnight-h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 72px;
+      line-height: 0.98;
+      font-weight: 800;
+      letter-spacing: -0.045em;
+      color: #fff;
+      margin-bottom: 28px;
+      max-width: 800px;
+    }
+    .midnight-h1 .highlight { color: var(--coral-500); }
+    .midnight-body {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--teal-400);
+      margin-bottom: 44px;
+      max-width: 560px;
+    }
+    .btn-coral-glow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--coral-500);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(255,107,71,0.4);
+    }
+    .btn-glass {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(37,164,151,0.12);
+      color: var(--teal-400);
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px 28px;
+      border-radius: 10px;
+      border: 1px solid rgba(161,228,219,0.3);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .midnight-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 0 64px 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .midnight-card {
+      background: rgba(28,87,83,0.4);
+      border: 1px solid rgba(161,228,219,0.15);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      isolation: isolate;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+    .midnight-card-accent {
+      display: inline-block;
+      width: 32px; height: 3px;
+      background: var(--teal-500);
+      border-radius: 2px;
+      margin-bottom: 20px;
+    }
+    .midnight-card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    .midnight-card-text { font-size: 14px; line-height: 1.65; color: var(--teal-400); }
+    .midnight-metric {
+      background: linear-gradient(135deg, #1a4d47, #1C5753);
+      border: 1px solid rgba(37,164,151,0.3);
+      border-radius: 20px;
+      padding: 28px;
+    }
+    .midnight-metric-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--teal-500);
+      letter-spacing: -0.03em;
+    }
+    .midnight-metric-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* ══════════════════════════════════════════════════
+       THEME 3 · HAYAH CORAL
+    ══════════════════════════════════════════════════ */
+    #coral-theme {
+      font-family: 'Outfit', sans-serif;
+      background: var(--cream);
+      color: var(--teal-900);
+    }
+
+    .coral-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 88px;
+      background: rgba(250,247,245,0.95);
+      border-bottom: 1px solid rgba(255,181,160,0.3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      will-change: transform;
+      transform: translateZ(0);
+    }
+    .coral-nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .coral-nav-links a {
+      text-decoration: none;
+      color: var(--teal-700);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .coral-hero {
+      padding: 80px 64px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .coral-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,107,71,0.1);
+      border: 1px solid rgba(255,107,71,0.25);
+      color: var(--coral-500);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+    .coral-h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 60px;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--teal-900);
+      margin-bottom: 24px;
+    }
+    .coral-h1 .warmword { color: var(--coral-500); }
+    .coral-body {
+      font-size: 17px;
+      line-height: 1.75;
+      color: var(--teal-700);
+      margin-bottom: 40px;
+      font-weight: 400;
+    }
+    .btn-coral-warm {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--coral-500);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 15px 32px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(255,107,71,0.4), 0 1px 2px rgba(255,107,71,0.2);
+    }
+    .btn-outline-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      color: var(--teal-900);
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 13px 30px;
+      border-radius: 12px;
+      border: 2px solid rgba(10,61,58,0.15);
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(10,61,58,0.08);
+    }
+    .coral-visual {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 16px;
+    }
+    .coral-feature-card {
+      background: var(--coral-500);
+      color: #fff;
+      border-radius: 20px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .coral-feature-card .card-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+    .coral-feature-card .card-stat {
+      font-family: 'Fraunces', serif;
+      font-size: 48px;
+      line-height: 1;
+      font-weight: 700;
+    }
+    .coral-feature-card .card-desc { font-size: 14px; opacity: 0.85; }
+    .coral-cards-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .coral-card {
+      background: #fff;
+      border: 1px solid rgba(255,181,160,0.4);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 2px 20px rgba(255,107,71,0.06);
+    }
+    .coral-card-title {
+      font-family: 'Fraunces', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--teal-900);
+      margin-bottom: 8px;
+    }
+    .coral-card-text { font-size: 13px; color: var(--teal-700); line-height: 1.6; }
+    .coral-teal-cta {
+      background: var(--teal-900);
+      color: var(--cream);
+      padding: 80px 64px;
+      text-align: center;
+    }
+    .coral-teal-cta h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 44px;
+      margin-bottom: 16px;
+    }
+    .coral-teal-cta p { color: var(--teal-400); font-size: 17px; margin-bottom: 36px; }
+
+    /* ══════════════════════════════════════════════════
+       THEME 4 · HAYAH EDITORIAL
+    ══════════════════════════════════════════════════ */
+    #editorial {
+      font-family: 'Satoshi', 'Plus Jakarta Sans', sans-serif;
+      background: #fff;
+      color: var(--teal-950);
+    }
+
+    .editorial-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 64px;
+      height: 88px;
+      background: #fff;
+      border-bottom: 4px solid var(--teal-950);
+    }
+    .editorial-nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .editorial-nav-links a {
+      text-decoration: none;
+      color: var(--teal-950);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Clash Display', 'Space Grotesk', sans-serif;
+      letter-spacing: -0.01em;
+    }
+    .editorial-hero {
+      padding: 100px 64px 80px;
+      border-top: 4px solid var(--teal-950);
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .editorial-eyebrow {
+      display: inline-block;
+      font-family: 'Satoshi', 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+    .editorial-h1 {
+      font-family: 'Clash Display', 'Space Grotesk', sans-serif;
+      font-size: 88px;
+      line-height: 0.92;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      color: var(--teal-950);
+      margin-bottom: 48px;
+      max-width: 900px;
+    }
+    .editorial-h1 .accent { color: var(--coral-500); }
+    .editorial-divider {
+      display: flex;
+      align-items: flex-start;
+      gap: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--teal-950);
+    }
+    .editorial-body {
+      font-size: 18px;
+      line-height: 1.75;
+      color: var(--teal-700);
+      max-width: 480px;
+    }
+    .editorial-body-right {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .btn-editorial-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--teal-950);
+      color: #fff;
+      font-family: 'Clash Display', 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      padding: 16px 32px;
+      border: 2px solid var(--teal-950);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-editorial-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--teal-950);
+      font-family: 'Clash Display', 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      padding: 14px 30px;
+      border: 2px solid var(--teal-950);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .editorial-blocks {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 2px;
+      background: var(--teal-950);
+      margin: 0 64px;
+    }
+    .editorial-block {
+      background: #fff;
+      padding: 40px;
+    }
+    .editorial-block-dark {
+      background: var(--teal-950);
+      color: #fff;
+      padding: 40px;
+    }
+    .editorial-block-coral {
+      background: var(--coral-500);
+      color: #fff;
+      padding: 40px;
+    }
+    .editorial-block-title {
+      font-family: 'Clash Display', 'Space Grotesk', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .editorial-block-body { font-size: 14px; line-height: 1.65; opacity: 0.75; }
+    .editorial-stat {
+      font-family: 'Clash Display', 'Space Grotesk', sans-serif;
+      font-size: 52px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+    .editorial-stat-label { font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.6; margin-top: 8px; }
+    .editorial-cta-section {
+      background: var(--coral-500);
+      color: #fff;
+      padding: 100px 64px;
+      text-align: center;
+      border-top: 4px solid var(--teal-950);
+    }
+    .editorial-cta-h2 {
+      font-family: 'Clash Display', 'Space Grotesk', sans-serif;
+      font-size: 72px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 40px;
+    }
+    .btn-editorial-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      color: var(--coral-500);
+      font-family: 'Clash Display', 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 18px 40px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* ══════════════════════════════════════════════════
+       THEME 5 · HAYAH BENTO
+    ══════════════════════════════════════════════════ */
+    #bento {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--teal-900);
+    }
+
+    .bento-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 48px;
+    }
+    .bento-nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: rgba(250,247,245,0.85);
+      border: 1px solid rgba(161,228,219,0.35);
+      border-radius: 16px;
+      padding: 0 28px;
+      height: 80px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      will-change: transform;
+      transform: translateZ(0);
+    }
+    .bento-nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+    .bento-nav-links a {
+      text-decoration: none;
+      color: var(--teal-700);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .bento-hero {
+      text-align: center;
+      padding: 72px 64px 0;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .bento-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(37,164,151,0.1);
+      border: 1px solid rgba(37,164,151,0.3);
+      color: var(--teal-600);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 6px 14px;
+      border-radius: 8px;
+      margin-bottom: 28px;
+    }
+    .bento-h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 72px;
+      line-height: 1.0;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--teal-900);
+      margin-bottom: 24px;
+    }
+    .bento-h1 .teal { color: var(--teal-500); }
+    .bento-body {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--teal-700);
+      margin-bottom: 40px;
+    }
+    .btn-aqua {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--teal-500);
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(37,164,151,0.35);
+    }
+    .btn-soft-teal {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(37,164,151,0.1);
+      color: var(--teal-900);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: 1px solid rgba(37,164,151,0.35);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto auto;
+      gap: 16px;
+      padding: 48px 48px 0;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .bento-card {
+      background: #fff;
+      border: 1px solid rgba(161,228,219,0.4);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 2px 16px rgba(10,61,58,0.06);
+    }
+    .bento-card-dark {
+      background: linear-gradient(135deg, #1E6E66, #0a3d3a);
+      color: #fff;
+      border-radius: 20px;
+      padding: 28px;
+    }
+    .bento-card-coral {
+      background: var(--coral-500);
+      color: #fff;
+      border-radius: 20px;
+      padding: 28px;
+    }
+    .bento-card-pearl {
+      background: var(--teal-200);
+      border: 1px solid var(--teal-400);
+      border-radius: 20px;
+      padding: 28px;
+    }
+    .bento-card-glass {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 4px 24px rgba(10,61,58,0.08);
+      /* Isolate glass layer to prevent cross-element repaint */
+      isolation: isolate;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+    .bento-span2 { grid-column: span 2; }
+    .bento-span1 { grid-column: span 1; }
+    .bento-metric {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .bento-metric-label { font-size: 13px; color: var(--muted); font-weight: 500; }
+    .bento-card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .bento-card-text { font-size: 14px; line-height: 1.65; opacity: 0.75; }
+    .bento-accent-bar {
+      width: 32px; height: 3px;
+      border-radius: 2px;
+      background: var(--teal-500);
+      margin-bottom: 20px;
+    }
+    .bento-accent-bar-coral { background: var(--coral-500); }
+    .bento-tag {
+      display: inline-block;
+      background: rgba(37,164,151,0.12);
+      color: var(--teal-600);
+      border: 1px solid rgba(37,164,151,0.25);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .bento-cta {
+      background: linear-gradient(135deg, #1E6E66 0%, #0a3d3a 100%);
+      color: var(--cream);
+      padding: 100px 64px;
+      text-align: center;
+    }
+    .bento-cta h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 52px;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      margin-bottom: 20px;
+    }
+    .bento-cta h2 em { color: var(--teal-500); font-style: normal; }
+    .bento-cta p { color: var(--teal-400); font-size: 17px; margin-bottom: 40px; }
+
+    /* ── SHARED UTILS ─────────────────────────── */
+    .flex { display: flex; }
+    .gap-12 { gap: 12px; }
+    .gap-16 { gap: 16px; }
+    .items-center { align-items: center; }
+    .mt-8 { margin-top: 8px; }
+    .mb-12 { margin-bottom: 12px; }
+
+    /* THEME SECTION HEADERS */
+    .theme-header-bar {
+      padding: 48px 64px 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .theme-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      opacity: 0.4;
+    }
+    .theme-name-tag {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 5px 12px;
+      border-radius: 6px;
+    }
+
+    /* PAGE INTRO */
+    .page-intro {
+      text-align: center;
+      padding: 72px 64px 56px;
+      background: #111;
+      color: #fff;
+    }
+    .page-intro h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 52px;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      margin-bottom: 16px;
+    }
+    .page-intro h1 span { color: var(--teal-500); }
+    .page-intro p { color: rgba(255,255,255,0.5); font-size: 16px; max-width: 600px; margin: 0 auto 36px; line-height: 1.7; }
+    .variant-pills {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .variant-pill {
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* TYPOGRAPHY PALETTE BLOCK */
+    .type-block { padding: 40px 64px; border-top: 1px solid; }
+    .type-sample { line-height: 1; margin-bottom: 4px; }
+    .type-meta { font-size: 11px; opacity: 0.45; font-family: 'JetBrains Mono', monospace; }
+
+    /* COLOR STRIP */
+    .color-strip { display: flex; height: 8px; }
+    .color-strip-item { flex: 1; }
+
+    /* SECTION BREAK */
+    .section-break {
+      height: 6px;
+      background: #111;
+    }
+
+    /* ARROW */
+    .arrow { display: inline-block; margin-left: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- ── STICKY NAV ───────────────────────────────── -->
+<nav class="top-nav">
+  <div class="top-nav-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 96" width="207" height="58" role="img" aria-label="Hayah-AI — business automation">
+      <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#faf7f5" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+      <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#faf7f5" letter-spacing="-1.2">hayah<tspan fill="#A1E4DB">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+      <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#faf7f5" textLength="230" lengthAdjust="spacing">business automation</text>
+    </svg>
+  </div>
+  <a href="#classic" class="nav-pill">Classic</a>
+  <a href="#midnight" class="nav-pill" data-accent="teal">Midnight</a>
+  <a href="#coral-theme" class="nav-pill" data-accent="coral">Coral</a>
+  <a href="#editorial" class="nav-pill">Editorial</a>
+  <a href="#bento" class="nav-pill" data-accent="teal">Bento</a>
+</nav>
+
+<!-- ── PAGE INTRO ────────────────────────────────── -->
+<div class="page-intro">
+  <h1>Hayahai <span>Design System</span></h1>
+  <p>5 landing-page-optimized variants. Same ocean-teal + vibrant coral palette. Each with a distinct mood, typography pairing, and layout personality.</p>
+  <div class="variant-pills">
+    <span class="variant-pill" style="background:#e8f4f1;color:#0a3d3a">Classic · DM Serif + Plus Jakarta Sans</span>
+    <span class="variant-pill" style="background:#1C5753;color:#A1E4DB">Midnight · Syne + Inter</span>
+    <span class="variant-pill" style="background:#ffb5a0;color:#7d2d15">Coral · Fraunces + Outfit</span>
+    <span class="variant-pill" style="background:#0F3836;color:#fff">Editorial · Clash Display + Satoshi</span>
+    <span class="variant-pill" style="background:rgba(37,164,151,0.15);color:#25A497;border:1px solid rgba(37,164,151,0.3)">Bento · Space Grotesk + Inter</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     THEME 1 · HAYAH CLASSIC
+══════════════════════════════════════════════════ -->
+<div class="color-strip">
+  <div class="color-strip-item" style="background:#0a3d3a"></div>
+  <div class="color-strip-item" style="background:#1C5753"></div>
+  <div class="color-strip-item" style="background:#25A497"></div>
+  <div class="color-strip-item" style="background:#A1E4DB"></div>
+  <div class="color-strip-item" style="background:#e8f4f1"></div>
+  <div class="color-strip-item" style="background:#faf7f5"></div>
+  <div class="color-strip-item" style="background:#ffb5a0"></div>
+  <div class="color-strip-item" style="background:#ff8f73"></div>
+  <div class="color-strip-item" style="background:#ff6b47"></div>
+</div>
+
+<section class="theme-section" id="classic">
+
+  <div class="theme-header-bar" style="background:#faf7f5;border-bottom:1px solid #e8f4f1;">
+    <span class="theme-number">01</span>
+    <span class="theme-name-tag" style="background:#e8f4f1;color:#0a3d3a">Hayah Classic</span>
+    <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:#7a9b96;">DM Serif Display + Plus Jakarta Sans · Sophisticated, premium SaaS</span>
+  </div>
+
+  <!-- Nav -->
+  <nav class="classic-nav">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 96" width="241" height="67" role="img" aria-label="Hayah-AI — business automation">
+      <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#0a3d3a" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+      <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#0a3d3a" letter-spacing="-1.2">hayah<tspan fill="#7a9b96">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+      <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#0a3d3a" textLength="230" lengthAdjust="spacing">business automation</text>
+    </svg>
+    <ul class="classic-nav-links">
+      <li><a href="#">Product</a></li>
+      <li><a href="#">Solutions</a></li>
+      <li><a href="#">Pricing</a></li>
+    </ul>
+    <div class="flex gap-12">
+      <a href="#" class="btn-outline-teal" style="padding:10px 20px;font-size:14px;">Log in</a>
+      <a href="#" class="btn-coral" style="padding:10px 20px;font-size:14px;">Get started</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="classic-hero">
+    <div>
+      <div class="classic-eyebrow">
+        <span>&#x2728;</span> Now in public beta
+      </div>
+      <h1 class="classic-h1">Intelligent data,<br><em>beautifully told.</em></h1>
+      <p class="classic-body">Hayah AI transforms raw business data into clear, actionable intelligence. Built for teams that move fast and need answers, not dashboards.</p>
+      <div class="flex gap-12 items-center">
+        <a href="#" class="btn-coral">Start free trial <span class="arrow">→</span></a>
+        <a href="#" class="btn-outline-teal">See how it works</a>
+      </div>
+    </div>
+    <div class="classic-card-grid">
+      <div class="classic-card" style="grid-column:span 2; background:#0a3d3a; color:#faf7f5;">
+        <div class="classic-card-icon" style="background:rgba(255,107,71,0.2);">📊</div>
+        <div class="classic-card-title" style="font-family:'DM Serif Display',serif;color:#faf7f5;">Real-time insights</div>
+        <div class="classic-card-text" style="color:rgba(250,247,245,0.7);">Live dashboards that surface what matters — no manual reports, no waiting.</div>
+      </div>
+      <div class="classic-card">
+        <div class="classic-card-icon">🤖</div>
+        <div class="classic-card-title">AI-powered</div>
+        <div class="classic-card-text">Natural language queries on your data.</div>
+      </div>
+      <div class="classic-card">
+        <div class="classic-card-icon">🔒</div>
+        <div class="classic-card-title">Enterprise-grade</div>
+        <div class="classic-card-text">SOC 2 compliant with full RLS.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Components strip -->
+  <div class="classic-components">
+    <div class="section-h2">Components</div>
+    <div class="comp-row" style="margin-bottom:24px;">
+      <a href="#" class="btn-coral">Primary CTA</a>
+      <a href="#" class="btn-outline-teal">Secondary</a>
+      <a href="#" style="display:inline-flex;align-items:center;gap:8px;background:transparent;color:#1E6E66;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:500;padding:13px 20px;border-radius:10px;border:none;text-decoration:none;">Ghost link →</a>
+    </div>
+    <div class="comp-row" style="margin-bottom:24px;">
+      <span style="background:#e8f4f1;color:#0a3d3a;border:1px solid #A1E4DB;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;">Default badge</span>
+      <span style="background:#ffb5a0;color:#7d2d15;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;">Accent</span>
+      <span style="background:#d4f4f1;color:#0a3d3a;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;">Success</span>
+      <code style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#1E6E66;background:#F3FFF9;padding:4px 10px;border-radius:6px;">const insight = await hayah.query()</code>
+    </div>
+    <div class="swatch-row">
+      <div class="swatch" style="background:#0F3836" title="Dark Forest"></div>
+      <div class="swatch" style="background:#0a3d3a" title="Deep Teal"></div>
+      <div class="swatch" style="background:#1a4d47" title="Forest Green"></div>
+      <div class="swatch" style="background:#1C5753" title="Medium Teal"></div>
+      <div class="swatch" style="background:#1E6E66" title="Ocean Teal"></div>
+      <div class="swatch" style="background:#25A497" title="Aqua Green"></div>
+      <div class="swatch" style="background:#A1E4DB" title="Mint Light"></div>
+      <div class="swatch" style="background:#e8f4f1" title="Pearl;border:1px solid #ccc"></div>
+      <div class="swatch" style="background:#faf7f5;border:1px solid #e8f4f1" title="Cream"></div>
+      <div class="swatch" style="background:#ffb5a0" title="Soft Peach"></div>
+      <div class="swatch" style="background:#ff8f73" title="Warm Coral"></div>
+      <div class="swatch" style="background:#ff6b47" title="Vibrant Coral"></div>
+    </div>
+  </div>
+
+</section>
+
+<div class="section-break"></div>
+
+<!-- ══════════════════════════════════════════════════
+     THEME 2 · HAYAH MIDNIGHT
+══════════════════════════════════════════════════ -->
+<section class="theme-section" id="midnight">
+
+  <div class="theme-header-bar" style="background:#0a3d3a;border-bottom:1px solid rgba(161,228,219,0.1);">
+    <span class="theme-number" style="color:rgba(250,247,245,0.4)">02</span>
+    <span class="theme-name-tag" style="background:#1C5753;color:#A1E4DB">Hayah Midnight</span>
+    <span style="font-family:'Inter',sans-serif;font-size:12px;color:#7a9b96;">Syne + Inter · Dark-first AI/tech products</span>
+  </div>
+
+  <!-- Nav -->
+  <nav class="midnight-nav">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 96" width="241" height="67" role="img" aria-label="Hayah-AI — business automation">
+      <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#faf7f5" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+      <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#faf7f5" letter-spacing="-1.2">hayah<tspan fill="#A1E4DB">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+      <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#faf7f5" textLength="230" lengthAdjust="spacing">business automation</text>
+    </svg>
+    <ul class="midnight-nav-links">
+      <li><a href="#">Product</a></li>
+      <li><a href="#">Docs</a></li>
+      <li><a href="#">Pricing</a></li>
+    </ul>
+    <div class="flex gap-12">
+      <a href="#" class="btn-glass" style="padding:10px 20px;font-size:14px;">Log in</a>
+      <a href="#" class="btn-coral-glow" style="padding:10px 20px;font-size:14px;">Get early access</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="midnight-hero">
+    <div class="midnight-glow"></div>
+    <div class="midnight-badge">
+      <span class="midnight-live-dot"></span>
+      Now in beta · 2,000+ active teams
+    </div>
+    <h1 class="midnight-h1">Intelligence that<br>works while<br>you <span class="highlight">sleep.</span></h1>
+    <p class="midnight-body">Autonomous AI agents that monitor your business, surface critical signals, and act — so you never miss the moments that matter.</p>
+    <div class="flex gap-12 items-center">
+      <a href="#" class="btn-coral-glow">Get early access <span class="arrow">→</span></a>
+      <a href="#" class="btn-glass">See a demo</a>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="midnight-cards">
+    <div class="midnight-card">
+      <div class="midnight-card-accent"></div>
+      <div class="midnight-card-title">Autonomous Agents</div>
+      <div class="midnight-card-text">AI agents run 24/7, monitoring every metric and triggering actions before issues become problems.</div>
+    </div>
+    <div class="midnight-metric">
+      <div class="midnight-metric-num">99.9%</div>
+      <div class="midnight-metric-label">uptime SLA</div>
+    </div>
+    <div class="midnight-card">
+      <div class="midnight-card-accent"></div>
+      <div class="midnight-card-title">Zero-config setup</div>
+      <div class="midnight-card-text">Connect your data sources and Hayah learns your business patterns automatically.</div>
+    </div>
+    <div class="midnight-metric" style="background:linear-gradient(135deg,rgba(255,107,71,0.15),rgba(255,107,71,0.05));border-color:rgba(255,107,71,0.3)">
+      <div class="midnight-metric-num" style="color:#ff8f73">3.2×</div>
+      <div class="midnight-metric-label">faster decisions</div>
+    </div>
+    <div class="midnight-card" style="grid-column:span 1;background:rgba(255,107,71,0.12);border-color:rgba(255,107,71,0.25)">
+      <div class="midnight-card-accent" style="background:#ff6b47"></div>
+      <div class="midnight-card-title" style="color:#ff8f73">Coral alert: Revenue at risk</div>
+      <div class="midnight-card-text" style="color:rgba(255,143,115,0.7)">Churn signal detected in segment B. Recommend intervention in next 48h.</div>
+    </div>
+  </div>
+
+  <!-- Components -->
+  <div style="background:#0a3d3a;padding:48px 64px;border-top:1px solid rgba(161,228,219,0.1);">
+    <div class="section-h2" style="color:#7a9b96;">Components</div>
+    <div class="comp-row" style="margin-bottom:24px;">
+      <a href="#" class="btn-coral-glow">Primary CTA</a>
+      <a href="#" class="btn-glass">Secondary glass</a>
+      <code style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#25A497;background:rgba(37,164,151,0.1);padding:4px 10px;border-radius:6px;border:1px solid rgba(37,164,151,0.2);">hayah.agents.deploy()</code>
+    </div>
+    <div class="comp-row" style="margin-bottom:24px;">
+      <span style="background:rgba(161,228,219,0.1);color:#A1E4DB;border:1px solid rgba(161,228,219,0.25);font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;font-family:'Inter',sans-serif;">Default badge</span>
+      <span style="background:rgba(255,107,71,0.15);color:#ff8f73;border:1px solid rgba(255,107,71,0.3);font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;font-family:'Inter',sans-serif;">Alert</span>
+      <span style="background:rgba(37,164,151,0.15);color:#25A497;border:1px solid rgba(37,164,151,0.4);font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;font-family:'Inter',sans-serif;">● Live</span>
+    </div>
+    <div class="swatch-row">
+      <div class="swatch" style="background:#0F3836"></div>
+      <div class="swatch" style="background:#0a3d3a"></div>
+      <div class="swatch" style="background:#1C5753"></div>
+      <div class="swatch" style="background:#25A497"></div>
+      <div class="swatch" style="background:#A1E4DB"></div>
+      <div class="swatch" style="background:#7a9b96"></div>
+      <div class="swatch" style="background:#ff6b47"></div>
+      <div class="swatch" style="background:#ff8f73"></div>
+    </div>
+  </div>
+
+</section>
+
+<div class="section-break"></div>
+
+<!-- ══════════════════════════════════════════════════
+     THEME 3 · HAYAH CORAL
+══════════════════════════════════════════════════ -->
+<section class="theme-section" id="coral-theme">
+
+  <div class="theme-header-bar" style="background:#fff5f2;border-bottom:1px solid rgba(255,181,160,0.4);">
+    <span class="theme-number" style="color:rgba(255,107,71,0.4)">03</span>
+    <span class="theme-name-tag" style="background:rgba(255,107,71,0.12);color:#7d2d15;">Hayah Coral</span>
+    <span style="font-family:'Outfit',sans-serif;font-size:12px;color:#7a9b96;">Fraunces + Outfit · Warm, consumer-facing marketplace</span>
+  </div>
+
+  <!-- Nav -->
+  <nav class="coral-nav">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 96" width="241" height="67" role="img" aria-label="Hayah-AI — business automation">
+      <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#0a3d3a" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+      <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#0a3d3a" letter-spacing="-1.2">hayah<tspan fill="#7a9b96">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+      <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#0a3d3a" textLength="230" lengthAdjust="spacing">business automation</text>
+    </svg>
+    <ul class="coral-nav-links">
+      <li><a href="#">Marketplace</a></li>
+      <li><a href="#">How it works</a></li>
+      <li><a href="#">Pricing</a></li>
+    </ul>
+    <div class="flex gap-12">
+      <a href="#" class="btn-outline-white" style="padding:10px 20px;font-size:14px;">Sign in</a>
+      <a href="#" class="btn-coral-warm" style="padding:10px 20px;font-size:14px;">Start for free</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="coral-hero">
+    <div>
+      <div class="coral-eyebrow">
+        <span>☀️</span> Trusted by 14,000+ businesses
+      </div>
+      <h1 class="coral-h1">Grow your business with <span class="warmword">AI that cares.</span></h1>
+      <p class="coral-body">Hayah AI is the friendliest way to get business intelligence working for you. No PhD required — just connect, ask, and grow.</p>
+      <div class="flex gap-12 items-center">
+        <a href="#" class="btn-coral-warm">Get started free <span class="arrow">→</span></a>
+        <a href="#" class="btn-outline-white">Watch demo</a>
+      </div>
+      <div style="margin-top:24px;display:flex;align-items:center;gap:12px;">
+        <div style="display:flex;">
+          <img src="" alt="" style="width:28px;height:28px;border-radius:50%;background:#A1E4DB;border:2px solid #fff;margin-right:-8px;" />
+          <img src="" alt="" style="width:28px;height:28px;border-radius:50%;background:#ff8f73;border:2px solid #fff;margin-right:-8px;" />
+          <img src="" alt="" style="width:28px;height:28px;border-radius:50%;background:#0a3d3a;border:2px solid #fff;" />
+        </div>
+        <span style="font-family:'Outfit',sans-serif;font-size:13px;color:#7a9b96;font-weight:500;">★★★★★ <strong style="color:#0a3d3a;">4.9</strong> from 2,000+ reviews</span>
+      </div>
+    </div>
+    <div class="coral-visual">
+      <div class="coral-feature-card">
+        <div class="card-label">Revenue this month</div>
+        <div class="card-stat">₱2.4M</div>
+        <div class="card-desc">+24% from last month · AI predicted this growth 3 weeks ago</div>
+      </div>
+      <div class="coral-cards-row">
+        <div class="coral-card">
+          <div class="coral-card-title">Smart alerts</div>
+          <div class="coral-card-text">Get notified before things go wrong — not after.</div>
+        </div>
+        <div class="coral-card" style="background:#e8f4f1;border-color:#A1E4DB;">
+          <div class="coral-card-title">Local insights</div>
+          <div class="coral-card-text">Philippine market data, built-in currency & region support.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="coral-teal-cta">
+    <h2>Ready to grow with AI?</h2>
+    <p>Join 14,000+ Philippine businesses already on Hayah AI</p>
+    <a href="#" style="display:inline-flex;align-items:center;gap:8px;background:#ff6b47;color:#fff;font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;padding:16px 36px;border-radius:12px;text-decoration:none;box-shadow:0 4px 20px rgba(255,107,71,0.4);">Start your free trial →</a>
+  </div>
+
+  <!-- Components -->
+  <div style="background:#faf7f5;padding:48px 64px;border-top:1px solid rgba(255,181,160,0.3);">
+    <div class="section-h2" style="color:#7a9b96;">Components</div>
+    <div class="comp-row" style="margin-bottom:24px;">
+      <a href="#" class="btn-coral-warm">Primary CTA</a>
+      <a href="#" class="btn-outline-white">Secondary</a>
+      <a href="#" style="display:inline-flex;align-items:center;gap:8px;background:transparent;color:#ff6b47;font-family:'Outfit',sans-serif;font-size:16px;font-weight:500;padding:13px 20px;border-radius:12px;text-decoration:none;">Ghost →</a>
+    </div>
+    <div class="comp-row">
+      <span style="background:rgba(255,107,71,0.1);color:#7d2d15;border:1px solid rgba(255,107,71,0.25);font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;font-family:'Outfit',sans-serif;">New</span>
+      <span style="background:#e8f4f1;color:#0a3d3a;border:1px solid #A1E4DB;font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;font-family:'Outfit',sans-serif;">Featured</span>
+      <div class="swatch-row" style="margin-left:8px;">
+        <div class="swatch" style="background:#ff6b47"></div>
+        <div class="swatch" style="background:#ff8f73"></div>
+        <div class="swatch" style="background:#ffb5a0"></div>
+        <div class="swatch" style="background:#fff5f2;border:1px solid #ffb5a0"></div>
+        <div class="swatch" style="background:#0a3d3a"></div>
+        <div class="swatch" style="background:#e8f4f1"></div>
+        <div class="swatch" style="background:#25A497"></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<div class="section-break"></div>
+
+<!-- ══════════════════════════════════════════════════
+     THEME 4 · HAYAH EDITORIAL
+══════════════════════════════════════════════════ -->
+<section class="theme-section" id="editorial">
+
+  <div style="padding:32px 64px 24px;background:#fff;border-bottom:1px solid #0F3836;display:flex;align-items:center;gap:16px;">
+    <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;color:rgba(15,56,54,0.35)">04</span>
+    <span style="font-family:'Clash Display','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.02em;background:#0F3836;color:#fff;padding:5px 12px;">Hayah Editorial</span>
+    <span style="font-family:'Satoshi','Plus Jakarta Sans',sans-serif;font-size:12px;color:#7a9b96;">Clash Display + Satoshi · Bold B2B, thought leadership</span>
+  </div>
+
+  <!-- Nav -->
+  <nav class="editorial-nav">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 96" width="241" height="67" role="img" aria-label="Hayah-AI — business automation">
+      <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#0a3d3a" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+      <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#0a3d3a" letter-spacing="-1.2">hayah<tspan fill="#7a9b96">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+      <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#0a3d3a" textLength="230" lengthAdjust="spacing">business automation</text>
+    </svg>
+    <ul class="editorial-nav-links">
+      <li><a href="#">Product</a></li>
+      <li><a href="#">Enterprise</a></li>
+      <li><a href="#">Blog</a></li>
+    </ul>
+    <div class="flex gap-12">
+      <a href="#" class="btn-editorial-outline" style="padding:10px 24px;font-size:14px;">Log in</a>
+      <a href="#" class="btn-editorial-primary" style="padding:10px 24px;font-size:14px;">Request demo</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="editorial-hero">
+    <div class="editorial-eyebrow">Enterprise AI Intelligence Platform</div>
+    <h1 class="editorial-h1">Stop<br>guessing.<br><span class="accent">Start knowing.</span></h1>
+    <div class="editorial-divider">
+      <p class="editorial-body">Hayah AI replaces the analyst bottleneck with autonomous intelligence. Your data, your decisions — accelerated by AI that understands context.</p>
+      <div class="editorial-body-right">
+        <a href="#" class="btn-editorial-primary">Request a demo →</a>
+        <a href="#" class="btn-editorial-outline">See case studies</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature blocks -->
+  <div class="editorial-blocks">
+    <div class="editorial-block">
+      <div class="editorial-block-title">Autonomous<br>Business Intelligence</div>
+      <div class="editorial-block-body">Enterprise-grade AI that reads your data like your best analyst — and scales to 1,000× the questions.</div>
+    </div>
+    <div class="editorial-block-dark">
+      <div class="editorial-stat">98%</div>
+      <div class="editorial-stat-label">accuracy rate</div>
+    </div>
+    <div class="editorial-block-coral">
+      <div class="editorial-stat">14×</div>
+      <div class="editorial-stat-label">faster reports</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="editorial-cta-section">
+    <div class="editorial-cta-h2">The future<br>is already here.</div>
+    <a href="#" class="btn-editorial-white">Schedule your demo →</a>
+  </div>
+
+  <!-- Components -->
+  <div style="background:#fff;padding:48px 64px;border-top:3px solid #ff6b47;">
+    <div class="section-h2" style="color:#7a9b96;font-family:'Satoshi','Plus Jakarta Sans',sans-serif;">Components — Sharp, zero-radius, bold borders</div>
+    <div class="comp-row" style="margin-bottom:24px;">
+      <a href="#" class="btn-editorial-primary">Primary CTA</a>
+      <a href="#" class="btn-editorial-outline">Secondary</a>
+      <a href="#" style="display:inline-flex;align-items:center;gap:8px;background:#ff6b47;color:#fff;font-family:'Clash Display','Space Grotesk',sans-serif;font-size:15px;font-weight:600;padding:16px 32px;text-decoration:none;">Accent CTA →</a>
+    </div>
+    <div class="comp-row" style="margin-bottom:24px;">
+      <span style="background:transparent;color:#0F3836;border:1.5px solid #0F3836;font-size:12px;font-weight:700;padding:5px 12px;font-family:'Satoshi','Plus Jakarta Sans',sans-serif;letter-spacing:0.04em;">ENTERPRISE</span>
+      <span style="background:#ff6b47;color:#fff;font-size:12px;font-weight:700;padding:5px 12px;font-family:'Satoshi','Plus Jakarta Sans',sans-serif;letter-spacing:0.04em;">NEW</span>
+      <span style="background:#e8f4f1;color:#0F3836;font-size:12px;font-weight:700;padding:5px 12px;font-family:'Satoshi','Plus Jakarta Sans',sans-serif;letter-spacing:0.04em;">FEATURED</span>
+    </div>
+    <div class="swatch-row">
+      <div class="swatch" style="background:#0F3836;border-radius:0"></div>
+      <div class="swatch" style="background:#ff6b47;border-radius:0"></div>
+      <div class="swatch" style="background:#e8f4f1;border-radius:0;border:1px solid #ccc"></div>
+      <div class="swatch" style="background:#ffffff;border-radius:0;border:1px solid #ccc"></div>
+      <div class="swatch" style="background:#25A497;border-radius:0"></div>
+      <div class="swatch" style="background:#7a9b96;border-radius:0"></div>
+    </div>
+  </div>
+
+</section>
+
+<div class="section-break"></div>
+
+<!-- ══════════════════════════════════════════════════
+     THEME 5 · HAYAH BENTO
+══════════════════════════════════════════════════ -->
+<section class="theme-section" id="bento">
+
+  <div class="theme-header-bar" style="background:var(--cream);border-bottom:1px solid rgba(161,228,219,0.35);">
+    <span class="theme-number">05</span>
+    <span class="theme-name-tag" style="background:rgba(37,164,151,0.1);color:#1E6E66;border:1px solid rgba(37,164,151,0.25);">Hayah Bento</span>
+    <span style="font-family:'Inter',sans-serif;font-size:12px;color:#7a9b96;">Space Grotesk + Inter · AI/tech SaaS bento grid</span>
+  </div>
+
+  <!-- Nav (pill style) -->
+  <div class="bento-nav">
+    <div class="bento-nav-inner">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 96" width="241" height="67" role="img" aria-label="Hayah-AI — business automation">
+        <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#0a3d3a" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+        <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#0a3d3a" letter-spacing="-1.2">hayah<tspan fill="#7a9b96">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+        <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#0a3d3a" textLength="230" lengthAdjust="spacing">business automation</text>
+      </svg>
+      <ul class="bento-nav-links">
+        <li><a href="#">Platform</a></li>
+        <li><a href="#">API</a></li>
+        <li><a href="#">Pricing</a></li>
+      </ul>
+      <div class="flex gap-12">
+        <a href="#" class="btn-soft-teal" style="padding:9px 20px;font-size:13px;">Sign in</a>
+        <a href="#" class="btn-aqua" style="padding:9px 20px;font-size:13px;">Start building</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero (centered) -->
+  <div class="bento-hero">
+    <div class="bento-eyebrow">
+      <span>⚡</span> Powered by Claude Sonnet 4.6
+    </div>
+    <h1 class="bento-h1">The AI layer for<br><span class="teal">every decision.</span></h1>
+    <p class="bento-body">Build autonomous intelligence into your product in hours, not months. Real-time data, agentic workflows, and a developer API that gets out of your way.</p>
+    <div class="flex gap-12 items-center" style="justify-content:center;">
+      <a href="#" class="btn-aqua">Start free →</a>
+      <a href="#" class="btn-soft-teal">Read the docs</a>
+    </div>
+  </div>
+
+  <!-- Bento Grid -->
+  <div class="bento-grid">
+    <!-- Large dark card -->
+    <div class="bento-card-dark bento-span2" style="min-height:220px;display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div class="bento-tag">Core platform</div>
+        <div class="bento-card-title" style="font-family:'Space Grotesk',sans-serif;font-size:24px;letter-spacing:-0.025em;line-height:1.2;color:#fff;">Agentic AI that works<br>across your stack</div>
+      </div>
+      <div class="bento-card-text" style="color:var(--teal-400);">Connect any data source. Deploy agents that monitor, reason, and act autonomously.</div>
+    </div>
+
+    <!-- Metric -->
+    <div class="bento-card-pearl bento-span1">
+      <div class="bento-accent-bar"></div>
+      <div class="bento-metric" style="color:var(--teal-500);">14ms</div>
+      <div class="bento-metric-label">median response time</div>
+    </div>
+
+    <!-- Coral highlight -->
+    <div class="bento-card-coral bento-span1">
+      <div class="bento-accent-bar bento-accent-bar-coral" style="background:rgba(255,255,255,0.4);"></div>
+      <div class="bento-metric" style="color:#fff;">99.9%</div>
+      <div class="bento-metric-label" style="color:rgba(255,255,255,0.75);">uptime SLA</div>
+    </div>
+
+    <!-- Feature card -->
+    <div class="bento-card bento-span1">
+      <div class="bento-accent-bar"></div>
+      <div class="bento-card-title">Developer-first API</div>
+      <div class="bento-card-text">OpenAPI-compatible REST endpoints. SDKs for TypeScript, Python, and more.</div>
+      <div style="margin-top:16px;">
+        <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#1E6E66;background:#F3FFF9;padding:4px 8px;border-radius:6px;">npm install @hayah/sdk</code>
+      </div>
+    </div>
+
+    <!-- Glass card -->
+    <div class="bento-card-glass bento-span1">
+      <div class="bento-accent-bar" style="background:var(--coral-500);"></div>
+      <div class="bento-card-title" style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;letter-spacing:-0.015em;">Philippine-market ready</div>
+      <div class="bento-card-text">₱ currency, PH address formats, COD payment flows — built in.</div>
+    </div>
+
+    <!-- Metric 2 -->
+    <div class="bento-card bento-span1">
+      <div class="bento-accent-bar" style="background:var(--coral-500);"></div>
+      <div class="bento-metric" style="font-size:36px;color:#0a3d3a;">3.2×</div>
+      <div class="bento-metric-label">faster product decisions</div>
+    </div>
+
+    <!-- Wide feature -->
+    <div class="bento-card bento-span2" style="background:linear-gradient(135deg,#F3FFF9,#e8f4f1);">
+      <div class="bento-tag">Security</div>
+      <div class="bento-card-title">Enterprise-grade by default</div>
+      <div class="bento-card-text">SOC 2 Type II · End-to-end encryption · Row-level security · Zero data retention on inference</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="bento-cta" style="margin-top:48px;">
+    <h2>Build smarter.<br><em>Ship faster.</em></h2>
+    <p>Join the teams shipping AI products with Hayah.</p>
+    <div class="flex gap-12 items-center" style="justify-content:center;">
+      <a href="#" class="btn-aqua" style="font-size:16px;padding:16px 36px;">Start building for free →</a>
+      <a href="#" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);color:var(--teal-400);font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:500;padding:16px 36px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);text-decoration:none;">Talk to sales</a>
+    </div>
+  </div>
+
+  <!-- Components -->
+  <div style="background:#faf7f5;padding:48px 64px;border-top:1px solid rgba(161,228,219,0.35);">
+    <div class="section-h2" style="color:#7a9b96;">Components — Rounded, technical, aqua-led</div>
+    <div class="comp-row" style="margin-bottom:24px;">
+      <a href="#" class="btn-aqua">Primary (aqua)</a>
+      <a href="#" class="btn-soft-teal">Secondary</a>
+      <a href="#" class="btn-coral-glow" style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;padding:14px 28px;border-radius:12px;text-decoration:none;">Coral CTA</a>
+    </div>
+    <div class="comp-row" style="margin-bottom:24px;">
+      <span style="background:rgba(37,164,151,0.1);color:#1E6E66;border:1px solid rgba(37,164,151,0.3);font-size:12px;font-weight:600;padding:5px 10px;border-radius:6px;font-family:'Space Grotesk',sans-serif;">PLATFORM</span>
+      <span style="background:rgba(255,107,71,0.1);color:#e55a38;border:1px solid rgba(255,107,71,0.3);font-size:12px;font-weight:600;padding:5px 10px;border-radius:6px;font-family:'Space Grotesk',sans-serif;">BETA</span>
+      <span style="background:#25A497;color:#fff;font-size:12px;font-weight:600;padding:5px 10px;border-radius:6px;font-family:'Space Grotesk',sans-serif;">NEW</span>
+      <code style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#1E6E66;background:#F3FFF9;padding:5px 12px;border-radius:6px;border:1px solid rgba(37,164,151,0.2);">hayah.run({ agent: "revenue" })</code>
+    </div>
+    <div class="swatch-row">
+      <div class="swatch" style="background:#0a3d3a;border-radius:10px"></div>
+      <div class="swatch" style="background:#1E6E66;border-radius:10px"></div>
+      <div class="swatch" style="background:#25A497;border-radius:10px"></div>
+      <div class="swatch" style="background:#A1E4DB;border-radius:10px"></div>
+      <div class="swatch" style="background:#e8f4f1;border-radius:10px;border:1px solid #ccc"></div>
+      <div class="swatch" style="background:#faf7f5;border-radius:10px;border:1px solid #ccc"></div>
+      <div class="swatch" style="background:#ffb5a0;border-radius:10px"></div>
+      <div class="swatch" style="background:#ff8f73;border-radius:10px"></div>
+      <div class="swatch" style="background:#ff6b47;border-radius:10px"></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ── FOOTER ───────────────────────────────────── -->
+<footer style="background:#080808;padding:48px 64px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+  <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.02em;color:#fff;margin-bottom:8px;">Hayahai Theme System <span style="color:var(--teal-500)">v2.0</span></div>
+  <div style="font-family:'Inter',sans-serif;font-size:13px;color:rgba(255,255,255,0.35);">5 variants · Same palette, distinct personalities · Built for landing pages that convert</div>
+</footer>
+
+</body>
+</html>

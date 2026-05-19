@@ -1,0 +1,78 @@
+{
+  "name": "{{client-slug}}",
+  "client": "{{client-name}}",
+  "generated": "{{iso-date}}",
+  "mood": "{{mood}}",
+  "industry": "{{industry}}",
+
+  "colors": {
+    "primary":     "{{primary-500}}",
+    "primaryLit":  "{{primary-400}}",
+    "primaryDark": "{{primary-700}}",
+    "accent":      "{{accent}}",
+    "background":  "{{bg}}",
+    "surface":     "{{surface}}",
+    "card":        "{{card}}",
+    "border":      "{{border}}",
+    "text":        "{{text}}",
+    "textMuted":   "{{muted}}",
+    "textSubtle":  "{{subtle}}"
+  },
+
+  "paletteScale": {
+    "100": "{{p100}}",
+    "200": "{{p200}}",
+    "300": "{{p300}}",
+    "400": "{{p400}}",
+    "500": "{{p500}}",
+    "600": "{{p600}}",
+    "700": "{{p700}}",
+    "800": "{{p800}}",
+    "900": "{{p900}}"
+  },
+
+  "typography": {
+    "googleFontsUrl": "{{fonts-url}}",
+    "displayFont":    "{{display-font}}",
+    "bodyFont":       "{{body-font}}",
+    "scale": {
+      "h1":    "clamp(2.5rem, 6vw, 5rem)",
+      "h2":    "clamp(2rem, 4.5vw, 3.5rem)",
+      "h3":    "1.5rem",
+      "body":  "1rem",
+      "small": "0.875rem",
+      "label": "0.72rem"
+    },
+    "letterSpacing": {
+      "display": "-0.025em",
+      "body":    "0",
+      "label":   "0.12em"
+    }
+  },
+
+  "radii": {
+    "xs":   "{{r-xs}}",
+    "sm":   "{{r-sm}}",
+    "md":   "{{r-md}}",
+    "lg":   "{{r-lg}}",
+    "xl":   "{{r-xl}}",
+    "full": "9999px"
+  },
+
+  "shadows": {
+    "xs":  "{{shadow-xs}}",
+    "sm":  "{{shadow-sm}}",
+    "md":  "{{shadow-md}}",
+    "lg":  "{{shadow-lg}}",
+    "cta": "{{shadow-cta}}"
+  },
+
+  "spacing": "8px",
+
+  "logo": {
+    "light":  "brand/logo.svg",
+    "dark":   "brand/logo-dark.svg",
+    "aspect": "{{logo-aspect}}",
+    "source": "{{logo-source}}"
+  }
+}

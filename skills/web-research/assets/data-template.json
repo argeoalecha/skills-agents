@@ -1,0 +1,254 @@
+{
+  "meta": {
+    "slug": "{{slug}}",
+    "target_url": "{{target-url}}",
+    "depth_level": "{{depth-level}}",
+    "project_context": "{{project-context}}",
+    "last_updated": "{{iso-date}}",
+    "schema_version": "1.0"
+  },
+
+  "company": {
+    "name": "{{company-name}}",
+    "tagline": "{{tagline}}",
+    "industry": "{{industry}}",
+    "founded": "{{founded}}",
+    "hq_location": "{{hq-location}}",
+    "size_band": "{{size-band}}",
+    "languages": [],
+    "primary_cta": "{{primary-cta}}",
+    "about_summary": "{{about-summary}}"
+  },
+
+  "tech_hosting": {
+    "domain_provider": {
+      "registrar": "{{registrar}}",
+      "iana_id": null,
+      "registered": "{{domain-registered}}",
+      "expiry": "{{domain-expiry}}",
+      "expiry_flag": false,
+      "domain_age_years": null,
+      "privacy_protected": null,
+      "abuse_contact": null,
+      "whois_server": null
+    },
+    "dns_provider": {
+      "provider": null,
+      "name_servers": []
+    },
+    "hosting": {
+      "platform": "{{hosting-provider}}",
+      "confidence": "low",
+      "origin_ip": null,
+      "asn": null,
+      "country": null,
+      "evidence": []
+    },
+    "email_provider": {
+      "provider": "{{mail-provider}}",
+      "mx_records": [],
+      "spf_present": null,
+      "dmarc_present": null
+    },
+    "cdn": {
+      "provider": "{{cdn}}",
+      "evidence": []
+    },
+    "cms_framework": {
+      "name": "{{tech-stack}}",
+      "version_hint": null
+    },
+    "ssl": { "issuer": "{{ssl-issuer}}", "expiry": "{{ssl-expiry}}", "valid": null },
+    "analytics": []
+  },
+
+  "web_presence": {
+    "indexed_page_count": 0,
+    "key_pages": {
+      "home": { "status": "ok", "notes": "" },
+      "about": { "status": "ok", "notes": "" },
+      "services": { "status": "ok", "notes": "" },
+      "pricing": { "status": "not_found", "notes": "" },
+      "contact": { "status": "ok", "notes": "" },
+      "blog": { "status": "ok", "notes": "" }
+    },
+    "sitemap_summary": "",
+    "content_freshness": "",
+    "contact": {
+      "email": "{{email}}",
+      "phone": "{{phone}}",
+      "address": "{{address}}"
+    },
+    "services": [],
+    "pricing_visible": false
+  },
+
+  "brand_assets": {
+    "logo_path": "~/projects-mvp/web-researches/{{slug}}/assets/logo.{{logo-ext}}",
+    "favicon_path": "~/projects-mvp/web-researches/{{slug}}/assets/favicon.ico",
+    "og_image_path": "~/projects-mvp/web-researches/{{slug}}/assets/og-image.{{og-ext}}",
+    "primary_color": "{{primary-color}}",
+    "secondary_color": "{{secondary-color}}",
+    "accent_color": "{{accent-color}}",
+    "display_font": "{{display-font}}",
+    "body_font": "{{body-font}}",
+    "voice_adjective": "{{voice-adjective}}",
+    "feeds_into": "/theme-client"
+  },
+
+  "social_footprint": {
+    "linkedin":  { "handle": null, "url": null, "followers": null, "posts": null, "last_active": null },
+    "facebook":  { "handle": null, "url": null, "followers": null, "posts": null, "last_active": null },
+    "instagram": { "handle": null, "url": null, "followers": null, "posts": null, "last_active": null },
+    "x_twitter": { "handle": null, "url": null, "followers": null, "posts": null, "last_active": null },
+    "tiktok":    { "handle": null, "url": null, "followers": null, "posts": null, "last_active": null },
+    "youtube":   { "handle": null, "url": null, "subscribers": null, "videos": null, "last_active": null },
+    "github":    { "handle": null, "url": null, "repos": null, "activity": null, "last_active": null },
+    "threads":   { "handle": null, "url": null, "followers": null, "posts": null, "last_active": null },
+    "summary": ""
+  },
+
+  "google_maps": {
+    "applicable": false,
+    "url": null,
+    "name": null,
+    "address": null,
+    "phone": null,
+    "hours": null,
+    "category_primary": null,
+    "category_secondary": null,
+    "rating": null,
+    "review_count": null,
+    "price_level": null,
+    "claimed": null,
+    "photo_count": null,
+    "nearby_competitors": [],
+    "recent_reviews": []
+  },
+
+  "seo": {
+    "performance": {
+      "mobile": {
+        "performance_score": null,
+        "seo_score": null,
+        "accessibility_score": null,
+        "best_practices_score": null,
+        "lcp_seconds": null,
+        "inp_ms": null,
+        "cls": null,
+        "fcp_seconds": null,
+        "tbt_ms": null,
+        "si_seconds": null,
+        "top_opportunities": []
+      },
+      "desktop": {
+        "performance_score": null,
+        "seo_score": null,
+        "accessibility_score": null,
+        "best_practices_score": null,
+        "lcp_seconds": null,
+        "inp_ms": null,
+        "cls": null,
+        "fcp_seconds": null,
+        "tbt_ms": null,
+        "si_seconds": null,
+        "top_opportunities": []
+      },
+      "pagespeed_report_url": null,
+      "lighthouse_json_path": null
+    },
+    "on_page_audit": {
+      "homepage": {
+        "title_length": null,
+        "meta_description_length": null,
+        "h1_count": null,
+        "image_alt_coverage_pct": null,
+        "canonical_present": null,
+        "robots_meta": null,
+        "og_tags_complete": null,
+        "twitter_card_complete": null,
+        "viewport_present": null,
+        "internal_links_count": null,
+        "external_links_count": null,
+        "schema_types": []
+      },
+      "additional_pages": []
+    },
+    "crawlability": {
+      "robots_txt_valid": null,
+      "robots_txt_sitemap_reference": null,
+      "sitemap_present": null,
+      "sitemap_url_count": null,
+      "sitemap_last_mod": null,
+      "http_to_https_redirect": null,
+      "www_canonical": null,
+      "four_oh_four_proper": null,
+      "http2_support": null,
+      "http3_support": null,
+      "compression": null,
+      "hsts_header": null
+    },
+    "authority": {
+      "indexed_pages_estimate": null,
+      "external_mention_count": null,
+      "wikipedia_url": null,
+      "crunchbase_url": null,
+      "directory_listings": [],
+      "ph_gov_registrations": [],
+      "top_mentions": [],
+      "visible_backlink_count": null,
+      "top_referring_domains": []
+    }
+  },
+
+  "people": {
+    "ceo": { "name": null, "linkedin": null, "notes": null },
+    "key_roles": [],
+    "decision_maker_hypothesis": ""
+  },
+
+  "news_reviews": {
+    "news_mentions": [],
+    "reviews": {
+      "google":     { "rating": null, "count": null, "sentiment": null },
+      "trustpilot": { "rating": null, "count": null, "sentiment": null },
+      "glassdoor":  { "rating": null, "count": null, "sentiment": null },
+      "g2":         { "rating": null, "count": null, "sentiment": null },
+      "reddit":     { "mention_count": null, "sentiment": null }
+    }
+  },
+
+  "competitive_landscape": {
+    "ran": false,
+    "competitors": []
+  },
+
+  "risk_flags": {
+    "ssl": null,
+    "domain_expiry": null,
+    "contact_information": null,
+    "social_presence": null,
+    "review_reputation": null,
+    "content_freshness": null,
+    "compliance": null,
+    "notes": []
+  },
+
+  "next_steps": {
+    "suggested_action": "",
+    "candidate_handoffs": [
+      "/theme-client",
+      "/proposal-comm",
+      "/proposal-tech",
+      "/web-dev",
+      "/ph-dpa-compliance",
+      "/seo-leads-gen"
+    ]
+  },
+
+  "sources": {
+    "site_pages": [],
+    "social_profiles": [],
+    "external": []
+  }
+}

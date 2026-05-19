@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!--
+    MARKET VARIANT: Philippines (₱ PHP · RA 10173 · BIR EWT · Las Piñas RTC)
+    Key differences from MY variant:
+    - [DOC_TITLE_LABEL] → e.g., "Commercial Proposal — Philippines · [Industry]"
+    - All currency amounts → ₱ (Philippine Peso, no decimal for round numbers)
+    - Pricing table header → "Amount (PHP)" not "Amount (MYR)"
+    - Payment methods callout → GCash + BDO/BPI/UnionBank, 2% EWT / BIR Form 2307
+    - SST line → N/A; replace with "VAT-exempt (services)" if applicable
+    - Data Privacy term → RA 10173 / NPC only (remove PDPA 2010 reference)
+    - Taxes & Withholding term → "2% EWT; client issues BIR Form 2307 to Hayah-AI Systems"
+    - Governing Law term → "Philippines; Las Piñas City Regional Trial Court"
+    Structure is identical to proposal-malaysia.html.
+  -->
+  <title>[PROPOSAL_NUMBER_COMM] — [PRODUCT_NAME] Commercial Proposal | Hayah-AI × [CLIENT_NAME]</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:        #25A497;
+      --teal-dark:   #0a3d3a;
+      --teal-light:  #A1E4DB;
+      --teal-pale:   #e8f4f1;
+      --coral:       #ff6b47;
+      --navy:        #0F3836;
+      --navy-2:      #1a4d47;
+      --text:        #0a3d3a;
+      --muted:       #7a9b96;
+      --border:      rgba(161, 228, 219, 0.45);
+      --bg:          #faf7f5;
+      --white:       #FFFFFF;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body:    'Plus Jakarta Sans', sans-serif;
+    }
+
+    html { font-size: 10pt; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: var(--white);
+      padding: 0;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+    }
+
+    .letterhead {
+      background: var(--teal-dark);
+      padding: 20px 32px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .letterhead-info {
+      text-align: right;
+      color: rgba(255,255,255,0.85);
+      font-size: 8pt;
+      line-height: 1.7;
+    }
+
+    .letterhead-info strong {
+      display: block;
+      color: var(--white);
+      font-size: 9pt;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .letterhead-info a { color: var(--teal-light); text-decoration: none; }
+
+    .accent-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--coral) 0%, var(--teal-light) 100%);
+    }
+
+    .doc-body { padding: 28px 36px 36px; }
+
+    .doc-title-block {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--teal);
+      margin-bottom: 24px;
+    }
+
+    .doc-title {
+      font-family: var(--font-display);
+      font-size: 20pt;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+    }
+
+    .doc-title span {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 11pt;
+      font-weight: 500;
+      color: var(--teal);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .doc-meta {
+      text-align: right;
+      font-size: 8.5pt;
+      color: var(--muted);
+      line-height: 1.9;
+      min-width: 160px;
+    }
+
+    .doc-meta strong { color: var(--navy-2); font-weight: 600; }
+
+    .doc-meta .proposal-no {
+      display: inline-block;
+      background: var(--teal-pale);
+      color: var(--teal);
+      font-weight: 700;
+      font-size: 8pt;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+
+    .recipient-block {
+      background: var(--teal-pale);
+      border-left: 4px solid var(--teal);
+      border-radius: 0 6px 6px 0;
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 24px;
+      font-size: 9pt;
+    }
+
+    .recipient-block .field label {
+      display: block;
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 2px;
+    }
+
+    .recipient-block .field .value {
+      font-weight: 600;
+      color: var(--navy);
+      font-size: 9.5pt;
+    }
+
+    .section { margin-bottom: 22px; }
+
+    .section-heading {
+      font-family: var(--font-display);
+      font-size: 12pt;
+      font-weight: 400;
+      color: var(--teal-dark);
+      border-bottom: 1.5px solid var(--border);
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.015em;
+    }
+
+    .section-heading .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--teal);
+      color: var(--white);
+      font-size: 7.5pt;
+      font-family: var(--font-body);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    p { font-size: 9.5pt; margin-bottom: 8px; color: var(--text); }
+
+    .callout {
+      background: #fff5f2;
+      border: 1px solid rgba(255, 107, 71, 0.3);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 9pt;
+      color: #7d2d15;
+      margin-bottom: 12px;
+    }
+
+    .nda-notice {
+      background: var(--teal-pale);
+      border: 1px solid rgba(37, 164, 151, 0.35);
+      border-left: 4px solid var(--teal);
+      border-radius: 0 6px 6px 0;
+      padding: 10px 14px;
+      font-size: 9pt;
+      color: var(--teal-dark);
+      margin-bottom: 12px;
+    }
+
+    .nda-notice strong { font-weight: 700; color: var(--navy); }
+
+    .two-col-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 20px;
+      margin-bottom: 10px;
+    }
+
+    .two-col-list li {
+      font-size: 9pt;
+      padding-left: 14px;
+      position: relative;
+      list-style: none;
+      color: var(--text);
+    }
+
+    .two-col-list li::before { content: '✓'; position: absolute; left: 0; color: var(--teal); font-weight: 700; }
+
+    ul.standard-list { padding-left: 0; margin-bottom: 10px; }
+
+    ul.standard-list li {
+      font-size: 9pt;
+      padding-left: 16px;
+      position: relative;
+      list-style: none;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    ul.standard-list li::before { content: '✓'; position: absolute; left: 0; color: var(--teal); font-weight: 700; }
+    ul.excluded-list li::before { content: '✕'; color: #EF4444; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 12px; }
+    thead tr { background: var(--teal); color: var(--white); }
+    thead th { padding: 7px 10px; text-align: left; font-weight: 600; font-size: 8pt; letter-spacing: 0.04em; }
+    tbody tr:nth-child(even) { background: var(--teal-pale); }
+    tbody tr:nth-child(odd) { background: var(--white); }
+    tbody td { padding: 7px 10px; color: var(--text); border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody td.muted { color: var(--muted); font-style: italic; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .package-card {
+      border: 2px solid var(--teal);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .package-header {
+      background: var(--teal);
+      color: var(--white);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .package-header .pkg-name {
+      font-family: var(--font-display);
+      font-size: 14pt;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+
+    .package-header .pkg-tagline { font-size: 8pt; opacity: 0.85; margin-top: 2px; }
+
+    .package-header .pkg-price { text-align: right; }
+
+    .package-header .pkg-price .amount {
+      font-family: var(--font-display);
+      font-size: 15pt;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+
+    .package-header .pkg-price .note { font-size: 7.5pt; opacity: 0.85; }
+
+    .package-body {
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+    }
+
+    .package-body .pkg-col-label {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+
+    .package-body li {
+      font-size: 8.5pt;
+      padding-left: 14px;
+      position: relative;
+      list-style: none;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .package-body li::before { content: '✓'; position: absolute; left: 0; color: var(--teal); font-weight: 700; }
+
+    .pricing-summary {
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .pricing-summary table { margin: 0; }
+    .pricing-summary tbody tr:last-child td { border-bottom: none; }
+
+    .pricing-total {
+      background: var(--teal-dark);
+      color: var(--white);
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 10pt;
+    }
+
+    .pricing-total .total-amount {
+      font-family: var(--font-display);
+      font-size: 14pt;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+
+    .payment-schedule {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .payment-milestone {
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    .payment-milestone .milestone-label {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--teal);
+      margin-bottom: 4px;
+    }
+
+    .payment-milestone .milestone-pct {
+      font-family: var(--font-display);
+      font-size: 20pt;
+      font-weight: 400;
+      color: var(--teal-dark);
+      line-height: 1;
+      margin-bottom: 2px;
+      letter-spacing: -0.02em;
+    }
+
+    .payment-milestone .milestone-note { font-size: 7.5pt; color: var(--muted); }
+
+    .tier-compare {
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      font-size: 8.5pt;
+    }
+
+    .tier-compare table { margin: 0; }
+    .tier-compare thead tr { background: var(--navy); }
+    .tier-compare thead th { padding: 8px 10px; font-size: 8pt; letter-spacing: 0.04em; }
+    .tier-compare thead th.active-col { background: var(--teal); }
+    .tier-compare tbody td { padding: 7px 10px; font-size: 8pt; vertical-align: top; }
+    .tier-compare tbody td.active-col { background: rgba(37,164,151,0.06); font-weight: 600; color: var(--navy); }
+
+    .timeline { display: grid; gap: 0; margin-bottom: 12px; }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 80px 16px 1fr;
+      gap: 0 10px;
+      align-items: start;
+    }
+
+    .timeline-week { font-size: 7.5pt; font-weight: 700; color: var(--teal); text-align: right; padding-top: 6px; }
+    .timeline-connector { display: flex; flex-direction: column; align-items: center; }
+    .timeline-connector .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--teal); flex-shrink: 0; margin-top: 7px; }
+    .timeline-connector .line { width: 2px; background: var(--border); flex: 1; min-height: 16px; }
+    .timeline-row:last-child .timeline-connector .line { display: none; }
+    .timeline-content { padding: 4px 0 12px; }
+    .timeline-content .milestone-name { font-weight: 600; font-size: 9pt; color: var(--navy); }
+    .timeline-content .milestone-desc { font-size: 8.5pt; color: var(--muted); }
+
+    .terms-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 20px;
+      font-size: 8.5pt;
+      margin-bottom: 12px;
+    }
+
+    .term-item { border-left: 3px solid var(--teal-light); padding-left: 8px; }
+    .term-item .term-label { font-weight: 700; color: var(--navy-2); margin-bottom: 1px; }
+    .term-item .term-value { color: var(--text); }
+
+    .signature-block {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    .sig-party .sig-role {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--teal);
+      margin-bottom: 30px;
+    }
+
+    .sig-party .sig-line { border-bottom: 1.5px solid var(--navy); margin-bottom: 4px; }
+    .sig-party .sig-name { font-weight: 600; font-size: 9pt; color: var(--navy); }
+    .sig-party .sig-title { font-size: 8pt; color: var(--muted); }
+
+    .sig-party .sig-date-line {
+      margin-top: 12px;
+      border-top: 1px solid var(--border);
+      padding-top: 4px;
+      font-size: 7.5pt;
+      color: var(--muted);
+    }
+
+    .placeholder-text { color: var(--muted); font-weight: 400; font-style: italic; }
+
+    .doc-footer {
+      background: var(--teal-dark);
+      padding: 8px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 7.5pt;
+      color: rgba(255,255,255,0.65);
+    }
+
+    .doc-footer a { color: var(--teal-light); text-decoration: none; }
+    .doc-footer .page-num { color: rgba(255,255,255,0.4); }
+
+    @media print {
+      body { background: var(--white); }
+      .page { box-shadow: none; width: 100%; margin: 0; }
+      .page-break { page-break-before: always; }
+      .no-print { display: none; }
+    }
+
+    @page { size: A4; margin: 0; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- LETTERHEAD -->
+  <header class="letterhead">
+    <div class="letterhead-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 96" width="206" height="58" role="img" aria-label="Hayah-AI Systems">
+        <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#faf7f5" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+        <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#faf7f5" letter-spacing="-1.2">hayah<tspan fill="#A1E4DB">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+        <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="18" font-weight="300" fill="rgba(250,247,245,0.65)" textLength="230" lengthAdjust="spacing">systems intelligence</text>
+      </svg>
+    </div>
+    <div class="letterhead-info">
+      <strong>Hayah-AI Systems</strong>
+      hello@hayah-ai.com &nbsp;·&nbsp; hayah-ai.com<br>
+      Las Piñas City, Metro Manila, Philippines<br>
+      Serving clients across Southeast Asia
+    </div>
+  </header>
+  <div class="accent-bar"></div>
+
+  <div class="doc-body">
+
+    <!-- TITLE BLOCK -->
+    <div class="doc-title-block">
+      <div class="doc-title">
+        <!-- FILL: Label — e.g., "Commercial Proposal — Malaysia · Oil & Gas" -->
+        <span>[DOC_TITLE_LABEL]</span>
+        <!-- FILL: "[PRODUCT_NAME] — [PRODUCT_TAGLINE]" -->
+        [PRODUCT_NAME] — [PRODUCT_TAGLINE]
+      </div>
+      <div class="doc-meta">
+        <div class="proposal-no">[PROPOSAL_NUMBER_COMM]</div>
+        <div><strong>Prepared for:</strong> [CLIENT_NAME]</div>
+        <div><strong>Date:</strong> [DATE]</div>
+        <div><strong>Valid until:</strong> [VALID_UNTIL]</div>
+        <div><strong>Prepared by:</strong> [AUTHOR]</div>
+        <div><strong>Technical doc:</strong> [PROPOSAL_NUMBER_TECH]</div>
+      </div>
+    </div>
+
+    <!-- RECIPIENT BLOCK -->
+    <div class="recipient-block">
+      <div class="field">
+        <label>Client / Business Name</label>
+        <div class="value">[CLIENT_NAME]</div>
+      </div>
+      <div class="field">
+        <label>Contact Person</label>
+        <!-- FILL: Remove placeholder-text class when filled -->
+        <div class="value placeholder-text">[CONTACT_PERSON]</div>
+      </div>
+      <div class="field">
+        <label>Industry</label>
+        <div class="value">[INDUSTRY]</div>
+      </div>
+      <div class="field">
+        <label>Contact Email</label>
+        <!-- FILL: Remove placeholder-text class when filled -->
+        <div class="value placeholder-text">[CONTACT_EMAIL]</div>
+      </div>
+    </div>
+
+    <!-- 1. EXECUTIVE SUMMARY -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">1</span> Executive Summary
+      </div>
+      <!-- FILL: P1 = what the POC delivers, timeline, key constraints. P2 = conservative Year 1 ROI vs. program cost. -->
+      <p>[EXEC_SUMMARY_P1]</p>
+      <p>[EXEC_SUMMARY_P2]</p>
+    </div>
+
+    <!-- 2. CURRENT STATE ASSESSMENT -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">2</span> Current State Assessment
+      </div>
+      <!-- FILL: One sentence framing the source of these findings -->
+      <p>[CURRENT_STATE_CONTEXT]</p>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:28%">Process / Area</th>
+            <th style="width:35%">Current Method</th>
+            <th style="width:22%">Est. Time / Impact</th>
+            <th style="width:15%">Priority</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- FILL: 3–4 rows. Priority uses span with color: #ff6b47 (High) or #EAB308 (Medium) -->
+          <tr>
+            <td>[CS_AREA_1]</td>
+            <td class="muted">[CS_METHOD_1]</td>
+            <td class="muted">[CS_IMPACT_1]</td>
+            <td><span style="color:#ff6b47;font-weight:700;">[CS_PRIORITY_1]</span></td>
+          </tr>
+          <tr>
+            <td>[CS_AREA_2]</td>
+            <td class="muted">[CS_METHOD_2]</td>
+            <td class="muted">[CS_IMPACT_2]</td>
+            <td><span style="color:#ff6b47;font-weight:700;">[CS_PRIORITY_2]</span></td>
+          </tr>
+          <tr>
+            <td>[CS_AREA_3]</td>
+            <td class="muted">[CS_METHOD_3]</td>
+            <td class="muted">[CS_IMPACT_3]</td>
+            <td><span style="color:#EAB308;font-weight:700;">[CS_PRIORITY_3]</span></td>
+          </tr>
+          <!-- Add more rows as needed -->
+        </tbody>
+      </table>
+      <!-- FILL: One italic footnote sentence on competitive/compliance risk -->
+      <p style="font-size:8.5pt;color:var(--muted);font-style:italic;">[CURRENT_STATE_FOOTNOTE]</p>
+    </div>
+
+    <!-- 3. PROPOSED SOLUTION -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">3</span> Proposed Solution
+      </div>
+      <!-- FILL: P1 = platform description, scope, timeline, no-disruption note. P2 = coverage details (what types/data). -->
+      <p>[SOLUTION_P1]</p>
+      <p>[SOLUTION_P2]</p>
+
+      <p><strong>Key outcomes this engagement will deliver:</strong></p>
+      <ul class="two-col-list">
+        <!-- FILL: 6 specific, measurable outcome bullets -->
+        <li>[OUTCOME_1]</li>
+        <li>[OUTCOME_2]</li>
+        <li>[OUTCOME_3]</li>
+        <li>[OUTCOME_4]</li>
+        <li>[OUTCOME_5]</li>
+        <li>[OUTCOME_6]</li>
+      </ul>
+    </div>
+
+    <!-- 4. SCOPE OF WORK -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">4</span> Scope of Work
+      </div>
+
+      <div class="nda-notice">
+        <!-- FILL: NDA / confidentiality notice referencing Malaysia PDPA 2010 -->
+        <strong>Confidentiality Notice:</strong> Documents, data, and business information shared by [CLIENT_NAME] during the technical review and throughout this engagement are treated as strictly confidential under the Non-Disclosure obligations in Section 7 of this proposal. These materials will not be reproduced, disclosed, or used for any purpose beyond delivering the agreed scope of work.
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:35%">Deliverable</th>
+            <th style="width:50%">Description</th>
+            <th style="width:15%">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- FILL: 7–9 deliverable rows. Status uses span with color:var(--teal) for "Included", var(--muted) for "Optional" -->
+          <tr>
+            <td>[SOW_DELIV_1]</td>
+            <td class="muted">[SOW_DESC_1]</td>
+            <td><span style="color:var(--teal);font-weight:600;">Included</span></td>
+          </tr>
+          <tr>
+            <td>[SOW_DELIV_2]</td>
+            <td class="muted">[SOW_DESC_2]</td>
+            <td><span style="color:var(--teal);font-weight:600;">Included</span></td>
+          </tr>
+          <tr>
+            <td>[SOW_DELIV_3]</td>
+            <td class="muted">[SOW_DESC_3]</td>
+            <td><span style="color:var(--teal);font-weight:600;">Included</span></td>
+          </tr>
+          <tr>
+            <td>[SOW_DELIV_4]</td>
+            <td class="muted">[SOW_DESC_4]</td>
+            <td><span style="color:var(--teal);font-weight:600;">Included</span></td>
+          </tr>
+          <tr>
+            <td>[SOW_DELIV_5]</td>
+            <td class="muted">[SOW_DESC_5]</td>
+            <td><span style="color:var(--teal);font-weight:600;">Included</span></td>
+          </tr>
+          <tr>
+            <td>[SOW_DELIV_6]</td>
+            <td class="muted">[SOW_DESC_6]</td>
+            <td><span style="color:var(--teal);font-weight:600;">Included</span></td>
+          </tr>
+          <tr>
+            <td>[SOW_DELIV_7]</td>
+            <td class="muted">[SOW_DESC_7]</td>
+            <td><span style="color:var(--teal);font-weight:600;">Included</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-bottom:4px;"><strong>Not included in this scope:</strong></p>
+      <ul class="standard-list excluded-list">
+        <!-- FILL: 4–5 clear out-of-scope items -->
+        <li>[EXCLUDED_1]</li>
+        <li>[EXCLUDED_2]</li>
+        <li>[EXCLUDED_3]</li>
+        <li>[EXCLUDED_4]</li>
+      </ul>
+    </div>
+
+    <!-- PAGE BREAK -->
+    <div class="page-break"></div>
+
+    <!-- 5. PACKAGE & INVESTMENT -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">5</span> Package &amp; Investment
+      </div>
+
+      <!-- PACKAGE CARD -->
+      <div class="package-card">
+        <div class="package-header">
+          <div>
+            <!-- FILL: e.g., "ValvePulse POC — Tier 1" -->
+            <div class="pkg-name">[PACKAGE_NAME]</div>
+            <!-- FILL: e.g., "1 platform · up to 60 actuators · 12-week program · no hardware change required" -->
+            <div class="pkg-tagline">[PACKAGE_TAGLINE]</div>
+          </div>
+          <div class="pkg-price">
+            <!-- FILL: e.g., "RM 74,000" -->
+            <div class="amount">[POC_TOTAL]</div>
+            <!-- FILL: e.g., "12-week total · RM 38k setup + RM 12k/month" -->
+            <div class="note">[POC_PRICE_NOTE]</div>
+          </div>
+        </div>
+        <div class="package-body">
+          <div>
+            <div class="pkg-col-label">What's included</div>
+            <ul>
+              <!-- FILL: 7–8 included items -->
+              <li>[PKG_INCLUDE_1]</li>
+              <li>[PKG_INCLUDE_2]</li>
+              <li>[PKG_INCLUDE_3]</li>
+              <li>[PKG_INCLUDE_4]</li>
+              <li>[PKG_INCLUDE_5]</li>
+              <li>[PKG_INCLUDE_6]</li>
+              <li>[PKG_INCLUDE_7]</li>
+            </ul>
+          </div>
+          <div>
+            <div class="pkg-col-label">Why start here</div>
+            <ul>
+              <!-- FILL: 5 "why this tier" bullets -->
+              <li>[PKG_WHY_1]</li>
+              <li>[PKG_WHY_2]</li>
+              <li>[PKG_WHY_3]</li>
+              <li>[PKG_WHY_4]</li>
+              <li>[PKG_WHY_5]</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIER COMPARISON -->
+      <div style="font-size:8pt;font-weight:700;color:var(--navy-2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">All engagement tiers — for reference</div>
+      <div class="tier-compare">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:28%">Feature</th>
+              <!-- FILL: Tier 1 header — active-col class highlights the proposed tier -->
+              <th class="active-col" style="width:24%">[TIER_1_NAME]<br><span style="font-weight:400;opacity:0.8;font-size:7.5pt;">This proposal</span></th>
+              <th style="width:24%">[TIER_2_NAME]</th>
+              <th style="width:24%">[TIER_3_NAME]</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- FILL: Engagement scope row — must match tech proposal Section 8 tier summary exactly -->
+            <tr>
+              <td>Engagement scope</td>
+              <td class="active-col">[TIER_1_SCOPE]</td>
+              <td class="muted">[TIER_2_SCOPE]</td>
+              <td class="muted">[TIER_3_SCOPE]</td>
+            </tr>
+            <!-- FILL: 5 feature rows comparing all tiers. active-col on Tier 1 column -->
+            <tr>
+              <td>[TIER_FEATURE_1]</td>
+              <td class="active-col">[T1_F1]</td>
+              <td class="muted">[T2_F1]</td>
+              <td class="muted">[T3_F1]</td>
+            </tr>
+            <tr>
+              <td>[TIER_FEATURE_2]</td>
+              <td class="active-col">[T1_F2]</td>
+              <td class="muted">[T2_F2]</td>
+              <td class="muted">[T3_F2]</td>
+            </tr>
+            <tr>
+              <td>[TIER_FEATURE_3]</td>
+              <td class="active-col">[T1_F3]</td>
+              <td class="muted">[T2_F3]</td>
+              <td class="muted">[T3_F3]</td>
+            </tr>
+            <tr>
+              <td>[TIER_FEATURE_4]</td>
+              <td class="active-col">[T1_F4]</td>
+              <td class="muted">[T2_F4]</td>
+              <td class="muted">[T3_F4]</td>
+            </tr>
+            <tr>
+              <td>[TIER_FEATURE_5]</td>
+              <td class="active-col">[T1_F5]</td>
+              <td class="muted">[T2_F5]</td>
+              <td class="muted">[T3_F5]</td>
+            </tr>
+            <tr>
+              <td>Setup &amp; onboarding</td>
+              <td class="active-col"><strong>[TIER_1_SETUP]</strong></td>
+              <td class="muted">[TIER_2_SETUP]</td>
+              <td class="muted">[TIER_3_SETUP]</td>
+            </tr>
+            <tr>
+              <td>Monthly SaaS</td>
+              <td class="active-col"><strong>[TIER_1_MONTHLY] / month</strong></td>
+              <td class="muted">[TIER_2_MONTHLY] / month</td>
+              <td class="muted">[TIER_3_MONTHLY] / month</td>
+            </tr>
+            <tr>
+              <td>12-week / Year 1 total</td>
+              <td class="active-col"><strong>[TIER_1_TOTAL]</strong></td>
+              <td class="muted">[TIER_2_TOTAL]</td>
+              <td class="muted">[TIER_3_TOTAL]</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PRICING SUMMARY -->
+      <div class="pricing-summary">
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th style="text-align:right;width:160px;">Amount (MYR)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- FILL: Setup fee line | Monthly SaaS line | SST line (RM 0.00 — foreign provider) -->
+            <tr>
+              <td>[PRICING_LINE_1_DESC]</td>
+              <td style="text-align:right;font-weight:600;">[TIER_1_SETUP]</td>
+            </tr>
+            <tr>
+              <td>[PRICING_LINE_2_DESC]</td>
+              <td style="text-align:right;font-weight:600;">[PRICING_LINE_2_AMOUNT]</td>
+            </tr>
+            <tr>
+              <td style="color:var(--muted);font-size:8pt;">Service Tax — SST-exempt (foreign service provider, Service Tax Act 2018)</td>
+              <td style="text-align:right;font-weight:600;color:var(--muted);font-size:8pt;">RM 0.00</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pricing-total">
+          <!-- FILL: Label e.g., "Total 12-Week POC Investment" -->
+          <span>[PRICING_TOTAL_LABEL]</span>
+          <span class="total-amount">[POC_TOTAL]</span>
+        </div>
+      </div>
+
+      <!-- PAYMENT SCHEDULE -->
+      <p style="margin-bottom:8px;font-weight:600;font-size:9pt;">Payment Schedule — POC Engagement</p>
+      <div class="payment-schedule">
+        <div class="payment-milestone">
+          <!-- FILL: Milestone 1 trigger — default "Upon Agreement" -->
+          <div class="milestone-label">[PAYMENT_M1_LABEL]</div>
+          <!-- FILL: Milestone 1 percentage — default "50%" -->
+          <div class="milestone-pct">[PAYMENT_M1_PCT]</div>
+          <!-- FILL: e.g., "₱125,000 — Project kickoff & onboarding begins" (include amount + context) -->
+          <div class="milestone-note">[PAYMENT_M1_NOTE]</div>
+        </div>
+        <div class="payment-milestone">
+          <!-- FILL: Milestone 2 trigger — e.g., "Platform Go-Live" -->
+          <div class="milestone-label">[PAYMENT_M2_LABEL]</div>
+          <!-- FILL: Milestone 2 percentage — default "25%" -->
+          <div class="milestone-pct">[PAYMENT_M2_PCT]</div>
+          <!-- FILL: e.g., "₱62,500 — Fleet dashboard live, engineers trained" (include amount + context) -->
+          <div class="milestone-note">[PAYMENT_M2_NOTE]</div>
+        </div>
+        <div class="payment-milestone">
+          <!-- FILL: Milestone 3 trigger — e.g., "POC Acceptance" -->
+          <div class="milestone-label">[PAYMENT_M3_LABEL]</div>
+          <!-- FILL: Milestone 3 percentage — default "25%" -->
+          <div class="milestone-pct">[PAYMENT_M3_PCT]</div>
+          <!-- FILL: e.g., "₱62,500 — Client portal live, first compliance report validated" (include amount + context) -->
+          <div class="milestone-note">[PAYMENT_M3_NOTE]</div>
+        </div>
+      </div>
+
+      <!-- FILL: Post-POC continuation sentence + upgrade terms -->
+      <p style="font-size:8.5pt;color:var(--text);margin-bottom:6px;">[POST_POC_CONTINUATION]</p>
+
+      <div class="callout">
+        <!-- FILL: Payment methods callout — PayPal + Maybank/CIMB/Public Bank for MY. WHT note. -->
+        [PAYMENT_METHODS_CALLOUT]
+      </div>
+    </div>
+
+    <!-- 6. DELIVERY TIMELINE -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">6</span> Delivery Timeline
+      </div>
+      <!-- FILL: "Estimated start date: [DATE] · Platform go-live: [DATE] · 12-week POC ends: [DATE]" -->
+      <p style="margin-bottom:10px;">[TIMELINE_HEADER_DATES]</p>
+      <div class="timeline">
+        <!-- FILL: 5 timeline rows. Each: Week label + calendar dates | Milestone name | Description + deliverable -->
+        <div class="timeline-row">
+          <div class="timeline-week">[TL_1_WEEK]</div>
+          <div class="timeline-connector"><div class="dot"></div><div class="line"></div></div>
+          <div class="timeline-content">
+            <div class="milestone-name">[TL_1_NAME]</div>
+            <div class="milestone-desc">[TL_1_DESC]</div>
+          </div>
+        </div>
+        <div class="timeline-row">
+          <div class="timeline-week">[TL_2_WEEK]</div>
+          <div class="timeline-connector"><div class="dot"></div><div class="line"></div></div>
+          <div class="timeline-content">
+            <div class="milestone-name">[TL_2_NAME]</div>
+            <div class="milestone-desc">[TL_2_DESC]</div>
+          </div>
+        </div>
+        <div class="timeline-row">
+          <div class="timeline-week">[TL_3_WEEK]</div>
+          <div class="timeline-connector"><div class="dot"></div><div class="line"></div></div>
+          <div class="timeline-content">
+            <div class="milestone-name">[TL_3_NAME]</div>
+            <div class="milestone-desc">[TL_3_DESC]</div>
+          </div>
+        </div>
+        <div class="timeline-row">
+          <div class="timeline-week">[TL_4_WEEK]</div>
+          <div class="timeline-connector"><div class="dot"></div><div class="line"></div></div>
+          <div class="timeline-content">
+            <div class="milestone-name">[TL_4_NAME]</div>
+            <div class="milestone-desc">[TL_4_DESC]</div>
+          </div>
+        </div>
+        <div class="timeline-row">
+          <div class="timeline-week">[TL_5_WEEK]</div>
+          <div class="timeline-connector"><div class="dot"></div><div class="line"></div></div>
+          <div class="timeline-content">
+            <div class="milestone-name">[TL_5_NAME]</div>
+            <div class="milestone-desc">[TL_5_DESC]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. TERMS & CONDITIONS -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">7</span> Terms &amp; Conditions
+      </div>
+      <div class="terms-grid">
+        <div class="term-item">
+          <div class="term-label">Project Start</div>
+          <!-- FILL: e.g., "Work begins upon receipt of the 50% deposit and signed proposal. Estimated start: [START_DATE]." -->
+          <div class="term-value">[TERM_PROJECT_START]</div>
+        </div>
+        <div class="term-item">
+          <div class="term-label">Proposal Validity</div>
+          <!-- FILL: e.g., "Valid for 60 days from date of issue — until [VALID_UNTIL]. Pricing may be revised after this date." -->
+          <div class="term-value">[TERM_VALIDITY]</div>
+        </div>
+        <div class="term-item">
+          <div class="term-label">Post-POC Continuation</div>
+          <!-- FILL: monthly rate, invoice date, payment terms, notice period -->
+          <div class="term-value">[TERM_POST_POC]</div>
+        </div>
+        <div class="term-item">
+          <div class="term-label">Client Responsibilities</div>
+          <!-- FILL: data provision, technical contact, feedback turnaround -->
+          <div class="term-value">[TERM_CLIENT_RESP]</div>
+        </div>
+        <div class="term-item">
+          <div class="term-label">Revisions &amp; Enhancements</div>
+          <div class="term-value">Two rounds of configuration revisions included within the agreed POC scope. Enhancements beyond agreed scope are quoted separately at RM 500/hr.</div>
+        </div>
+        <div class="term-item">
+          <div class="term-label">Cancellation</div>
+          <div class="term-value">Cancellation after project kickoff forfeits the 50% deposit. All work completed to date will be delivered to [CLIENT_NAME]. Monthly SaaS cancellation requires 30 days written notice.</div>
+        </div>
+        <div class="term-item">
+          <div class="term-label">Non-Disclosure Agreement</div>
+          <div class="term-value">All documents, data, and confidential information shared by [CLIENT_NAME] are treated as strictly confidential. Hayah-AI Systems will not disclose, reproduce, or use client materials for any purpose other than project delivery. This obligation survives project completion for three (3) years.</div>
+        </div>
+        <div class="term-item">
+          <div class="term-label">Data Privacy</div>
+          <!-- MY variant: references Malaysia PDPA 2010 + RA 10173 -->
+          <div class="term-value">Client data is processed in compliance with Malaysia's Personal Data Protection Act 2010 (PDPA) and the Philippines Data Privacy Act (RA 10173). Asset and operational data is used solely for platform delivery and not shared with third parties. Data residency in Malaysia is available upon request. A Data Processing Agreement is available.</div>
+        </div>
+        <div class="term-item">
+          <div class="term-label">Intellectual Property</div>
+          <div class="term-value">The [PRODUCT_NAME] platform, AI models, and advisory engine remain the intellectual property of Hayah-AI Systems. All client data remains the property of [CLIENT_NAME] and is exportable in full at any time in standard formats. Client data is never used to train models for other clients.</div>
+        </div>
+        <div class="term-item">
+          <div class="term-label">Platform Continuity</div>
+          <div class="term-value">In the event that Hayah-AI Systems discontinues the [PRODUCT_NAME] platform, [CLIENT_NAME] will receive 90 days written notice, full export of all client data, and documentation of all system configurations. No data will be deleted during or after the notice period without explicit written consent.</div>
+        </div>
+        <div class="term-item">
+          <div class="term-label">Taxes &amp; Withholding</div>
+          <!-- MY variant: 10% WHT under ITA 1967 -->
+          <div class="term-value">All prices are quoted exclusive of applicable taxes. Hayah-AI Systems is a foreign service provider; Malaysian SST is the client's responsibility to self-assess where applicable under the Service Tax Act 2018. If 10% withholding tax (WHT under ITA 1967) applies, client must issue the corresponding tax certificate to Hayah-AI Systems.</div>
+        </div>
+        <div class="term-item">
+          <div class="term-label">Governing Law</div>
+          <!-- MY variant: Malaysia; KL courts -->
+          <div class="term-value">This agreement is governed by the laws of Malaysia. Any disputes shall be resolved before the appropriate courts of Kuala Lumpur, Malaysia, or by mutual agreement through alternative dispute resolution.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. ACCEPTANCE -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">8</span> Acceptance
+      </div>
+      <p style="margin-bottom:14px;">By signing below, both parties agree to the scope, investment, timeline, and terms outlined in this proposal.</p>
+      <div class="signature-block">
+        <div class="sig-party">
+          <div class="sig-role">Hayah-AI Systems — Service Provider</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">Argeo Alecha</div>
+          <div class="sig-title">Founder, Hayah-AI Systems</div>
+          <div class="sig-date-line">Date: ___________________________</div>
+        </div>
+        <div class="sig-party">
+          <!-- FILL: Replace placeholder-text class + content with real name/position when known -->
+          <div class="sig-role">[CLIENT_NAME] — Authorised Representative</div>
+          <div class="sig-line"></div>
+          <div class="sig-name placeholder-text">[Authorised Signatory Name]</div>
+          <div class="sig-title placeholder-text">[Position], [CLIENT_NAME]</div>
+          <div class="sig-date-line">Date: ___________________________</div>
+        </div>
+      </div>
+      <p style="font-size:8pt;color:var(--muted);text-align:center;">Questions? Contact us at <strong>hello@hayah-ai.com</strong> or visit <strong>hayah-ai.com</strong></p>
+    </div>
+
+  </div><!-- /doc-body -->
+
+  <!-- FOOTER -->
+  <footer class="doc-footer">
+    <span>
+      Hayah-AI Systems &nbsp;·&nbsp; hello@hayah-ai.com &nbsp;·&nbsp;
+      <a href="https://hayah-ai.com">hayah-ai.com</a>
+      &nbsp;·&nbsp; Registered in the Philippines (DTI)
+    </span>
+    <span>Proposal No. [PROPOSAL_NUMBER_COMM]</span>
+    <span class="page-num">Page 1 of 1</span>
+  </footer>
+
+</div><!-- /page -->
+</body>
+</html>

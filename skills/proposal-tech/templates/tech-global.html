@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!--
+    MARKET VARIANT: Global / All Other Markets ($ USD · GDPR-aware · UNCITRAL arbitration)
+    Key differences from MY variant:
+    - [DOC_TITLE_LABEL] → e.g., "Technical Proposal — [Region] · [Industry]"
+    - All currency amounts → $ (USD)
+    - NDA / confidentiality notice → GDPR principles + client's applicable law + RA 10173
+    - Support messaging channel → Email / web (not WhatsApp)
+    - Governing law reference → Philippines law + UNCITRAL arbitration for international disputes
+    Structure is identical to tech-malaysia.html.
+  -->
+  <title>[PROPOSAL_NUMBER_TECH] — [PRODUCT_NAME] Technical Proposal | Hayah-AI × [CLIENT_NAME]</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:        #25A497;
+      --teal-dark:   #0a3d3a;
+      --teal-light:  #A1E4DB;
+      --teal-pale:   #e8f4f1;
+      --coral:       #ff6b47;
+      --navy:        #0F3836;
+      --navy-2:      #1a4d47;
+      --text:        #0a3d3a;
+      --muted:       #7a9b96;
+      --border:      rgba(161, 228, 219, 0.45);
+      --bg:          #faf7f5;
+      --white:       #FFFFFF;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body:    'Plus Jakarta Sans', sans-serif;
+    }
+
+    html { font-size: 10pt; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: var(--white);
+      padding: 0;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+    }
+
+    .letterhead {
+      background: var(--teal-dark);
+      padding: 20px 32px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .letterhead-info {
+      text-align: right;
+      color: rgba(255,255,255,0.85);
+      font-size: 8pt;
+      line-height: 1.7;
+    }
+
+    .letterhead-info strong {
+      display: block;
+      color: var(--white);
+      font-size: 9pt;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .letterhead-info a { color: var(--teal-light); text-decoration: none; }
+
+    .accent-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--coral) 0%, var(--teal-light) 100%);
+    }
+
+    .doc-body { padding: 28px 36px 36px; }
+
+    .doc-title-block {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--teal);
+      margin-bottom: 24px;
+    }
+
+    .doc-title {
+      font-family: var(--font-display);
+      font-size: 20pt;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+    }
+
+    .doc-title span {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 11pt;
+      font-weight: 500;
+      color: var(--teal);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .doc-meta {
+      text-align: right;
+      font-size: 8.5pt;
+      color: var(--muted);
+      line-height: 1.9;
+      min-width: 180px;
+    }
+
+    .doc-meta strong { color: var(--navy-2); font-weight: 600; }
+
+    .doc-meta .proposal-no {
+      display: inline-block;
+      background: var(--teal-pale);
+      color: var(--teal);
+      font-weight: 700;
+      font-size: 8pt;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+
+    .section { margin-bottom: 22px; }
+
+    .section-heading {
+      font-family: var(--font-display);
+      font-size: 12pt;
+      font-weight: 400;
+      color: var(--teal-dark);
+      border-bottom: 1.5px solid var(--border);
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.015em;
+    }
+
+    .section-heading .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--teal);
+      color: var(--white);
+      font-size: 7.5pt;
+      font-family: var(--font-body);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .feature-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      background: var(--teal-dark);
+      color: var(--white);
+      font-size: 7pt;
+      font-family: var(--font-body);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    p { font-size: 9.5pt; margin-bottom: 8px; color: var(--text); }
+
+    .callout {
+      background: #fff5f2;
+      border: 1px solid rgba(255, 107, 71, 0.3);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 9pt;
+      color: #7d2d15;
+      margin-bottom: 12px;
+    }
+
+    .nda-notice {
+      background: var(--teal-pale);
+      border: 1px solid rgba(37, 164, 151, 0.35);
+      border-left: 4px solid var(--teal);
+      border-radius: 0 6px 6px 0;
+      padding: 10px 14px;
+      font-size: 9pt;
+      color: var(--teal-dark);
+      margin-bottom: 12px;
+    }
+
+    .nda-notice strong { font-weight: 700; color: var(--navy); }
+
+    .companion-ref {
+      background: var(--teal-dark);
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .companion-ref .cr-label {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 4px;
+    }
+
+    .companion-ref .cr-title {
+      font-family: var(--font-display);
+      font-size: 13pt;
+      font-weight: 400;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+
+    .companion-ref .cr-desc {
+      font-size: 8.5pt;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.65;
+    }
+
+    .companion-ref .cr-num {
+      display: inline-block;
+      background: rgba(37,164,151,0.15);
+      border: 1px solid rgba(161,228,219,0.25);
+      color: var(--teal-light);
+      font-size: 8pt;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+
+    .companion-ref .cr-amount { text-align: right; flex-shrink: 0; }
+
+    .companion-ref .cr-amount-label {
+      font-size: 7.5pt;
+      color: rgba(255,255,255,0.35);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .companion-ref .cr-amount-val {
+      font-family: var(--font-display);
+      font-size: 20pt;
+      font-weight: 400;
+      color: var(--teal-light);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .companion-ref .cr-amount-note {
+      font-size: 7.5pt;
+      color: rgba(255,255,255,0.35);
+      margin-top: 3px;
+    }
+
+    ul.standard-list { padding-left: 0; margin-bottom: 10px; }
+
+    ul.standard-list li {
+      font-size: 9pt;
+      padding-left: 16px;
+      position: relative;
+      list-style: none;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    ul.standard-list li::before { content: '✓'; position: absolute; left: 0; color: var(--teal); font-weight: 700; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 12px; }
+    thead tr { background: var(--teal); color: var(--white); }
+    thead th { padding: 7px 10px; text-align: left; font-weight: 600; font-size: 8pt; letter-spacing: 0.04em; }
+    tbody tr:nth-child(even) { background: var(--teal-pale); }
+    tbody tr:nth-child(odd) { background: var(--white); }
+    tbody td { padding: 7px 10px; color: var(--text); border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody td.muted { color: var(--muted); font-style: italic; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .state-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .state-box { border-radius: 6px; padding: 12px 14px; }
+    .state-box.current { background: #FFF6F6; border: 1px solid #FECACA; }
+    .state-box.required { background: var(--teal-pale); border: 1px solid rgba(37,164,151,0.3); }
+
+    .state-box-label {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+
+    .state-box.current .state-box-label { color: #DC2626; }
+    .state-box.required .state-box-label { color: var(--teal); }
+
+    .state-box ul { list-style: none; }
+    .state-box ul li {
+      font-size: 8.5pt;
+      padding: 4px 0 4px 12px;
+      position: relative;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      line-height: 1.5;
+      color: var(--text);
+    }
+    .state-box ul li:last-child { border-bottom: none; }
+    .state-box.current ul li::before { content: '–'; position: absolute; left: 0; color: #DC2626; }
+    .state-box.required ul li::before { content: '✓'; position: absolute; left: 0; color: var(--teal); font-weight: 700; }
+
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .arch-card { border: 1.5px solid var(--border); border-radius: 6px; overflow: hidden; }
+
+    .arch-card-header {
+      background: var(--teal-dark);
+      color: var(--white);
+      padding: 8px 12px;
+    }
+
+    .arch-card-header .layer-num {
+      font-size: 7pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 2px;
+    }
+
+    .arch-card-header .layer-title {
+      font-family: var(--font-display);
+      font-size: 10pt;
+      font-weight: 400;
+    }
+
+    .arch-card-body { padding: 10px 12px; }
+
+    .arch-card-body ul { list-style: none; }
+    .arch-card-body ul li {
+      font-size: 8pt;
+      padding: 2px 0 2px 12px;
+      position: relative;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .arch-card-body ul li::before { content: '·'; position: absolute; left: 2px; color: var(--teal); font-weight: 700; font-size: 10pt; line-height: 1; }
+
+    .flow-steps {
+      display: flex;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .flow-step {
+      flex: 1;
+      padding: 8px 10px;
+      border-right: 1px solid var(--border);
+      background: var(--white);
+    }
+
+    .flow-step:nth-child(even) { background: var(--teal-pale); }
+    .flow-step:last-child { border-right: none; }
+    .flow-step-tag { font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 3px; }
+    .flow-step-val { font-size: 8.5pt; font-weight: 600; color: var(--navy); line-height: 1.3; }
+    .flow-step-sub { font-size: 7.5pt; color: var(--muted); margin-top: 2px; }
+
+    .infra-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .infra-item { background: var(--teal-pale); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+    .infra-item .i-label { font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--teal); margin-bottom: 3px; }
+    .infra-item .i-val { font-size: 9pt; font-weight: 600; color: var(--navy); }
+    .infra-item .i-sub { font-size: 7.5pt; color: var(--muted); margin-top: 1px; }
+
+    .feature-block { margin-bottom: 18px; }
+
+    .feature-heading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .feature-heading .feature-title {
+      font-family: var(--font-display);
+      font-size: 11pt;
+      font-weight: 400;
+      color: var(--navy);
+    }
+
+    .feature-heading .feature-sub {
+      font-size: 8.5pt;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .tier-table-wrap {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .tier-table-wrap table { margin: 0; }
+    .tier-table-wrap tbody tr:last-child td { border-bottom: none; }
+    .tier-recommended td { background: #e8f4f1 !important; font-weight: 600; }
+
+    .timeline { display: grid; gap: 0; margin-bottom: 12px; }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 80px 16px 1fr;
+      gap: 0 10px;
+      align-items: start;
+    }
+
+    .timeline-week { font-size: 7.5pt; font-weight: 700; color: var(--teal); text-align: right; padding-top: 6px; }
+    .timeline-connector { display: flex; flex-direction: column; align-items: center; }
+    .timeline-connector .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--teal); flex-shrink: 0; margin-top: 7px; }
+    .timeline-connector .line { width: 2px; background: var(--border); flex: 1; min-height: 16px; }
+    .timeline-row:last-child .timeline-connector .line { display: none; }
+    .timeline-content { padding: 4px 0 12px; }
+    .timeline-content .milestone-name { font-weight: 600; font-size: 9pt; color: var(--navy); }
+    .timeline-content .milestone-desc { font-size: 8.5pt; color: var(--muted); }
+
+    .sla-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+    .sla-card {
+      border-radius: 6px;
+      padding: 12px 14px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+    }
+
+    .sla-card .sla-priority { font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+    .sla-card .sla-response { font-family: var(--font-display); font-size: 20pt; font-weight: 400; line-height: 1; margin-bottom: 4px; }
+    .sla-card .sla-desc { font-size: 8.5pt; color: var(--muted); line-height: 1.55; }
+
+    .next-steps { margin-bottom: 12px; }
+
+    .next-step {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+      align-items: start;
+    }
+
+    .next-step .step-num {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--teal-dark);
+      color: var(--white);
+      font-family: var(--font-display);
+      font-size: 14pt;
+      font-weight: 400;
+      flex-shrink: 0;
+    }
+
+    .next-step .step-body .step-title { font-family: var(--font-display); font-size: 11pt; font-weight: 400; color: var(--navy); margin-bottom: 3px; }
+    .next-step .step-body .step-desc { font-size: 9pt; color: var(--muted); line-height: 1.6; }
+    .next-step .step-body .step-action { font-size: 8.5pt; color: var(--teal); font-weight: 600; margin-top: 4px; }
+
+    .doc-footer {
+      background: var(--teal-dark);
+      padding: 8px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 7.5pt;
+      color: rgba(255,255,255,0.65);
+    }
+
+    .doc-footer a { color: var(--teal-light); text-decoration: none; }
+    .doc-footer .page-num { color: rgba(255,255,255,0.4); }
+
+    @media print {
+      body { background: var(--white); }
+      .page { box-shadow: none; width: 100%; margin: 0; }
+      .page-break { page-break-before: always; }
+    }
+
+    @page { size: A4; margin: 0; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- LETTERHEAD -->
+  <header class="letterhead">
+    <div class="letterhead-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 96" width="206" height="58" role="img" aria-label="Hayah-AI Systems">
+        <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#faf7f5" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+        <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#faf7f5" letter-spacing="-1.2">hayah<tspan fill="#A1E4DB">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+        <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="18" font-weight="300" fill="rgba(250,247,245,0.65)" textLength="230" lengthAdjust="spacing">systems intelligence</text>
+      </svg>
+    </div>
+    <div class="letterhead-info">
+      <strong>Hayah-AI Systems</strong>
+      hello@hayah-ai.com &nbsp;·&nbsp; hayah-ai.com<br>
+      Las Piñas City, Metro Manila, Philippines<br>
+      Serving clients across Southeast Asia
+    </div>
+  </header>
+  <div class="accent-bar"></div>
+
+  <div class="doc-body">
+
+    <!-- TITLE BLOCK -->
+    <div class="doc-title-block">
+      <div class="doc-title">
+        <!-- FILL: Label — e.g., "Technical Proposal — Malaysia · Oil & Gas" -->
+        <span>[DOC_TITLE_LABEL]</span>
+        <!-- FILL: "[PRODUCT_NAME] — [PRODUCT_TAGLINE]" -->
+        [PRODUCT_NAME] — [PRODUCT_TAGLINE]
+      </div>
+      <div class="doc-meta">
+        <div class="proposal-no">[PROPOSAL_NUMBER_TECH]</div>
+        <div><strong>Prepared for:</strong> [CLIENT_NAME]</div>
+        <div><strong>Date:</strong> [DATE]</div>
+        <div><strong>Valid until:</strong> [VALID_UNTIL]</div>
+        <div><strong>Prepared by:</strong> [AUTHOR]</div>
+        <div><strong>Commercial doc:</strong> [PROPOSAL_NUMBER_COMM]</div>
+      </div>
+    </div>
+
+    <!-- 1. EXECUTIVE SUMMARY -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">1</span> Executive Summary
+      </div>
+      <!-- FILL: Two paragraphs. P1 = client situation and gap. P2 = what the platform does, delivery timeframe, key constraints. -->
+      <p>[EXEC_SUMMARY_P1]</p>
+      <p>[EXEC_SUMMARY_P2]</p>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%">Key metric</th>
+            <th style="width:38%">What [PRODUCT_NAME] delivers</th>
+            <th style="width:32%">Basis</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- FILL: 3–5 rows. Each row: bold metric value | italic delivery description | italic basis/source -->
+          <tr>
+            <td><strong>[METRIC_1_VALUE]</strong></td>
+            <td class="muted">[METRIC_1_DELIVERY]</td>
+            <td class="muted">[METRIC_1_BASIS]</td>
+          </tr>
+          <tr>
+            <td><strong>[METRIC_2_VALUE]</strong></td>
+            <td class="muted">[METRIC_2_DELIVERY]</td>
+            <td class="muted">[METRIC_2_BASIS]</td>
+          </tr>
+          <tr>
+            <td><strong>[METRIC_3_VALUE]</strong></td>
+            <td class="muted">[METRIC_3_DELIVERY]</td>
+            <td class="muted">[METRIC_3_BASIS]</td>
+          </tr>
+          <!-- Add more metric rows as needed -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2. CURRENT STATE ASSESSMENT -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">2</span> Current State Assessment
+      </div>
+      <!-- FILL: One sentence framing what this section shows -->
+      <p>[CURRENT_STATE_INTRO]</p>
+      <div class="state-compare">
+        <div class="state-box current">
+          <div class="state-box-label">Current State</div>
+          <ul>
+            <!-- FILL: 6–8 bullets describing how the client operates today — manual processes, gaps, risk exposure -->
+            <li>[CURRENT_STATE_1]</li>
+            <li>[CURRENT_STATE_2]</li>
+            <li>[CURRENT_STATE_3]</li>
+            <li>[CURRENT_STATE_4]</li>
+            <li>[CURRENT_STATE_5]</li>
+            <li>[CURRENT_STATE_6]</li>
+          </ul>
+        </div>
+        <div class="state-box required">
+          <!-- FILL: Label — e.g., "Client & Market Requirements" or "Industry Expectations" -->
+          <div class="state-box-label">[REQUIRED_STATE_LABEL]</div>
+          <ul>
+            <!-- FILL: 6–8 bullets describing what clients, regulators, or competitors now expect -->
+            <li>[REQUIRED_STATE_1]</li>
+            <li>[REQUIRED_STATE_2]</li>
+            <li>[REQUIRED_STATE_3]</li>
+            <li>[REQUIRED_STATE_4]</li>
+            <li>[REQUIRED_STATE_5]</li>
+            <li>[REQUIRED_STATE_6]</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        <!-- FILL: Bold heading + 1–2 sentence credibility/risk callout -->
+        <strong>[CALLOUT_HEADING]:</strong> [CALLOUT_TEXT]
+      </div>
+    </div>
+
+    <!-- 3. SOLUTION ARCHITECTURE -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">3</span> Solution Architecture &amp; Technical Overview
+      </div>
+      <!-- FILL: One sentence describing the layered architecture and how data flows -->
+      <p>[ARCHITECTURE_INTRO]</p>
+      <div class="arch-grid">
+        <div class="arch-card">
+          <div class="arch-card-header">
+            <div class="layer-num">Layer 01 · [LAYER_1_TYPE]</div>
+            <!-- FILL: e.g., "Field data sources" -->
+            <div class="layer-title">[LAYER_1_TITLE]</div>
+          </div>
+          <div class="arch-card-body">
+            <ul>
+              <!-- FILL: 5–6 bullets for data ingestion methods, formats, integration options -->
+              <li>[LAYER_1_ITEM_1]</li>
+              <li>[LAYER_1_ITEM_2]</li>
+              <li>[LAYER_1_ITEM_3]</li>
+              <li>[LAYER_1_ITEM_4]</li>
+              <li>[LAYER_1_ITEM_5]</li>
+            </ul>
+          </div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card-header">
+            <div class="layer-num">Layer 02 · [LAYER_2_TYPE]</div>
+            <!-- FILL: e.g., "AI & model processing" -->
+            <div class="layer-title">[LAYER_2_TITLE]</div>
+          </div>
+          <div class="arch-card-body">
+            <ul>
+              <!-- FILL: 5–6 bullets for analytics, AI models, processing capabilities -->
+              <li>[LAYER_2_ITEM_1]</li>
+              <li>[LAYER_2_ITEM_2]</li>
+              <li>[LAYER_2_ITEM_3]</li>
+              <li>[LAYER_2_ITEM_4]</li>
+              <li>[LAYER_2_ITEM_5]</li>
+            </ul>
+          </div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card-header">
+            <div class="layer-num">Layer 03 · [LAYER_3_TYPE]</div>
+            <!-- FILL: e.g., "Dashboards & portals" -->
+            <div class="layer-title">[LAYER_3_TITLE]</div>
+          </div>
+          <div class="arch-card-body">
+            <ul>
+              <!-- FILL: 5–6 bullets for user-facing outputs — dashboards, portals, reports, alerts -->
+              <li>[LAYER_3_ITEM_1]</li>
+              <li>[LAYER_3_ITEM_2]</li>
+              <li>[LAYER_3_ITEM_3]</li>
+              <li>[LAYER_3_ITEM_4]</li>
+              <li>[LAYER_3_ITEM_5]</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILL: Sub-heading for the flow strip — e.g., "Data flow — field log to maintenance action" -->
+      <p style="font-size:8.5pt;font-weight:600;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">[FLOW_HEADING]</p>
+      <div class="flow-steps">
+        <!-- FILL: 6 steps. Each: Tag (Input/Ingestion/etc.) | Step Name | Sub-description -->
+        <div class="flow-step"><div class="flow-step-tag">[STEP_1_TAG]</div><div class="flow-step-val">[STEP_1_NAME]</div><div class="flow-step-sub">[STEP_1_SUB]</div></div>
+        <div class="flow-step"><div class="flow-step-tag">[STEP_2_TAG]</div><div class="flow-step-val">[STEP_2_NAME]</div><div class="flow-step-sub">[STEP_2_SUB]</div></div>
+        <div class="flow-step"><div class="flow-step-tag">[STEP_3_TAG]</div><div class="flow-step-val">[STEP_3_NAME]</div><div class="flow-step-sub">[STEP_3_SUB]</div></div>
+        <div class="flow-step"><div class="flow-step-tag">[STEP_4_TAG]</div><div class="flow-step-val">[STEP_4_NAME]</div><div class="flow-step-sub">[STEP_4_SUB]</div></div>
+        <div class="flow-step"><div class="flow-step-tag">[STEP_5_TAG]</div><div class="flow-step-val">[STEP_5_NAME]</div><div class="flow-step-sub">[STEP_5_SUB]</div></div>
+        <div class="flow-step"><div class="flow-step-tag">[STEP_6_TAG]</div><div class="flow-step-val">[STEP_6_NAME]</div><div class="flow-step-sub">[STEP_6_SUB]</div></div>
+      </div>
+
+      <div class="infra-row">
+        <!-- FILL: 4 infrastructure cards — Hosting, Access, Security, Data retention -->
+        <div class="infra-item"><div class="i-label">Hosting</div><div class="i-val">[INFRA_HOSTING_VAL]</div><div class="i-sub">[INFRA_HOSTING_SUB]</div></div>
+        <div class="infra-item"><div class="i-label">Access</div><div class="i-val">[INFRA_ACCESS_VAL]</div><div class="i-sub">[INFRA_ACCESS_SUB]</div></div>
+        <div class="infra-item"><div class="i-label">Security</div><div class="i-val">[INFRA_SECURITY_VAL]</div><div class="i-sub">[INFRA_SECURITY_SUB]</div></div>
+        <div class="infra-item"><div class="i-label">Data retention</div><div class="i-val">[INFRA_RETENTION_VAL]</div><div class="i-sub">[INFRA_RETENTION_SUB]</div></div>
+      </div>
+    </div>
+
+    <!-- PAGE BREAK -->
+    <div class="page-break"></div>
+
+    <!-- 4. PLATFORM FEATURES -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">4</span> Platform Features
+      </div>
+      <!-- FILL: One sentence on how the modules are delivered and compound in value -->
+      <p>[FEATURES_INTRO]</p>
+
+      <!-- Feature F1 -->
+      <div class="feature-block">
+        <div class="feature-heading">
+          <div class="feature-label">F1</div>
+          <div>
+            <div class="feature-title">[F1_TITLE]</div>
+            <div class="feature-sub">[F1_SUBTITLE]</div>
+          </div>
+        </div>
+        <p>[F1_DESCRIPTION]</p>
+        <table>
+          <thead>
+            <tr>
+              <!-- FILL: 4 column headers appropriate to this feature's data -->
+              <th>[F1_COL1]</th>
+              <th>[F1_COL2]</th>
+              <th>[F1_COL3]</th>
+              <th>[F1_COL4]</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- FILL: 4–6 rows of feature data -->
+            <tr><td>[F1_R1_C1]</td><td class="muted">[F1_R1_C2]</td><td class="muted">[F1_R1_C3]</td><td class="muted">[F1_R1_C4]</td></tr>
+            <tr><td>[F1_R2_C1]</td><td class="muted">[F1_R2_C2]</td><td class="muted">[F1_R2_C3]</td><td class="muted">[F1_R2_C4]</td></tr>
+            <tr><td>[F1_R3_C1]</td><td class="muted">[F1_R3_C2]</td><td class="muted">[F1_R3_C3]</td><td class="muted">[F1_R3_C4]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Feature F2 -->
+      <div class="feature-block">
+        <div class="feature-heading">
+          <div class="feature-label">F2</div>
+          <div>
+            <div class="feature-title">[F2_TITLE]</div>
+            <div class="feature-sub">[F2_SUBTITLE]</div>
+          </div>
+        </div>
+        <p>[F2_DESCRIPTION]</p>
+        <ul class="standard-list">
+          <!-- FILL: 5–6 specific capability bullets for this feature -->
+          <li>[F2_ITEM_1]</li>
+          <li>[F2_ITEM_2]</li>
+          <li>[F2_ITEM_3]</li>
+          <li>[F2_ITEM_4]</li>
+          <li>[F2_ITEM_5]</li>
+        </ul>
+      </div>
+
+      <!-- Feature F3 -->
+      <div class="feature-block">
+        <div class="feature-heading">
+          <div class="feature-label">F3</div>
+          <div>
+            <div class="feature-title">[F3_TITLE]</div>
+            <div class="feature-sub">[F3_SUBTITLE]</div>
+          </div>
+        </div>
+        <p>[F3_DESCRIPTION]</p>
+        <table>
+          <thead>
+            <tr>
+              <th>[F3_COL1]</th>
+              <th>[F3_COL2]</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- FILL: 4–5 rows of capability | detail -->
+            <tr><td>[F3_R1_C1]</td><td class="muted">[F3_R1_C2]</td></tr>
+            <tr><td>[F3_R2_C1]</td><td class="muted">[F3_R2_C2]</td></tr>
+            <tr><td>[F3_R3_C1]</td><td class="muted">[F3_R3_C2]</td></tr>
+            <tr><td>[F3_R4_C1]</td><td class="muted">[F3_R4_C2]</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. USE CASE / MODULE COVERAGE -->
+    <div class="section">
+      <div class="section-heading">
+        <!-- FILL: e.g., "5" + "Actuator Failure Mode Coverage" or "Module & Use Case Coverage" -->
+        <span class="section-num">5</span> [COVERAGE_SECTION_TITLE]
+      </div>
+      <!-- FILL: One sentence on what this table covers and for which scope/product types -->
+      <p>[COVERAGE_INTRO]</p>
+      <table>
+        <thead>
+          <tr>
+            <!-- FILL: Column headers — adapt to engagement domain -->
+            <th style="width:20%">[COV_COL1]</th>
+            <th style="width:20%">[COV_COL2]</th>
+            <th style="width:16%">[COV_COL3]</th>
+            <th style="width:10%">[COV_COL4]</th>
+            <th style="width:20%">[COV_COL5]</th>
+            <th style="width:14%">[COV_COL6]</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- FILL: 6 rows. Lead-time column uses color: var(--teal) font-weight:600 -->
+          <tr>
+            <td><strong>[COV_R1_C1]</strong></td>
+            <td class="muted">[COV_R1_C2]</td>
+            <td class="muted">[COV_R1_C3]</td>
+            <td style="font-weight:600;color:var(--teal);">[COV_R1_C4]</td>
+            <td class="muted">[COV_R1_C5]</td>
+            <td class="muted">[COV_R1_C6]</td>
+          </tr>
+          <tr>
+            <td><strong>[COV_R2_C1]</strong></td>
+            <td class="muted">[COV_R2_C2]</td>
+            <td class="muted">[COV_R2_C3]</td>
+            <td style="font-weight:600;color:var(--teal);">[COV_R2_C4]</td>
+            <td class="muted">[COV_R2_C5]</td>
+            <td class="muted">[COV_R2_C6]</td>
+          </tr>
+          <tr>
+            <td><strong>[COV_R3_C1]</strong></td>
+            <td class="muted">[COV_R3_C2]</td>
+            <td class="muted">[COV_R3_C3]</td>
+            <td style="font-weight:600;color:var(--teal);">[COV_R3_C4]</td>
+            <td class="muted">[COV_R3_C5]</td>
+            <td class="muted">[COV_R3_C6]</td>
+          </tr>
+          <tr>
+            <td><strong>[COV_R4_C1]</strong></td>
+            <td class="muted">[COV_R4_C2]</td>
+            <td class="muted">[COV_R4_C3]</td>
+            <td style="font-weight:600;color:var(--teal);">[COV_R4_C4]</td>
+            <td class="muted">[COV_R4_C5]</td>
+            <td class="muted">[COV_R4_C6]</td>
+          </tr>
+          <tr>
+            <td><strong>[COV_R5_C1]</strong></td>
+            <td class="muted">[COV_R5_C2]</td>
+            <td class="muted">[COV_R5_C3]</td>
+            <td style="font-weight:600;color:var(--teal);">[COV_R5_C4]</td>
+            <td class="muted">[COV_R5_C5]</td>
+            <td class="muted">[COV_R5_C6]</td>
+          </tr>
+          <tr>
+            <td><strong>[COV_R6_C1]</strong></td>
+            <td class="muted">[COV_R6_C2]</td>
+            <td class="muted">[COV_R6_C3]</td>
+            <td style="font-weight:600;color:var(--teal);">[COV_R6_C4]</td>
+            <td class="muted">[COV_R6_C5]</td>
+            <td class="muted">[COV_R6_C6]</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="nda-notice">
+        <!-- FILL: Threshold configurability note, SIL/compliance implications, or any platform coverage caveat -->
+        <strong>Coverage note:</strong> [COVERAGE_NOTE]
+      </div>
+    </div>
+
+    <!-- PAGE BREAK -->
+    <div class="page-break"></div>
+
+    <!-- 6. INTEGRATION REQUIREMENTS -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">6</span> Integration Requirements
+      </div>
+      <!-- FILL: One sentence on the zero-infrastructure-change POC approach -->
+      <p>[INTEGRATION_INTRO]</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
+        <div>
+          <p style="font-size:8.5pt;font-weight:700;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">POC — Required</p>
+          <table>
+            <thead><tr><th>Data source</th><th>Format accepted</th></tr></thead>
+            <tbody>
+              <!-- FILL: 5–6 required POC inputs — data source name | format (Excel/CSV/API/etc.) -->
+              <tr><td>[POC_SOURCE_1]</td><td class="muted">[POC_FORMAT_1]</td></tr>
+              <tr><td>[POC_SOURCE_2]</td><td class="muted">[POC_FORMAT_2]</td></tr>
+              <tr><td>[POC_SOURCE_3]</td><td class="muted">[POC_FORMAT_3]</td></tr>
+              <tr><td>[POC_SOURCE_4]</td><td class="muted">[POC_FORMAT_4]</td></tr>
+              <tr><td>[POC_SOURCE_5]</td><td class="muted">[POC_FORMAT_5]</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <p style="font-size:8.5pt;font-weight:700;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Phase 2 — Optional Enrichment</p>
+          <table>
+            <thead><tr><th>Integration</th><th>Connection method</th></tr></thead>
+            <tbody>
+              <!-- FILL: 5–6 Phase 2 integrations — system name | API/SDK/MQTT/etc. -->
+              <tr><td>[P2_INT_1]</td><td class="muted">[P2_METHOD_1]</td></tr>
+              <tr><td>[P2_INT_2]</td><td class="muted">[P2_METHOD_2]</td></tr>
+              <tr><td>[P2_INT_3]</td><td class="muted">[P2_METHOD_3]</td></tr>
+              <tr><td>[P2_INT_4]</td><td class="muted">[P2_METHOD_4]</td></tr>
+              <tr><td>[P2_INT_5]</td><td class="muted">[P2_METHOD_5]</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="nda-notice">
+        <!-- FILL: "No operational disruption:" + one sentence on what the POC requires vs. doesn't require -->
+        <strong>No operational disruption:</strong> [NO_DISRUPTION_NOTE]
+      </div>
+    </div>
+
+    <!-- 7. IMPLEMENTATION ROADMAP -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">7</span> Implementation Roadmap — POC to Live
+      </div>
+      <!-- FILL: e.g., "Five phases from engagement kick-off to first platform live..." + timing targets -->
+      <p style="margin-bottom:10px;">[ROADMAP_INTRO]</p>
+      <div class="timeline">
+        <!-- FILL: 5 milestone rows. Each: week label | milestone name | description with deliverable -->
+        <div class="timeline-row">
+          <div class="timeline-week">[TL_1_WEEK]</div>
+          <div class="timeline-connector"><div class="dot"></div><div class="line"></div></div>
+          <div class="timeline-content">
+            <div class="milestone-name">[TL_1_NAME]</div>
+            <div class="milestone-desc">[TL_1_DESC]</div>
+          </div>
+        </div>
+        <div class="timeline-row">
+          <div class="timeline-week">[TL_2_WEEK]</div>
+          <div class="timeline-connector"><div class="dot"></div><div class="line"></div></div>
+          <div class="timeline-content">
+            <div class="milestone-name">[TL_2_NAME]</div>
+            <div class="milestone-desc">[TL_2_DESC]</div>
+          </div>
+        </div>
+        <div class="timeline-row">
+          <div class="timeline-week">[TL_3_WEEK]</div>
+          <div class="timeline-connector"><div class="dot"></div><div class="line"></div></div>
+          <div class="timeline-content">
+            <div class="milestone-name">[TL_3_NAME]</div>
+            <div class="milestone-desc">[TL_3_DESC]</div>
+          </div>
+        </div>
+        <div class="timeline-row">
+          <div class="timeline-week">[TL_4_WEEK]</div>
+          <div class="timeline-connector"><div class="dot"></div><div class="line"></div></div>
+          <div class="timeline-content">
+            <div class="milestone-name">[TL_4_NAME]</div>
+            <div class="milestone-desc">[TL_4_DESC]</div>
+          </div>
+        </div>
+        <div class="timeline-row">
+          <div class="timeline-week">[TL_5_WEEK]</div>
+          <div class="timeline-connector"><div class="dot"></div><div class="line"></div></div>
+          <div class="timeline-content">
+            <div class="milestone-name">[TL_5_NAME]</div>
+            <div class="milestone-desc">[TL_5_DESC]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. COMMERCIAL PROPOSAL REFERENCE -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">8</span> Commercial Proposal
+      </div>
+      <p>Full pricing, payment schedule, scope breakdown, terms &amp; conditions, and acceptance signature block are contained in the companion commercial proposal document. A tier summary is provided below for reference.</p>
+
+      <div class="companion-ref">
+        <div>
+          <div class="cr-label">Companion Document</div>
+          <!-- FILL: "[PRODUCT_NAME] — Commercial Proposal" -->
+          <div class="cr-title">[PRODUCT_NAME] — Commercial Proposal</div>
+          <!-- FILL: One sentence on what the commercial doc covers -->
+          <div class="cr-desc">[COMPANION_DESC]</div>
+          <div class="cr-num">[PROPOSAL_NUMBER_COMM]</div>
+        </div>
+        <div class="cr-amount">
+          <div class="cr-amount-label">POC investment</div>
+          <!-- FILL: e.g., "RM 74,000" -->
+          <div class="cr-amount-val">[POC_TOTAL]</div>
+          <!-- FILL: e.g., "1 platform · 60 actuators · 12 weeks" -->
+          <div class="cr-amount-note">[POC_SCOPE_NOTE]</div>
+        </div>
+      </div>
+
+      <p style="margin-bottom:6px;font-weight:600;font-size:9pt;">Tier summary — for reference</p>
+      <div class="tier-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:22%">Tier</th>
+              <th style="width:30%">Scope</th>
+              <th style="width:18%">Setup Fee</th>
+              <th style="width:14%">Monthly SaaS</th>
+              <th style="width:16%">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- FILL: 3 tier rows. First row gets class="tier-recommended" -->
+            <tr class="tier-recommended">
+              <td><strong>[TIER_1_NAME]</strong><br><span style="font-size:7.5pt;color:var(--teal);font-weight:700;">▶ Recommended start</span></td>
+              <td>[TIER_1_SCOPE]</td>
+              <td><strong>[TIER_1_SETUP]</strong></td>
+              <td><strong>[TIER_1_MONTHLY]</strong></td>
+              <td><strong>[TIER_1_TOTAL]</strong><br><span style="font-size:7.5pt;color:var(--muted);">[TIER_1_TOTAL_NOTE]</span></td>
+            </tr>
+            <tr>
+              <td><strong>[TIER_2_NAME]</strong></td>
+              <td>[TIER_2_SCOPE]</td>
+              <td>[TIER_2_SETUP]</td>
+              <td>[TIER_2_MONTHLY]</td>
+              <td>[TIER_2_TOTAL]</td>
+            </tr>
+            <tr>
+              <td><strong>[TIER_3_NAME]</strong></td>
+              <td>[TIER_3_SCOPE]</td>
+              <td>[TIER_3_SETUP]</td>
+              <td>[TIER_3_MONTHLY]</td>
+              <td>[TIER_3_TOTAL]</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ROI TABLE — include if ROI data is available; delete this section if not -->
+      <p style="font-size:8.5pt;font-weight:600;margin-bottom:6px;">Return on investment — [TIER_1_NAME] (Year 1 illustration)</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Value driver</th>
+            <th style="width:22%">Basis</th>
+            <th style="width:22%">Conservative estimate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- FILL: 3–4 value driver rows + total + investment -->
+          <tr>
+            <td>[ROI_DRIVER_1]</td>
+            <td class="muted">[ROI_BASIS_1]</td>
+            <td style="color:#059669;font-weight:600;">[ROI_VALUE_1]</td>
+          </tr>
+          <tr>
+            <td>[ROI_DRIVER_2]</td>
+            <td class="muted">[ROI_BASIS_2]</td>
+            <td style="color:#059669;font-weight:600;">[ROI_VALUE_2]</td>
+          </tr>
+          <tr>
+            <td>[ROI_DRIVER_3]</td>
+            <td class="muted">[ROI_BASIS_3]</td>
+            <td style="color:#059669;font-weight:600;">[ROI_VALUE_3]</td>
+          </tr>
+          <tr>
+            <td><strong>Conservative quantified return — Year 1</strong></td>
+            <td class="muted">Sum of quantified drivers</td>
+            <td style="color:#059669;font-weight:700;font-size:10pt;">[ROI_TOTAL]</td>
+          </tr>
+          <tr>
+            <td>POC investment ([TIER_1_NAME])</td>
+            <td class="muted">Setup + [TIER_1_POC_MONTHS] months SaaS</td>
+            <td style="color:var(--coral);font-weight:600;">[POC_TOTAL]</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 9. SUPPORT & SLA -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">9</span> Support &amp; Service Level Agreement
+      </div>
+      <!-- FILL: One sentence on the operating environment and how the SLA is structured -->
+      <p>[SLA_INTRO]</p>
+      <div class="sla-row">
+        <!-- FILL: P1 — highest priority (red: #DC2626). Response time in large display font -->
+        <div class="sla-card" style="border-top:3px solid #DC2626;">
+          <div class="sla-priority" style="color:#DC2626;">[SLA_P1_LABEL]</div>
+          <div class="sla-response" style="color:#DC2626;">[SLA_P1_RESPONSE]</div>
+          <div class="sla-desc">[SLA_P1_DESC]</div>
+        </div>
+        <!-- FILL: P2 — medium priority (amber: #B45309) -->
+        <div class="sla-card" style="border-top:3px solid #B45309;">
+          <div class="sla-priority" style="color:#B45309;">[SLA_P2_LABEL]</div>
+          <div class="sla-response" style="color:#B45309;">[SLA_P2_RESPONSE]</div>
+          <div class="sla-desc">[SLA_P2_DESC]</div>
+        </div>
+        <!-- FILL: P3 — general (green: #059669) -->
+        <div class="sla-card" style="border-top:3px solid #059669;">
+          <div class="sla-priority" style="color:#059669;">[SLA_P3_LABEL]</div>
+          <div class="sla-response" style="color:#059669;">[SLA_P3_RESPONSE]</div>
+          <div class="sla-desc">[SLA_P3_DESC]</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <p style="font-size:8.5pt;font-weight:700;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Included in all tiers</p>
+          <table>
+            <thead><tr><th>Service item</th><th>Standard</th></tr></thead>
+            <tbody>
+              <!-- FILL: 6 included service rows -->
+              <tr><td>[SLA_SVC_1_ITEM]</td><td class="muted">[SLA_SVC_1_STD]</td></tr>
+              <tr><td>[SLA_SVC_2_ITEM]</td><td class="muted">[SLA_SVC_2_STD]</td></tr>
+              <tr><td>[SLA_SVC_3_ITEM]</td><td class="muted">[SLA_SVC_3_STD]</td></tr>
+              <tr><td>[SLA_SVC_4_ITEM]</td><td class="muted">[SLA_SVC_4_STD]</td></tr>
+              <tr><td>[SLA_SVC_5_ITEM]</td><td class="muted">[SLA_SVC_5_STD]</td></tr>
+              <tr><td>[SLA_SVC_6_ITEM]</td><td class="muted">[SLA_SVC_6_STD]</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <p style="font-size:8.5pt;font-weight:700;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Support channels</p>
+          <table>
+            <thead><tr><th>Channel</th><th>Detail</th></tr></thead>
+            <tbody>
+              <!-- FILL: 6 support channel rows — WhatsApp (MY), not Messenger -->
+              <tr><td>[SLA_CH_1_NAME]</td><td class="muted">[SLA_CH_1_DETAIL]</td></tr>
+              <tr><td>[SLA_CH_2_NAME]</td><td class="muted">[SLA_CH_2_DETAIL]</td></tr>
+              <tr><td>[SLA_CH_3_NAME]</td><td class="muted">[SLA_CH_3_DETAIL]</td></tr>
+              <tr><td>[SLA_CH_4_NAME]</td><td class="muted">[SLA_CH_4_DETAIL]</td></tr>
+              <tr><td>[SLA_CH_5_NAME]</td><td class="muted">[SLA_CH_5_DETAIL]</td></tr>
+              <tr><td>[SLA_CH_6_NAME]</td><td class="muted">[SLA_CH_6_DETAIL]</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. NEXT STEPS -->
+    <div class="section">
+      <div class="section-heading">
+        <span class="section-num">10</span> Next Steps
+      </div>
+      <!-- FILL: One sentence framing the 3 steps to POC -->
+      <p>[NEXT_STEPS_INTRO]</p>
+      <div class="next-steps">
+        <!-- FILL: 3 numbered steps. Each: step title | description | action CTA -->
+        <div class="next-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">[STEP_A_TITLE]</div>
+            <div class="step-desc">[STEP_A_DESC]</div>
+            <div class="step-action">[STEP_A_ACTION]</div>
+          </div>
+        </div>
+        <div class="next-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">[STEP_B_TITLE]</div>
+            <div class="step-desc">[STEP_B_DESC]</div>
+            <div class="step-action">[STEP_B_ACTION]</div>
+          </div>
+        </div>
+        <div class="next-step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">[STEP_C_TITLE]</div>
+            <div class="step-desc">[STEP_C_DESC]</div>
+            <div class="step-action">[STEP_C_ACTION]</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nda-notice">
+        <!-- FILL: NDA / confidentiality notice. References Malaysia PDPA 2010. -->
+        <strong>Confidentiality Notice:</strong> All [CLIENT_DATA_TYPES] shared by [CLIENT_NAME] during this engagement are treated as strictly confidential under the Non-Disclosure obligations in the companion commercial proposal. These materials will not be reproduced, disclosed, or used for any purpose beyond delivering the agreed scope of work. This obligation survives project completion for three (3) years.
+      </div>
+    </div>
+
+  </div><!-- /doc-body -->
+
+  <!-- FOOTER -->
+  <footer class="doc-footer">
+    <span>
+      Hayah-AI Systems &nbsp;·&nbsp; hello@hayah-ai.com &nbsp;·&nbsp;
+      <a href="https://hayah-ai.com">hayah-ai.com</a>
+      &nbsp;·&nbsp; Registered in the Philippines (DTI)
+    </span>
+    <span>Doc No. [PROPOSAL_NUMBER_TECH]</span>
+    <span class="page-num">Confidential</span>
+  </footer>
+
+</div><!-- /page -->
+</body>
+</html>

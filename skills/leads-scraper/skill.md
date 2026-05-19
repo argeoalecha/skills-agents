@@ -39,6 +39,48 @@ Working directory: `~/projects-mvp/scraper-skill/`
 
 ---
 
+## Lead Enhancement Per Record
+
+Every lead — regardless of platform — gets a **quality score (0–6)** and a **completeness** summary computed at export time. These help the user prioritize outreach without manually inspecting every row.
+
+### Quality Score Formula
+
+| Signal | Points |
+|---|---|
+| `email` found | +2 |
+| `phone` found | +1 |
+| `website` found | +1 |
+| `rating ≥ 4.0` (Maps only) | +1 |
+| `reviews ≥ 50` (Maps only) | +1 |
+| `followers ≥ 1,000` (FB / IG only) | +1 |
+| `is_business_account = true` (IG only) | +1 |
+
+**Tiers:**
+- **A (5–6 pts)** — contact this week; strong signals, likely reachable
+- **B (3–4 pts)** — contact next week; partial data, worth a manual check
+- **C (0–2 pts)** — low value; missing most contact fields
+
+### Enriched Fields Per Platform
+
+**Google Maps (`--enrich`):**
+`name · address · phone · rating · reviews · category · website`
+→ enriched: `email` (crawled from homepage + /contact + /about, fallback to `info@domain`) · `social_links` (FB, IG, LinkedIn found on the site)
+→ computed: `quality_score · completeness` (e.g. `4/6 — missing: social links`)
+
+**Facebook:**
+`name · slug · followers · category · phone · email · address · website · hours`
+→ computed: `quality_score · completeness` (e.g. `3/5 — missing: email, website`)
+
+**Instagram:**
+`username · display_name · bio · followers · following · posts · email · phone · website · category · is_business`
+→ computed: `quality_score · engagement_hint` (followers-to-following ratio as a rough signal) · `completeness` (e.g. `2/5 — missing: email, phone, website`)
+
+### Cross-Platform Merge Note
+
+When the same business has been scraped from multiple platforms (Maps + FB + IG), merge records by matching on `website` domain. A merged record inherits the best value for each field across all sources and earns a higher quality score from the combined data.
+
+---
+
 # GOOGLE MAPS SCRAPER
 
 Entrypoint: `python3 scripts/pipeline_runner.py`
@@ -136,9 +178,15 @@ Scraped {N} businesses
 Saved to: {output_file_path(s)}
 [Google Sheets: {url}]
 
-Top 5:
-1. {name} — {rating}★ ({review_count} reviews)
-   {address}
+Quality breakdown:
+  Tier A (5-6 pts): {N} leads — contact this week
+  Tier B (3-4 pts): {N} leads — worth a manual check
+  Tier C (0-2 pts): {N} leads — low value / missing data
+
+Top 5 (by quality score):
+1. {name} — Score: {quality_score}/6 · {completeness}
+   {rating}★ ({review_count} reviews) · {address}
+   Email: {email or "not found"} · Phone: {phone or "not found"} · Site: {website or "none"}
 ...
 ```
 
@@ -309,10 +357,15 @@ Or from a file:
 Scraped {N} Facebook pages
 Saved to: {output_file_path(s)}
 
-Top 5:
-1. {name} (@{slug}) — {follower_count} followers
-   Category: {category}
-   Website: {website}
+Quality breakdown:
+  Tier A (5-6 pts): {N} — contact this week
+  Tier B (3-4 pts): {N} — worth a manual check
+  Tier C (0-2 pts): {N} — low value / missing data
+
+Top 5 (by quality score):
+1. {name} (@{slug}) — Score: {quality_score}/5 · {completeness}
+   {follower_count} followers · Category: {category}
+   Email: {email or "not found"} · Phone: {phone or "not found"} · Site: {website or "none"}
 ...
 ```
 
@@ -398,10 +451,16 @@ Or from a file:
 Scraped {N} Instagram profiles
 Saved to: {output_file_path(s)}
 
-Top 5:
-1. @{username} ({display_name}) — {follower_count} followers
+Quality breakdown:
+  Tier A (5-6 pts): {N} — contact this week
+  Tier B (3-4 pts): {N} — worth a manual check
+  Tier C (0-2 pts): {N} — low value / missing data
+
+Top 5 (by quality score):
+1. @{username} ({display_name}) — Score: {quality_score}/6 · {completeness}
+   {follower_count} followers · Business account: {yes/no} · Engagement hint: {ratio}
+   Email: {email or "not found"} · Phone: {phone or "not found"} · Site: {website or "none"}
    Bio: {bio_preview}
-   Link: {website}
 ...
 ```
 

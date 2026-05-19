@@ -1,6 +1,6 @@
 # Code Review Checklist
 
-Comprehensive checklist for reviewing pull requests in the TripIntell codebase.
+Comprehensive checklist for reviewing pull requests in the Hayah-AI workspace.
 
 ## Pre-Review: PR Requirements
 

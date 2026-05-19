@@ -1,6 +1,6 @@
-# Full-Stack Development Patterns for TripIntell
+# Full-Stack Development Patterns
 
-Common patterns and best practices for building features in the TripIntell stack (Next.js 14, TypeScript, Supabase, Tailwind).
+Common patterns and best practices for building features in the Hayah-AI workspace stack (Next.js App Router, TypeScript strict, Supabase, Tailwind, shadcn/ui).
 
 ## Table of Contents
 

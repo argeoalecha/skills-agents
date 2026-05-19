@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pre-deployment validation checklist for TripIntell features
+# Pre-deployment validation checklist
 
 set -e
 
@@ -22,7 +22,6 @@ REQUIRED_VARS=(
     "NEXT_PUBLIC_SUPABASE_ANON_KEY"
     "SUPABASE_SERVICE_ROLE_KEY"
     "ANTHROPIC_API_KEY"
-    "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY"
 )
 
 for var in "${REQUIRED_VARS[@]}"; do

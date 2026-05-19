@@ -1,0 +1,326 @@
+---
+name: theme-hayahai
+description: Hayah-AI design system — five branded theme variants sharing one ocean-teal + coral palette. Use for landing pages, dashboards, SaaS, auth pages, presentations, or any branded UI. Variants — hayah-classic (refined SaaS, DM Serif), hayah-midnight (dark AI/fintech, Syne), hayah-coral (warm consumer/marketplace, Fraunces), hayah-editorial (bold B2B text-led, Clash Display), hayah-bento (modern grid AI, Space Grotesk). Outputs: HTML artifacts, production CSS/React, or Tailwind token configs.
+user-invocable: true
+---
+
+# Hayah-AI Theme System
+
+Five themes, one core palette (deep teal `#0a3d3a`, aqua `#25A497`, coral `#ff6b47`, cream `#faf7f5`). Switch via `<html data-theme="classic|coral|editorial|bento|midnight">`.
+
+---
+
+## Skill Root
+
+All paths in this file are relative to the skill root: `~/.claude/skills/theme-hayahai/`
+
+| Path | What it is |
+|---|---|
+| `hayahai-design/project/colors_and_type.css` | **Canonical CSS** — variables, theme overrides, semantic type classes |
+| `hayahai-design/project/themes/*.json` | Canonical theme JSONs (v2.0) |
+| `hayahai-design/project/ui_kits/landing/` | Marketing site kit — Nav, Hero, Features, Sections (JSX + index.html) |
+| `hayahai-design/project/ui_kits/app/` | App shell kit — Shell, Screens, Icon (JSX + index.html) |
+| `hayahai-design/project/preview/` | 15 review cards (colors, type, components, spacing, brand) |
+| `hayahai-design/project/assets/` | Logo component (HayahaiLogo.jsx) and brand mark |
+| `hayahai-design/project/README.md` | **Deep brand reference** — voice, visual foundations, imagery, animation, card types, layout rules |
+| `auth-pages/` | 5 ready-to-use login/signup HTML pages, one per theme |
+| `assets/showcase.html` | Full-page multi-theme showcase |
+| `references/color-palette.md` | Complete color usage + WCAG contrast notes |
+| `references/typography.md` | Font import URLs + per-variant type scale |
+
+---
+
+## When Invoked
+
+If the user invokes this skill without specifics, ask:
+1. **What surface?** Landing page · App/dashboard · Auth · Presentation · Component
+2. **Which theme?** Classic · Coral · Editorial · Bento · Midnight (or "recommend one")
+3. **Output target?** HTML artifact (prototype) · Production code (React/Next/Vue) · Tailwind config
+
+Then:
+1. Read `hayahai-design/project/colors_and_type.css` for the canonical variables.
+2. Read the relevant theme JSON for component/spacing specs.
+3. For auth: copy the matching `auth-pages/auth-{theme}.html` as a starting point.
+4. For UI kits: read the JSX/HTML in `ui_kits/landing/` or `ui_kits/app/`.
+
+---
+
+## Theme Variants
+
+| Variant | JSON | Best For | Display Font | Body Font | Mood |
+|---|---|---|---|---|---|
+| **Classic** | `hayah-classic.json` | SaaS, professional services | DM Serif Display | Plus Jakarta Sans | Sophisticated, premium |
+| **Midnight** | `hayah-midnight.json` | AI products, fintech, dev tools (dark) | Syne | Inter | Powerful, cutting-edge |
+| **Coral** | `hayah-coral.json` | Marketplaces, consumer, wellness | Fraunces | Outfit | Warm, approachable |
+| **Editorial** | `hayah-editorial.json` | B2B, thought leadership, premium launches | Clash Display | Satoshi | Bold, authoritative |
+| **Bento** | `hayah-bento.json` | AI/tech SaaS, developer tools | Space Grotesk | Inter | Innovative, dynamic |
+
+Each JSON contains: `colors`, `typography` (with `googleFontsUrl` and full scale), `components`, `landingPageSections`, `spacing`. Bento JSONs additionally contain `bentoGrid.cards` with layout types (`hero-large`, `feature`, `metric`, `highlight`, `glass`).
+
+---
+
+## Color System
+
+**Dark Teals** — Dark Forest `#0F3836` · Deep Teal `#0a3d3a` · Forest Green `#1a4d47` · Medium Teal `#1C5753`
+**Coral** — Vibrant `#ff6b47` · Warm `#ff8f73` · Soft Peach `#ffb5a0` · Hover `#e55a38`
+**Accents** — Aqua `#25A497` · Ocean `#1E6E66` · Mint `#A1E4DB` · Sage `#7a9b96`
+**Backgrounds** — Cream `#faf7f5` · Pearl `#e8f4f1` · Mint Whisper `#F3FFF9`
+
+**Rules:**
+- Light themes: page bg cream `#faf7f5`. Editorial uses pure white. Midnight uses `#0F3836`. **Never pure white** elsewhere.
+- Text on light: `#0a3d3a` (not black). Text on dark: `#faf7f5` (not white).
+- Coral and aqua never share the same hierarchy weight — one leads, the other supports.
+- CTAs always get a colored shadow (`--shadow-coral` or `--shadow-teal`). Cards use neutral shadows only.
+
+Full guidelines and contrast ratios: `references/color-palette.md`.
+
+---
+
+## Typography
+
+| Variant | Display | Body | Mono |
+|---|---|---|---|
+| Classic | DM Serif Display | Plus Jakarta Sans | JetBrains Mono |
+| Midnight | Syne | Inter | JetBrains Mono |
+| Coral | Fraunces | Outfit | JetBrains Mono |
+| Editorial | Clash Display (Fontshare) | Satoshi (Fontshare) | JetBrains Mono |
+| Bento | Space Grotesk | Inter | JetBrains Mono |
+
+**Rules:**
+- Display goes big — hero up to 96px (Editorial). Always pair with negative letter-spacing `-0.025em` to `-0.045em`.
+- Body: 16px / line-height 1.7 (editorial rhythm, not dense product-doc rhythm).
+- Labels/eyebrows: all-caps, weight 600–700, tracking `+0.06–0.12em`.
+- Don't mix multiple display fonts on one page.
+- Editorial fallback: Space Grotesk + Plus Jakarta Sans if Fontshare unreachable.
+
+Per-variant type scale + Fontshare URLs: `references/typography.md`.
+
+---
+
+## Shadow System
+
+Soft, teal-tinted — never harsh black:
+
+```css
+--shadow-xs:    0 1px 2px  rgba(10, 61, 58, 0.05);
+--shadow-sm:    0 2px 8px  rgba(10, 61, 58, 0.06);
+--shadow-md:    0 4px 16px rgba(10, 61, 58, 0.08);
+--shadow-lg:    0 8px 32px rgba(10, 61, 58, 0.10), 0 2px 8px rgba(10, 61, 58, 0.06);
+--shadow-coral: 0 4px 20px rgba(255, 107, 71, 0.4);   /* coral CTAs only */
+--shadow-teal:  0 4px 16px rgba(37, 164, 151, 0.35);  /* aqua CTAs only */
+--glow-teal:    0 0 40px   rgba(37, 164, 151, 0.2);   /* Midnight only */
+--glow-coral:   0 0 40px   rgba(255, 107, 71, 0.3);   /* Midnight only */
+```
+
+---
+
+## Corner Radii
+
+```css
+--r-xs: 6px;  --r-sm: 10px;  --r-md: 16px;  --r-lg: 20px;  --r-xl: 28px;  --r-full: 9999px;
+```
+
+- Cards: `--r-lg`. Hero cards: `--r-xl`. Buttons: 10–12px. Pills/badges: `--r-full`.
+- **Editorial overrides every radius to `0px`** — sharp corners are core to its identity.
+
+---
+
+## Borders
+
+- Default: `1px solid rgba(161, 228, 219, 0.4)` — the brand's signature mint-tinted border.
+- Strong: `1px solid #A1E4DB` (mint) or `2px solid #0F3836` (Editorial).
+- Editorial card accents: `border-top: 3px solid #0F3836`.
+- Midnight: default `rgba(161, 228, 219, 0.15)`, strong `0.4`.
+
+---
+
+## Animation
+
+- Easing: `cubic-bezier(0.4, 0, 0.2, 1)`. Durations: 150ms (micro), 250ms (hover/expand), 400ms (page).
+- Fades and small (~4px) translates only. **No bounces. No springs over 1.0 overshoot. No personality loaders.**
+- Hero stagger-fade-up on load: `opacity 0→1, translateY 8px→0`, 60ms stagger.
+- Hover transition: `transition: color 150ms, background 150ms, transform 200ms`.
+
+---
+
+## Hover & Press States
+
+- **Coral primary button:** hover → `#e55a38`. No size change. Shadow strengthens.
+- **Teal primary button:** hover → `#1E6E66`.
+- **Secondary button:** hover fills `rgba(37,164,151,0.1)` or inverts to dark fill.
+- **Link:** hover swaps teal `#1E6E66` ↔ coral `#ff6b47` (direction depends on theme).
+- **Card:** hover lifts shadow `--shadow-sm` → `--shadow-md`. **Never scale or tilt.**
+- **Press:** brief darken ~6% + 50ms. **No** `transform: scale(0.98)`.
+
+---
+
+## Card Types
+
+- **Light (default):** white bg, 1px mint border, `--r-lg`, `--shadow-sm`, 28–32px padding
+- **Soft:** mint-tinted bg `#e8f4f1`, no shadow, optional 1px mint border
+- **Warm:** `#fff5f2` bg, coral-subtle border
+- **Dark feature:** deep teal gradient or solid `#0a3d3a`, cream text
+- **Glass** (Bento/Midnight only): `rgba(28,87,83,0.4)` + `backdrop-filter: blur(16px)`
+- **Editorial:** `0px` corners + `border-top: 3px solid #0F3836`
+
+---
+
+## Layout Rules
+
+- Container max-width: 1200–1280px. Prose max-width: 680–800px.
+- Section padding vertical: 96–120px. Card gap in grids: 16–24px (Editorial: 2px hairline).
+- Bento is the only theme with **asymmetric grid** — cards spanning 1×1, 2×1, 2×2 cells. See `bentoGrid.cards` in `hayah-bento.json`.
+- Navs: fixed top, glass-blurred (Bento/Midnight) or solid white (Classic/Editorial).
+- **No glass on light themes** — muddies cream. Glass only on Bento + Midnight.
+
+---
+
+## Iconography
+
+- **Library: Lucide** — geometric, 1.5px stroke (2px for emphasis). CDN: `https://unpkg.com/lucide@latest`.
+- Sizes: 16/20/24px (UI), 32–48px (feature cards), 64–96px (hero).
+- Color: `currentColor` default. Aqua `#25A497` for primary action icons. Coral `#ff6b47` only for warnings/CTAs.
+- **Never mix stroke weights. Never use emoji in product UI or marketing copy.**
+
+---
+
+## Content & Voice
+
+- **Sentence case** for all headings and buttons. Never Title Case in UI.
+- **Hero headlines:** short, declarative, single-clause, under ~10 words. No questions.
+- **No exclamation points** in marketing copy. **No emoji** in product UI.
+- **Em-dashes** welcome. Short fragments fine. Periods optional on display lines.
+- **Numbers as numerals** in metrics: `12k+`, `2.4M`, `99.9%`.
+- Marketing copy uses **"you"**. Product copy uses **second-person commands** ("Connect a source").
+- Eyebrows/labels: **uppercase, tracked-out, brief** — `PRODUCT`, `WHAT'S NEW`, `FOR DEVELOPERS`.
+
+| Good | Avoid |
+|---|---|
+| Built for teams that ship. | Empower your team to unleash productivity |
+| Connect a source. | Let's get you set up! |
+| Real-time. End-to-end. | Best-in-class enterprise-grade synergy |
+| Pricing that scales with you. | Plans for every size and shape! |
+
+---
+
+## Logo SVG — Canonical Snippets
+
+The canonical logo is defined in `hayahai-design/project/assets/HayahaiLogo.jsx`. Use the inline SVG equivalents below for HTML pages.
+
+**Two display modes:**
+- **Panel / hero** — full logo with tagline (`viewBox 0 0 344 96`, `width=258 height=72`). Use in left panels, hero sections, or anywhere with ≥80px vertical space.
+- **Compact nav** — mark + wordmark only, no tagline (`viewBox 0 0 344 68`, `width=172 height=34`). Use in horizontal top nav bars.
+
+**Light background (teal mark, teal wordmark):**
+```html
+<!-- Compact nav -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 68" width="172" height="34" role="img" aria-label="Hayah-AI">
+  <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#0a3d3a" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+  <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#0a3d3a" letter-spacing="-1.2">hayah<tspan fill="#7a9b96">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+</svg>
+
+<!-- Panel / hero with tagline -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 96" width="258" height="72" role="img" aria-label="Hayah-AI — business automation">
+  <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#0a3d3a" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+  <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#0a3d3a" letter-spacing="-1.2">hayah<tspan fill="#7a9b96">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+  <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#0a3d3a" textLength="230" lengthAdjust="spacing">business automation</text>
+</svg>
+```
+
+**Dark background (cream mark, cream wordmark):**
+```html
+<!-- Compact nav -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 68" width="172" height="34" role="img" aria-label="Hayah-AI">
+  <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#faf7f5" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+  <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#faf7f5" letter-spacing="-1.2">hayah<tspan fill="#A1E4DB">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+</svg>
+
+<!-- Panel / hero with tagline -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 96" width="258" height="72" role="img" aria-label="Hayah-AI — business automation">
+  <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#faf7f5" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+  <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#faf7f5" letter-spacing="-1.2">hayah<tspan fill="#A1E4DB">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+  <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#faf7f5" textLength="230" lengthAdjust="spacing">business automation</text>
+</svg>
+```
+
+**Nav separator pattern** — wrap the logo in a container with `border-bottom`:
+- Light pages: `border-bottom: 1px solid rgba(161, 228, 219, 0.4)`
+- Dark pages: `border-bottom: 1px solid rgba(161, 228, 219, 0.2)`
+- Editorial (keeps its identity): `border-bottom: 4px solid #0F3836`
+
+**Font requirement:** All pages using this logo must load `DM Serif Display` from Google Fonts:
+```html
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+```
+
+---
+
+## Auth Pages
+
+Pre-built login/sign-up pages at `auth-pages/` (relative to skill root). All forms are static — wire to Supabase Auth, NextAuth, or your provider.
+
+| File | Variant | Layout |
+|---|---|---|
+| `auth-classic.html` | Classic | Split — teal left panel + cream form right |
+| `auth-midnight.html` | Midnight | Centered glass card on dark background |
+| `auth-coral.html` | Coral | Full layout with feature highlights |
+| `auth-editorial.html` | Editorial | Bold newspaper grid |
+| `auth-bento.html` | Bento | Bento grid left + auth card right |
+| `index.html` | Gallery | Links to all 5 auth pages |
+
+---
+
+## Tailwind Config
+
+Map the CSS variables to Tailwind theme tokens:
+
+```js
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        teal: {
+          950: '#0F3836', 900: '#0a3d3a', 800: '#1a4d47', 700: '#1C5753',
+          600: '#1E6E66', 500: '#25A497', 400: '#A1E4DB', 200: '#e8f4f1', 100: '#F3FFF9',
+        },
+        coral: { 700: '#7d2d15', 600: '#e55a38', 500: '#ff6b47', 400: '#ff8f73', 300: '#ffb5a0', 200: '#fff5f2' },
+        cream: '#faf7f5',
+        muted: '#7a9b96',
+      },
+      fontFamily: {
+        // override per [data-theme] in CSS — Tailwind defaults below are Classic
+        display: ['"DM Serif Display"', 'Georgia', 'serif'],
+        body: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
+      borderRadius: { xs: '6px', sm: '10px', md: '16px', lg: '20px', xl: '28px' },
+      boxShadow: {
+        xs: '0 1px 2px rgba(10,61,58,0.05)',
+        sm: '0 2px 8px rgba(10,61,58,0.06)',
+        md: '0 4px 16px rgba(10,61,58,0.08)',
+        lg: '0 8px 32px rgba(10,61,58,0.10), 0 2px 8px rgba(10,61,58,0.06)',
+        coral: '0 4px 20px rgba(255,107,71,0.4)',
+        teal: '0 4px 16px rgba(37,164,151,0.35)',
+      },
+      maxWidth: { container: '1240px', content: '720px' },
+    },
+  },
+};
+```
+
+For per-theme font swaps, keep `colors_and_type.css` imported and let `[data-theme]` overrides drive `--font-display` / `--font-body`. Tailwind handles tokens; CSS handles theme switching.
+
+---
+
+## Implementation Notes
+
+- **Spacing:** 8px grid. Per-variant section/card padding in JSON `spacing` block.
+- **Accessibility:** All combinations meet WCAG AA (4.5:1+). Deep Teal on Pearl is 9.5:1 (AAA). Always use visible focus indicators.
+- **Midnight:** glass cards `rgba(28,87,83,0.5)` + `backdrop-filter: blur(16px)`. `--fg-1: #faf7f5`, `--fg-2: #A1E4DB`.
+- **Logos:** canonical SVG component at `hayahai-design/project/assets/HayahaiLogo.jsx`. Use inline SVG snippets from the section above for HTML pages.
+- **Don't render preview/auth HTML in a browser unless asked** — read the source directly.

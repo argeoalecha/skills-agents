@@ -44,29 +44,35 @@ src/app/api/
 
 ## Step 2 — Scaffold the File
 
-Run the scaffold script to copy the right template:
+Run the scaffold script to generate the route file:
 
 ```bash
 cd <project-root>
-bash ~/.claude/skills/api-new/scripts/scaffold_route.sh \
-  --type <crud|dynamic|stream|webhook> \
-  --path <route-path>
+
+# Standard route (specify methods with --method, add --auth if protected)
+bash ~/.claude/skills/api-new/scripts/scaffold_route.sh <route-path> --method GET,POST --auth
+
+# Streaming (SSE) route
+bash ~/.claude/skills/api-new/scripts/scaffold_route.sh <route-path> --stream --auth
+
+# Examples
+bash ~/.claude/skills/api-new/scripts/scaffold_route.sh trips --method GET,POST --auth
+bash ~/.claude/skills/api-new/scripts/scaffold_route.sh trips/[id] --method GET,PATCH,DELETE --auth
+bash ~/.claude/skills/api-new/scripts/scaffold_route.sh generate --stream --auth
 ```
 
-Or manually copy from `~/.claude/skills/api-new/assets/`:
+For webhook routes, copy the template manually (the script does not support webhooks):
 
 ```bash
-# CRUD collection
-cp ~/.claude/skills/api-new/assets/route-crud.ts src/app/api/<resource>/route.ts
-
-# Dynamic resource
-cp ~/.claude/skills/api-new/assets/route-dynamic.ts src/app/api/<resource>/[id]/route.ts
-
-# Streaming
-cp ~/.claude/skills/api-new/assets/route-stream.ts src/app/api/<resource>/route.ts
-
-# Webhook
 cp ~/.claude/skills/api-new/assets/route-webhook.ts src/app/api/webhooks/<provider>/route.ts
+```
+
+For fine-grained control, copy any template directly:
+
+```bash
+cp ~/.claude/skills/api-new/assets/route-crud.ts    src/app/api/<resource>/route.ts
+cp ~/.claude/skills/api-new/assets/route-dynamic.ts src/app/api/<resource>/[id]/route.ts
+cp ~/.claude/skills/api-new/assets/route-stream.ts  src/app/api/<resource>/route.ts
 ```
 
 ---
@@ -173,4 +179,4 @@ After implementing, write at minimum:
 2. One validation test (invalid input → 400 VALIDATION_ERROR)
 3. One auth test (missing auth → 401 UNAUTHORIZED)
 
-Reference `references/api-conventions.md` for project-specific patterns including rate limiting, caching, and webhook signature verification.
+See `assets/route-webhook.ts` for webhook signature verification patterns. For rate limiting and caching, follow the project's CLAUDE.md conventions.

@@ -1,6 +1,6 @@
 # Architecture Design Workflow
 
-This guide covers the architectural design process for new features, including when to create Architecture Decision Records (ADRs).
+This guide covers the architectural design process for new features in the Hayah-AI workspace, including when to create Architecture Decision Records (ADRs).
 
 ## When to Create an ADR
 
@@ -135,10 +135,10 @@ Use the ADR template (`assets/adr-template.md`) to document significant decision
 **Status:** Accepted
 
 **Context:**
-Itinerary generation takes 15-45 seconds. Users need real-time feedback during generation to understand progress and reduce perceived wait time.
+A Claude API operation takes 15-45 seconds. Users need real-time feedback to understand progress and reduce perceived wait time.
 
 **Decision:**
-Use Server-Sent Events (SSE) to stream generation progress from Claude API to the frontend. Update UI progressively as content becomes available.
+Use Server-Sent Events (SSE) to stream progress from the Claude API to the frontend. Update UI progressively as content becomes available.
 
 **Consequences:**
 ✅ Reduced perceived latency
@@ -153,7 +153,7 @@ Use Server-Sent Events (SSE) to stream generation progress from Claude API to th
 - Wait for full response: Poor UX for 30+ second operations
 ```
 
-## TripIntell-Specific Patterns
+## Project-Specific Patterns
 
 ### Next.js App Router Conventions
 

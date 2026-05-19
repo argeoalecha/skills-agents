@@ -62,20 +62,28 @@ find ~/.claude/backups -type f -mtime +14 2>/dev/null
 # file-history session folders older than 7 days
 find ~/.claude/file-history -maxdepth 1 -mindepth 1 -type d -mtime +6 2>/dev/null
 
-# Stale plan files (check if referenced in any active project)
-find ~/.claude/plans -type f 2>/dev/null
+# Stale plan files older than 30 days (active plans have no age filter — skip those)
+find ~/.claude/plans -type f -mtime +30 2>/dev/null
 
 # Shell snapshots
 find ~/.claude/shell-snapshots -type f 2>/dev/null
 
-# Orphaned todos (no matching active session)
-find ~/.claude/todos -type f 2>/dev/null
+# Todos older than 7 days (active session todos must not be deleted)
+find ~/.claude/todos -type f -mtime +6 2>/dev/null
+
+# Stale tasks session folders older than 7 days
+find ~/.claude/tasks -maxdepth 1 -mindepth 1 -type d -mtime +6 2>/dev/null
+
+# Paste cache older than 7 days
+find ~/.claude/paste-cache -type f -mtime +6 2>/dev/null
 
 # Skill asset files — PDFs, old JSONs, images possibly superseded
 find ~/.claude/skills -type f \( -name "*.pdf" -o -name "*.png" -o -name "*.jpg" \) 2>/dev/null
 
-# Skills with no SKILL.md (orphaned skill fragments)
-find ~/.claude/skills -maxdepth 1 -name "*.md" -not -path "*/*/SKILL.md" 2>/dev/null
+# Skill directories with no skill.md (orphaned skill fragments)
+find ~/.claude/skills -maxdepth 2 -mindepth 2 -name "skill.md" 2>/dev/null | sed 's|/skill.md||' | sort > /tmp/_hk_skill_dirs
+find ~/.claude/skills -maxdepth 1 -mindepth 1 -type d -not -name "_backups" 2>/dev/null | sort > /tmp/_hk_all_dirs
+comm -23 /tmp/_hk_all_dirs /tmp/_hk_skill_dirs
 
 # Skill backup folders older than 14 days (auto-safe — live skill.md files are the source of truth)
 find ~/.claude/skills/_backups -maxdepth 1 -mindepth 1 -type d -mtime +13 2>/dev/null
@@ -83,10 +91,10 @@ find ~/.claude/skills/_backups -maxdepth 1 -mindepth 1 -type d -mtime +13 2>/dev
 
 ### Step 2 — Cross-Check Skills for Internal Redundancy
 
-For each skill directory under `~/.claude/skills/`, read its `SKILL.md` and check:
+For each skill directory under `~/.claude/skills/`, read its `skill.md` and check:
 
-- Do any `references/` files go unmentioned in the SKILL.md?
-- Do any `assets/` files go unmentioned in the SKILL.md?
+- Do any `references/` files go unmentioned in the skill.md?
+- Do any `assets/` files go unmentioned in the skill.md?
 - Are there multiple versions of the same file type (e.g., two showcase files, old + new JSON configs)?
 - Are there scripts in `scripts/` that aren't invoked anywhere?
 
@@ -105,22 +113,25 @@ Do not delete agents automatically — just flag for review.
 
 Group every finding into one of these categories:
 
-**AUTO-SAFE** — Safe to delete without hesitation. Always accumulate silently and offer as a batch:
+**AUTO-SAFE** — Safe to move to Trash without hesitation. Always accumulate silently and offer as a batch:
 - `.DS_Store` files
 - `debug/` log files
 - `telemetry/` failed event files
 - `statsig/` cache and session files
 - `ide/` stale `.lock` files
 - `shell-snapshots/` files
-- `todos/` JSON files for closed sessions
 - `file-history/` session folders older than 7 days (undo snapshots for sessions too old to revert)
 - `skills/_backups/` dated subfolders older than 14 days (live skill.md files are the source of truth; old backups are not needed)
 
+**STALE** — Files older than a set threshold with no clear active use. Show with age and size. Require confirmation per item or group before moving to Trash:
+- `todos/` JSON files older than 7 days (never delete todos without age filter — active session todos must survive)
+- `tasks/` session folders older than 7 days
+- `paste-cache/` files older than 7 days
+- Plan files older than 30 days
+
 **SUPERSEDED** — Confirmed replaced by a newer file (e.g., PDF replaced by HTML, single JSON replaced by variant JSONs). Require explicit confirmation per item or as a group.
 
-**STALE** — Files older than 30 days with no clear active use. Show with age and size. Require confirmation.
-
-**ORPHANED** — Files in skill `assets/` or `references/` not mentioned in the skill's `SKILL.md`. Flag individually — some may be intentionally unlisted.
+**ORPHANED** — Files in skill `assets/` or `references/` not mentioned in the skill's `skill.md`. Flag individually — some may be intentionally unlisted.
 
 **REVIEW NEEDED** — Agents, plans, or config files that may be outdated but require human judgment. Do not offer to delete — only surface for awareness.
 
@@ -134,7 +145,7 @@ Format the report clearly. Do not delete anything yet.
 ## ~/.claude/ Housekeeping Report
 Date: [today's date PHT]
 
-### AUTO-SAFE (safe to batch-delete)
+### AUTO-SAFE (move to Trash as a batch)
 [count] files · [total size]
 
   debug/          [n files] · [size]
@@ -143,11 +154,10 @@ Date: [today's date PHT]
   .DS_Store       [n files] · [size]
   ide/ locks      [n files] · [size]
   shell-snapshots [n files] · [size]
-  todos/          [n files] · [size]
   file-history/   [n session folders, 7+ days old] · [size]
   _backups/       [n dated folders, 14+ days old] · [size]
 
-→ Delete all AUTO-SAFE files? [yes/no]
+→ Move all AUTO-SAFE to Trash? [yes/no]
 
 ---
 
@@ -157,12 +167,12 @@ Files confirmed replaced by newer equivalents:
   [file path] ([size]) — replaced by [newer file]
   ...
 
-→ Delete all SUPERSEDED? Or review individually?
+→ Move all SUPERSEDED to Trash? Or review individually?
 
 ---
 
-### STALE (30+ days, no active reference)
-  [file path] ([size]) — last modified [date]
+### STALE (age threshold exceeded, requires confirmation)
+  [file path] ([size]) — last modified [date] · category: todos|tasks|paste-cache|plans
   ...
 
 → Review each before deciding.
@@ -170,12 +180,12 @@ Files confirmed replaced by newer equivalents:
 ---
 
 ### ORPHANED SKILL ASSETS
-Assets not referenced in their skill's SKILL.md:
+Assets not referenced in their skill's skill.md:
 
-  [skill name]/[file] ([size]) — not mentioned in SKILL.md
+  [skill name]/[file] ([size]) — not mentioned in skill.md
   ...
 
-→ Review each. May be safe to delete or may need SKILL.md update.
+→ Review each. May be safe to move to Trash or may need skill.md update.
 
 ---
 
@@ -191,14 +201,36 @@ Total recoverable if all confirmed: [X MB]
 
 ---
 
-## Step 6 — Execute Deletions
+## Step 6 — Move to Trash (not permanent deletion)
 
 Only after explicit user confirmation per category or per file.
 
-- Batch-delete AUTO-SAFE in one `rm` command
-- Delete SUPERSEDED and STALE files one group at a time
-- Never delete REVIEW NEEDED files — surface them only
-- After deletion, run a final `du -sh ~/.claude/` to show space reclaimed
+All removals use `mv` to `~/.Trash/` — never `rm`. This sends files to the macOS system Trash so the admin user can review and empty it manually.
+
+```bash
+# Move a single file to Trash (handle name collisions with timestamp)
+_trash() {
+  local src="$1"
+  local base
+  base=$(basename "$src")
+  local dest="${HOME}/.Trash/${base}"
+  if [[ -e "$dest" ]]; then
+    dest="${HOME}/.Trash/${base%.*}_$(date +%s).${base##*.}"
+  fi
+  mv "$src" "$dest"
+}
+
+# Batch-move AUTO-SAFE items (call _trash for each)
+for f in <auto-safe-file-list>; do _trash "$f"; done
+
+# For directories (file-history, _backups, tasks):
+for d in <dir-list>; do _trash "$d"; done
+```
+
+- Move AUTO-SAFE items as a batch
+- Move SUPERSEDED and STALE files one group at a time, after confirmation
+- Never touch REVIEW NEEDED files — surface them only
+- After all moves, run `du -sh ~/.claude/` and `du -sh ~/.Trash/` to show reclaimed space and what awaits final deletion
 
 ---
 
@@ -211,10 +243,14 @@ These are off-limits regardless of age or apparent redundancy:
 - `.credentials.json`
 - `history.jsonl`
 - `stats-cache.json`
-- `skills/*/SKILL.md` files
+- `SESSION_CHECKPOINT.md` (active session checkpoint from /checkpoint skill)
+- `skills/*/skill.md` files (lowercase — the live source of truth for each skill)
 - `agents/*.md` files (flag only, never delete)
+- `secret-agent/` directory (treated as agents — flag only, never delete)
+- `projects/` directory (contains memory system and project-scoped state)
 - `plugins/` directory
 - `cache/changelog.md`
+- `keybindings.json`
 - Any file actively referenced in a current project's `CLAUDE.md`
 
 ---

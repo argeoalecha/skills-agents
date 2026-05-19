@@ -1,11 +1,11 @@
 #!/bin/bash
-# Scaffold a new Next.js App Router API route for TripIntell
+# Scaffold a new Next.js App Router API route
 # Usage: ./scaffold_route.sh <route-path> [--method GET,POST,PATCH,DELETE] [--auth] [--stream]
 #
 # Examples:
-#   ./scaffold_route.sh recommendations
-#   ./scaffold_route.sh trips/[id]/collaborators --method GET,POST,DELETE --auth
-#   ./scaffold_route.sh itinerary/[id]/stream --stream --auth
+#   ./scaffold_route.sh products
+#   ./scaffold_route.sh orders/[id] --method GET,PATCH,DELETE --auth
+#   ./scaffold_route.sh generate --stream --auth
 
 set -e
 

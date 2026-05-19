@@ -46,6 +46,30 @@ Runs the pipeline at `~/projects-mvp/seo-leads-gen/scripts/pipeline_runner.py`.
 
 ---
 
+## Lead Scoring Criteria
+
+Every lead is scored 0–5 across these signals, then tiered:
+
+| Signal | Points |
+|--------|--------|
+| Email found (Hunter.io or scraped) | +1 |
+| Website or domain found | +1 |
+| Rating >= 4.0 | +1 |
+| Reviews >= 10 | +1 |
+| Competitor testimonial lead (already buying whitelabel SEO) | +1 |
+| Philippines location (Manila, Cebu, Davao, "PH") | +1 |
+
+Score is capped at 5.
+
+**Tiers:**
+- **Tier A (score 4–5)** — verified, reachable, likely buying. Contact this week.
+- **Tier B (score 2–3)** — partial data or unverified. Worth a second enrichment pass.
+- **Tier C (score 0–1)** — directory listing with no contact data. Low-priority.
+
+Deduplication is by `domain` — the same agency found on Clutch and Google Maps becomes one record, inheriting the best data from both sources and keeping the higher source-quality score.
+
+---
+
 ## Step 1: Extract parameters
 
 From the user's message, extract:
@@ -56,6 +80,7 @@ From the user's message, extract:
 | `--limit` | 3 | Pages per source (3 = ~50-100 leads/source) |
 | `--no-enrich` | off | Pass if user says "skip enrichment" or no Hunter key |
 | `--tier` | all | a / b / c — export only that tier |
+| `--min-score` | none | Integer 0–5 — filter out leads below this score |
 | `--dry-run` | off | Pass if user says "preview" or "dry run" |
 
 **Source shortcuts:**
@@ -101,6 +126,7 @@ python3 scripts/pipeline_runner.py \
   --limit {max_pages} \
   [--no-enrich] \
   [--tier {a|b|c}] \
+  [--min-score {0-5}] \
   [--dry-run]
 ```
 
@@ -110,6 +136,7 @@ python3 scripts/pipeline_runner.py \
 |---|---|
 | "skip enrichment" / "no Hunter" | `--no-enrich` |
 | "just Tier A" / "hot leads only" | `--tier a` |
+| "score 3 and above" / "min score 3" | `--min-score 3` |
 | "preview" / "dry run" | `--dry-run` |
 | "more leads" / "deeper scrape" | `--limit 5` |
 | "quick test" | `--limit 1` |
@@ -123,16 +150,21 @@ After the command completes, report:
 ```
 Pipeline complete.
   Total leads:   {N}
-  Tier A:        {N} (contact this week)
-  Tier B:        {N} (contact next week)
+  Tier A:        {N} — contact this week  (score 4-5)
+  Tier B:        {N} — contact next week  (score 2-3)
+  Tier C:        {N} — low value          (score 0-1)
   With email:    {N}
   Email drafts:  {N}
   Output:        ~/projects-mvp/seo-leads-gen/leads/hayah_ai_seo_leads_{timestamp}.xlsx
 
 Tier A sample:
-1. {company} — {domain} — {email}
-2. {company} — {domain} — {email}
+1. {company} — {domain} — {email} — Score: {score}/5 — Source: {source}
+2. {company} — {domain} — {email} — Score: {score}/5 — Source: {source}
 ...
+
+Sample email draft (first Tier A lead with email):
+  Subject: {subject line from Email Drafts sheet}
+  Body preview: {first 2-3 lines}
 ```
 
 ---
@@ -215,9 +247,11 @@ Results saved to `~/projects-mvp/seo-leads-gen/leads/`:
 
 ---
 
-## LinkedIn + Facebook outreach (post-pipeline)
+---
 
-After exporting, suggest this outreach sequence for Tier A leads:
+## Step 5 — Post-Pipeline Outreach Sequence
+
+After exporting, suggest this outreach sequence for Tier A leads. Present this only when the user confirms they're ready to start outreach.
 
 **LinkedIn Boolean searches:**
 - `("SEO agency" OR "digital marketing agency") AND (owner OR founder OR CEO) AND Philippines`

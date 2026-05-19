@@ -15,30 +15,35 @@ This skill guides you through 7 phases:
 2. **Architecture Design** — Plan the technical approach
 3. **Implementation** — Write the code
 4. **Testing** — Ensure quality and correctness
-5. **Code Review** — Get feedback and approval
-6. **Documentation** — Document the feature
+5. **Code Review** — Self-review against quality gates
+6. **Documentation** — Document significant decisions
 7. **Deployment** — Ship to production
 
 ---
 
 ## Phase 1 — Requirements Gathering
 
-Before writing any code, clarify:
+Before writing any code:
 
-**Functional requirements:**
+**Read context first:**
+- Read the project-level `CLAUDE.md` for conventions, stack decisions, and patterns
+- Read `references/architecture-workflow.md` for workspace-wide patterns
+- If a `TODO.md` or `PRD.md` exists, read it to understand the feature's place in the roadmap
+
+**Clarify functional requirements:**
 - What user action triggers this feature?
-- What does the feature do? What's the output or outcome?
+- What does the feature do? What is the output or outcome?
 - What are the edge cases and failure modes?
 - Who uses this? (authenticated user, admin, public)
-- What is the acceptance criterion? (how do we know it's done?)
+- What is the acceptance criterion — how do we know it is done?
 
-**Non-functional requirements:**
+**Clarify non-functional requirements:**
 - Performance: how fast must it respond?
 - Scale: how many concurrent users / records?
 - Security: what data does it handle? (PII, payments?)
 - Compliance: Philippines DPA relevant? Payment regulations?
 
-**Resources:** Read `references/architecture-workflow.md` for workspace-wide patterns.
+For complex features where scope needs formal alignment, use `/prd-tdd-writer` to produce a spec before proceeding.
 
 ---
 
@@ -46,19 +51,21 @@ Before writing any code, clarify:
 
 Use the **Plan** sub-agent to design before implementing.
 
-Produce an Architecture Decision Record (ADR) using `assets/adr-template.md`. Cover:
+Produce an Architecture Decision Record (ADR) using `assets/adr-template.md` for any decision that:
+- Affects multiple layers (DB + API + frontend)
+- Introduces a new dependency or external service
+- Changes the data model significantly
+- Establishes a pattern others will follow
 
 **Database:**
 - New tables? Use `/db-migrate` skill
-- New columns? Add migration
+- New columns? Add migration with rollback SQL
 - RLS policies? Define them before implementing routes
 
 **API:**
 - New endpoints? Use `/api-new` skill
-- Which HTTP methods?
-- Request/response shape (Zod schema)
-- Auth requirements
-- Rate limiting needed?
+- HTTP methods, request/response shape (Zod schema)
+- Auth requirements, rate limiting
 
 **Frontend:**
 - New pages or components?
@@ -68,39 +75,52 @@ Produce an Architecture Decision Record (ADR) using `assets/adr-template.md`. Co
 
 **Reference patterns:** `references/fullstack-patterns.md`
 
-**Checkpoint:** Present the plan to the user and get approval before implementing.
+**Checkpoint:** Present the architecture plan to the user and get explicit approval before writing any code.
 
 ---
 
 ## Phase 3 — Implementation
 
-Follow this order — back-end before front-end:
+Follow this order — database before API, API before frontend.
 
-### 3a. Database migrations
-```bash
-# Create and apply migration first
-# Reference: /db-migrate skill
-```
+### 3a. Read before writing
 
-### 3b. API routes
-```bash
-# Scaffold and implement routes
-# Reference: /api-new skill
-```
+Before touching any file, read the relevant existing code:
+- Existing API routes in the same domain
+- Existing components for similar UI patterns
+- Existing DB schema for related tables
 
-### 3c. Frontend components and pages
+This prevents diverging from established patterns.
+
+### 3b. Database migrations
+
+Use `/db-migrate` skill to create and apply the migration. Verify RLS policies are in place before proceeding.
+
+### 3c. API routes
+
+Use `/api-new` skill to scaffold routes. Every route must:
+- Validate the request body with Zod before any processing
+- Check auth before touching data
+- Return `{ error: string, code?: string }` on failure
+- Return consistent HTTP status codes
+
+### 3d. Frontend components and pages
+
 - Server Components for data fetching (avoid unnecessary client boundaries)
-- Client Components only when interactivity is required (`'use client'`)
+- `'use client'` only when interactivity, hooks, or browser APIs are required
 - React Hook Form + Zod for all forms
 - TanStack Query for client-side data fetching and cache invalidation
-
-### 3d. Apply Hayah-AI theme
-- Use the project's established design tokens
-- Reference: `/theme-hayahai` skill for design system
 - Lucide React for icons
-- No custom icons, no emoji in UI
+
+### 3e. Apply design system
+
+Use the Hayah-AI Ocean-Teal theme tokens from the project's Tailwind config. Run `/theme-hayahai` if you need to set up or verify the theme. No hardcoded colors.
 
 **Reference patterns:** `references/fullstack-patterns.md`, `references/cicd-pipeline.md`
+
+### 3f. Simplify
+
+After implementation is complete, run `/simplify` to catch reuse opportunities, dead code, and quality issues before testing.
 
 ---
 
@@ -109,22 +129,23 @@ Follow this order — back-end before front-end:
 **Unit/component tests (Vitest + RTL):**
 - Test each new API route handler
 - Test form validation logic
-- Test component rendering for key states (loading, error, empty, populated)
+- Test component rendering for key states: loading, error, empty, populated
 
 **Integration tests:**
 - Test the full request → database → response cycle for critical paths
-- Validate RLS policies work as expected
+- Validate RLS policies enforce access correctly
 
-**E2E (optional but recommended for complex features):**
+**E2E (for user-facing flows):**
 ```bash
 /e2e-test
 ```
 
-**Run tests before moving to review:**
+**Run the quality gates before review:**
 ```bash
-npx vitest run
-npx tsc --noEmit
-npx eslint . --ext .ts,.tsx
+pnpm build          # Must pass — catches type errors and import issues
+pnpm typecheck      # npx tsc --noEmit if no typecheck script
+pnpm lint           # ESLint
+pnpm test           # Vitest unit tests
 ```
 
 Reference: `references/testing-strategy.md`
@@ -139,7 +160,7 @@ Self-review checklist before presenting to user:
 - [ ] All inputs validated with Zod at the API boundary
 - [ ] Auth check present on all protected routes
 - [ ] No secrets in code
-- [ ] RLS policies cover all operations (SELECT, INSERT, UPDATE, DELETE)
+- [ ] RLS policies cover SELECT, INSERT, UPDATE, DELETE
 - [ ] No `any` TypeScript types
 
 **Reliability:**
@@ -149,12 +170,12 @@ Self-review checklist before presenting to user:
 
 **Code quality:**
 - [ ] No unused imports or dead code
-- [ ] File structure matches project conventions
+- [ ] File structure matches project conventions from CLAUDE.md
 - [ ] No unnecessary comments
 
 Reference: `references/code-review-checklist.md`
 
-For a deeper review, spawn the `security-code-reviewer` sub-agent.
+For a deeper review, use the `/security-review` skill or `/code-review:code-review` skill.
 
 **Checkpoint:** Present the implementation to the user for review and approval before documenting or deploying.
 
@@ -164,6 +185,7 @@ For a deeper review, spawn the `security-code-reviewer` sub-agent.
 
 - Update `README.md` if this feature changes the project setup or API surface
 - If a significant architectural decision was made, save the ADR to `docs/decisions/`
+- Update `CLAUDE.md` (project-level) if the feature establishes a new pattern other features should follow
 - Update API docs if the project has an OpenAPI spec
 
 Use `assets/pr-template.md` when creating a PR.
@@ -172,23 +194,35 @@ Use `assets/pr-template.md` when creating a PR.
 
 ## Phase 7 — Deployment
 
+**Pre-deployment audit:**
 ```bash
-# Run the deployment check script
-bash scripts/check_deployment.sh
+/audit
+```
 
-# Validate migrations are applied
-bash scripts/validate_migration.sh
+The audit skill runs build validation, static analysis, and a production-readiness gate. It must pass (or all blockers resolved) before deploying.
 
-# Deploy
-/vercel:deploy       # Vercel deployment
-/netlify-deploy      # Netlify deployment
+**Deployment validation:**
+```bash
+bash scripts/check_deployment.sh    # Env vars, secrets, git state
+bash scripts/validate_migration.sh  # Migrations applied
+```
+
+**Commit and push:**
+```bash
+/commit-push
+```
+
+**Deploy:**
+```bash
+/vercel:deploy      # Vercel deployment
+/netlify-deploy     # Netlify deployment
 ```
 
 Reference: `references/cicd-pipeline.md`
 
 **Post-deploy verification:**
-- Check that the feature works in the deployed environment
-- Monitor Sentry for any new errors in the first 10 minutes
+- Manually verify the feature works in the deployed environment
+- Monitor Sentry for new errors in the first 10 minutes
 - Confirm database migrations applied correctly in production
 
 ---

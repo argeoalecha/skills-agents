@@ -7,166 +7,246 @@ description: Comprehensive end-to-end testing command. Launches parallel sub-age
 
 ## Pre-flight Check
 
-Before starting, confirm:
+Before starting, run these gates **in this order**. If any fails, stop and report — do not proceed to Phase 1.
 
 ```bash
-# Check if dev server is already running
-lsof -i :3000 | head -3
-# or check for other common ports: 3001, 5173, 8000
+# Gate 1: TypeScript must compile. No point running browser tests if types are broken.
+npx tsc --noEmit
+# (or: pnpm tsc --noEmit / bun tsc --noEmit)
 
-# If not running, start it (background)
-npm run dev &
-# or: pnpm dev & / bun dev &
+# Gate 2: Detect dev-server port (try common ports in order)
+for port in 3000 3001 5173 8000; do
+  if lsof -i :$port -sTCP:LISTEN >/dev/null 2>&1; then
+    DEV_PORT=$port; break
+  fi
+done
 
-# Wait for it to be ready
-until curl -s http://localhost:3000 > /dev/null; do sleep 1; done
-echo "Server ready"
+# Gate 3: Start the dev server if nothing is listening
+if [ -z "$DEV_PORT" ]; then
+  npm run dev > /tmp/devserver.log 2>&1 &
+  DEV_PORT=3000
+fi
+
+# Gate 4: Wait for server with a hard timeout (60s) — fail loudly if it never comes up
+DEADLINE=$((SECONDS+60))
+until curl -sf "http://localhost:$DEV_PORT" > /dev/null; do
+  if [ $SECONDS -ge $DEADLINE ]; then
+    echo "Server failed to start within 60s. Check /tmp/devserver.log" >&2
+    exit 1
+  fi
+  sleep 2
+done
+echo "Server ready on http://localhost:$DEV_PORT"
 ```
+
+Record `DEV_PORT` — every Phase 2 command uses it.
 
 ---
 
-## Phase 1 — Parallel Research (3 sub-agents)
+## Phase 1 — Research
 
-Spawn these three sub-agents simultaneously before starting any browser tests:
+### Step 1: Run A and B in parallel (single message, two `Agent` calls)
 
-### Sub-Agent A: Codebase Explorer
-Using the `Explore` agent, map:
-- All routes/pages in the app
-- API endpoints (list GET endpoints, mutation POST/PATCH/DELETE endpoints)
-- Database tables and their relationships
-- Auth flow (how login/logout works)
-- Key user flows the feature supports
+**Sub-Agent A — Codebase Explorer** (`subagent_type: Explore`)
 
-### Sub-Agent B: Bug Spotter
-Using the `general-purpose` agent, scan for:
-- Any TypeScript errors (`npx tsc --noEmit`)
-- Components that might have rendering issues (conditional rendering, missing null checks)
-- API routes that don't validate input
-- Database queries that could return unexpected results
+```
+Map this codebase for end-to-end testing. Return a structured report covering:
 
-### Sub-Agent C: Test Planner
-Based on the feature that was implemented, generate:
-- List of user journeys to test (happy path + edge cases)
-- Expected database state after each write operation
-- Screenshots to take at each step
+1. ROUTES — every page route and its file path. Note which require auth.
+2. API ENDPOINTS — every route handler, grouped by method (GET / POST / PATCH / DELETE).
+   For each: path, file location, what it does in one line, whether it writes to the DB.
+3. DATABASE TABLES — list every table, its primary columns, and foreign-key relationships.
+   Note RLS-protected tables.
+4. AUTH FLOW — describe how login/logout works: which routes, which session mechanism
+   (Supabase, NextAuth, custom JWT), where test credentials would come from
+   (look for .env.local, seed scripts, README).
+5. FEATURE UNDER TEST — based on the most recent commits and uncommitted changes,
+   identify which feature should be the primary focus of E2E testing.
+
+Be exhaustive on routes and endpoints. Report under 600 words.
+```
+
+**Sub-Agent B — Bug Spotter** (`subagent_type: general-purpose`)
+
+```
+Scan this codebase for likely runtime bugs that E2E tests should catch. Look for:
+
+- Components with conditional rendering that lack null/undefined guards
+  (e.g. `data.map(...)` without checking data exists)
+- API route handlers that don't validate request body with Zod (or equivalent)
+- DB queries that could return null where the caller assumes a row exists
+- Missing error boundaries around async data
+- Form submissions without loading/disabled states (double-submit risk)
+
+For each finding: file:line, the risk in one sentence, and the user-facing symptom
+that an E2E test would observe. Report under 400 words, top 10 findings only.
+```
+
+### Step 2: Run C after A returns (it depends on A's output)
+
+**Sub-Agent C — Test Planner** (`subagent_type: general-purpose`)
+
+```
+Using this codebase map [PASTE SUB-AGENT A OUTPUT HERE], produce a concrete E2E test plan:
+
+1. USER JOURNEYS — list every journey to test, ordered by criticality. For each:
+   - Name
+   - Step-by-step actions (URLs, clicks, form fields)
+   - Expected UI outcome
+   - Expected DB state change (table, columns, conditions)
+2. EDGE CASES — per journey, list validation/error states to exercise.
+3. SCREENSHOTS — list the exact moments to capture (file naming: NN-description.png).
+4. TEST CREDENTIALS — specify which credentials each journey needs and where to source them.
+
+Focus on the FEATURE UNDER TEST from A's report. Report under 500 words.
+```
 
 ---
 
 ## Phase 2 — Browser Testing
 
-After research completes, run browser tests using `agent-browser`. Follow `/agent-browser` skill conventions.
+Drive the browser via the `agent-browser` skill — load it for the exact CLI surface and element-ref syntax. **Do not hardcode the journey here** — execute the journeys produced by Sub-Agent C, against `http://localhost:$DEV_PORT`.
 
-### Standard test sequence for any feature
+### Per-journey loop
 
-```bash
-# 1. Start at the app entry point
-agent-browser open http://localhost:3000
-agent-browser screenshot   # document initial state
+For each journey from C's plan:
 
-# 2. Test unauthenticated access (should redirect to login)
-agent-browser open http://localhost:3000/dashboard
-agent-browser screenshot   # should see login page, not dashboard
+1. Open the starting URL.
+2. Take a "before" screenshot (`NN-<journey>-before.png`).
+3. Execute the steps (open → snapshot → fill → click → wait).
+4. Take an "after" screenshot.
+5. **Capture console messages** — read browser console for errors/warnings produced during the journey.
+6. **Capture network errors** — read network log for any 4xx/5xx responses.
+7. If the journey writes data, hand off to Phase 3 (DB verification) before moving on.
 
-# 3. Log in with test credentials
-agent-browser open http://localhost:3000/login
-agent-browser snapshot -i
-agent-browser fill @e1 "test@example.com"
-agent-browser fill @e2 "testpassword"
-agent-browser click @e3
-agent-browser wait --url "/dashboard"
-agent-browser screenshot   # logged in dashboard state
+### Always-capture checklist
 
-# 4. Test the feature's happy path
-# (varies by feature — follow the test plan from Phase 1)
+For every test session, regardless of journey:
 
-# 5. Test edge cases / error states
-# - Empty form submission
-# - Invalid input
-# - Missing required fields
-
-# 6. Test navigation and back-button behavior
-
-# 7. Log out and verify session cleared
-```
-
-### Screenshots to always capture
-
-| Moment | Why |
+| Moment | Capture |
 |---|---|
-| Initial page load | Confirm no visual regressions |
-| After login | Confirm auth works |
-| After successful form submission | Confirm success state |
-| After failed validation | Confirm error messages appear |
-| After delete/remove | Confirm item is gone |
-| After logout | Confirm redirect to login |
+| Initial page load | Screenshot + console snapshot (catches hydration errors) |
+| Unauthenticated access to a protected route | Screenshot (confirms redirect) |
+| After login | Screenshot + network log (confirms auth requests succeed) |
+| After every form submission | Screenshot + console + network (catches silent 500s) |
+| After validation failure | Screenshot (confirms error messages render) |
+| After delete/remove | Screenshot (confirms removal) |
+| After logout | Screenshot (confirms session cleared) |
+| Any unexpected error UI | Screenshot + console — stop and record before retrying |
+
+### Where screenshots go
+
+Save to `./e2e-screenshots/<YYYY-MM-DD>/NN-<journey>-<state>.png`. Reference these paths in the Phase 4 report.
 
 ---
 
 ## Phase 3 — Database Verification
 
-After browser actions that write data, verify the database was updated correctly:
+After any browser action that writes data, verify the DB state. **Prefer MCP tools** — they work the same against local and remote Supabase, with no shell setup.
 
-```bash
-# Check Supabase local dev (if running)
-supabase db dump --local | grep -A5 "table_name"
+### Path A — Supabase MCP (preferred when available)
 
-# Or use psql directly
-psql postgresql://postgres:postgres@localhost:54322/postgres \
-  -c "SELECT * FROM <table_name> ORDER BY created_at DESC LIMIT 5;"
-
-# Or run a test query via Supabase client in a script
+```
+mcp__supabase__execute_sql with query:
+  SELECT * FROM <table> WHERE <condition> ORDER BY created_at DESC LIMIT 5;
 ```
 
-Verify:
-- Record was created with correct data
-- `user_id` is set to the authenticated user's ID
-- `created_at` and `updated_at` are populated
-- RLS didn't block the insert (no null result when one is expected)
+Useful companions:
+- `mcp__supabase__list_tables` — confirm table exists / inspect schema
+- `mcp__supabase__get_advisors` — surface RLS/security warnings introduced by the change
+- `mcp__supabase__get_logs` — pull recent Postgres / API logs if a write silently failed
+
+### Path B — Local Supabase via shell (fallback when MCP unavailable)
+
+```bash
+psql postgresql://postgres:postgres@localhost:54322/postgres \
+  -c "SELECT * FROM <table> ORDER BY created_at DESC LIMIT 5;"
+```
+
+### Path C — Non-Supabase stacks
+
+Use the project's own DB client (Prisma Studio, drizzle-kit, raw psql/mysql) per the project's conventions — discover from Sub-Agent A's report.
+
+### What to verify on every write
+
+- Row exists with the expected column values
+- `user_id` (or tenant key) matches the authenticated user
+- `created_at` / `updated_at` populated
+- Soft-delete columns (`deleted_at`) set correctly on delete operations
+- RLS didn't silently drop the insert (no missing row when one was expected)
+- No duplicate rows from accidental double-submit
 
 ---
 
-## Phase 4 — Report
+## Phase 4 — Report & Follow-through
 
-Produce a structured test report:
+### 4a. Write the report to `E2E_TEST.md` in the project root
+
+Overwrite any previous run.
 
 ```markdown
-## E2E Test Report — <Feature Name>
+# E2E Test Report — <Feature Name>
 Date: YYYY-MM-DD
 Branch: <branch>
+Commit: <short-sha>
 
-### Test Environment
-- App: http://localhost:3000
-- DB: local Supabase / production (specify)
+## Test Environment
+- App: http://localhost:<DEV_PORT>
+- DB: local Supabase / remote Supabase / other (specify)
 
-### User Journeys Tested
+## User Journeys Tested
 
-| Journey | Result | Notes |
-|---|---|---|
-| Unauthenticated redirect | PASS | Redirects to /login correctly |
-| Login with valid credentials | PASS | Redirects to /dashboard |
-| Create <resource> — happy path | PASS | Record visible in DB |
-| Create <resource> — validation | PASS | Errors shown for empty fields |
-| Delete <resource> | PASS | Soft-deleted (deleted_at set) |
-| Logout | PASS | Session cleared, /login redirect |
+| Journey | Result | Console clean? | Network clean? | DB verified? | Notes |
+|---|---|---|---|---|---|
+| Unauthenticated redirect | PASS | yes | yes | n/a | Redirects to /login |
+| Login — valid creds | PASS | yes | yes | n/a | Session cookie set |
+| Create <resource> — happy | PASS | yes | yes | yes | Row in <table> |
+| Create <resource> — validation | PASS | yes | yes | n/a | Field errors shown |
+| Delete <resource> | PASS | yes | yes | yes | deleted_at populated |
+| Logout | PASS | yes | yes | n/a | Session cleared |
 
-### Screenshots Taken
-- `screenshots/01-initial.png`
-- `screenshots/02-login.png`
+## Screenshots
+- `e2e-screenshots/2026-05-24/01-initial.png`
+- `e2e-screenshots/2026-05-24/02-login-before.png`
 - ...
 
-### Issues Found
-- [BUG] <description> — <reproduction steps>
-- [UI] <description> — <screenshot reference>
+## Issues Found
 
-### Overall Result: PASS / FAIL
+| Severity | Type | Description | Reproduction | Evidence |
+|---|---|---|---|---|
+| HIGH | BUG | <description> | <steps> | screenshot path / console line |
+| MED | UI | <description> | <steps> | screenshot path |
+| LOW | PERF | <description> | <steps> | network log line |
+
+## Overall Result: GO / NO-GO
+
+GO requires: all critical journeys PASS, no HIGH severity issues, console clean on every journey.
+NO-GO if any of the above fail — list the blockers explicitly.
 ```
+
+### 4b. Append remediation tasks to `TODO.md`
+
+For every issue in the report, append an entry under a `## E2E Test Remediation` section in `TODO.md` (create the section if it doesn't exist). Format:
+
+```markdown
+- [ ] [HIGH] [BUG] <description> — see E2E_TEST.md for repro
+```
+
+Do not silently swallow findings. If `TODO.md` doesn't exist in the project, create it.
+
+### 4c. State the GO / NO-GO verdict in chat
+
+End the session with an explicit one-line verdict so the user doesn't have to open the report to know the result.
 
 ---
 
 ## Rules
 
 - Never test against production unless the user explicitly asks
+- Pre-flight gates are hard gates — TS errors or a server that won't start mean stop, not "try anyway"
 - Take screenshots before and after every significant interaction
-- If a test step fails, take a screenshot of the failure state before stopping
-- Verify database state after any write operation — don't trust the UI alone
-- If the dev server isn't running, start it before testing (never skip this)
+- Capture console + network on every journey — UI-only verification misses silent 500s
+- If a test step fails, capture screenshot + console + network state, then stop the journey (don't barrel through)
+- Verify DB state after any write — never trust the UI alone
+- All findings land in both `E2E_TEST.md` (report) and `TODO.md` (remediation)
+- End with a one-line GO / NO-GO verdict

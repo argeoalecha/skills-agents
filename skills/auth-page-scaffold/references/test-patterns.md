@@ -39,9 +39,9 @@ describe('LoginPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(createClient as vi.Mock).mockReturnValue({
+    vi.mocked(createClient).mockReturnValue({
       auth: { signInWithPassword: mockSignIn },
-    })
+    } as unknown as ReturnType<typeof createClient>)
   })
 
   // --- Email validation ---
@@ -111,7 +111,9 @@ describe('SignupPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(createClient as vi.Mock).mockReturnValue({ auth: { signUp: mockSignUp } })
+    vi.mocked(createClient).mockReturnValue({
+      auth: { signUp: mockSignUp },
+    } as unknown as ReturnType<typeof createClient>)
   })
 
   it('shows error when passwords do not match', async () => {
@@ -121,6 +123,20 @@ describe('SignupPage', () => {
     await userEvent.type(screen.getByLabelText(/confirm/i), 'different123')
     await userEvent.click(screen.getByRole('button', { name: /create account/i }))
     expect(await screen.findByText(/passwords do not match/i)).toBeInTheDocument()
+  })
+
+  it('shows a generic server error (does not leak provider message)', async () => {
+    render(<SignupPage />)
+    await userEvent.type(screen.getByLabelText(/^email/i), 'user@example.com')
+    await userEvent.type(screen.getByLabelText(/^password/i), 'password123')
+    await userEvent.type(screen.getByLabelText(/confirm/i), 'password123')
+    mockSignUp.mockResolvedValue({
+      data: null,
+      error: { message: 'User already registered in auth.users' },
+    })
+    await userEvent.click(screen.getByRole('button', { name: /create account/i }))
+    expect(await screen.findByText(/could not create your account/i)).toBeInTheDocument()
+    expect(screen.queryByText(/auth\.users/i)).not.toBeInTheDocument()
   })
 
   it('redirects after successful signup', async () => {
@@ -244,5 +260,5 @@ vi.mock('next-auth/react', () => ({
 }))
 
 // In test:
-;(signIn as vi.Mock).mockResolvedValue({ error: 'CredentialsSignin' })
+vi.mocked(signIn).mockResolvedValue({ error: 'CredentialsSignin' } as never)
 ```

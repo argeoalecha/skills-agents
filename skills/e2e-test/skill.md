@@ -107,14 +107,22 @@ Focus on the FEATURE UNDER TEST from A's report. Report under 500 words.
 
 Drive the browser via the `agent-browser` skill — load it for the exact CLI surface and element-ref syntax. **Do not hardcode the journey here** — execute the journeys produced by Sub-Agent C, against `http://localhost:$DEV_PORT`.
 
+Before running any browser commands, set the screenshot output directory so all screenshots land directly in the project folder — nothing goes to `~/.agent-browser/tmp/`:
+
+```bash
+E2E_DATE=$(date +%Y-%m-%d)
+mkdir -p ./e2e-screenshots/$E2E_DATE
+export AGENT_BROWSER_SCREENSHOT_DIR=./e2e-screenshots/$E2E_DATE
+```
+
 ### Per-journey loop
 
 For each journey from C's plan:
 
 1. Open the starting URL.
-2. Take a "before" screenshot (`NN-<journey>-before.png`).
+2. Take a "before" screenshot: `agent-browser screenshot NN-<journey>-before.png`
 3. Execute the steps (open → snapshot → fill → click → wait).
-4. Take an "after" screenshot.
+4. Take an "after" screenshot: `agent-browser screenshot NN-<journey>-after.png`
 5. **Capture console messages** — read browser console for errors/warnings produced during the journey.
 6. **Capture network errors** — read network log for any 4xx/5xx responses.
 7. If the journey writes data, hand off to Phase 3 (DB verification) before moving on.
@@ -136,7 +144,7 @@ For every test session, regardless of journey:
 
 ### Where screenshots go
 
-Save to `./e2e-screenshots/<YYYY-MM-DD>/NN-<journey>-<state>.png`. Reference these paths in the Phase 4 report.
+`AGENT_BROWSER_SCREENSHOT_DIR` is set at Phase 2 start to `./e2e-screenshots/<YYYY-MM-DD>/`. All `agent-browser screenshot` calls write there directly — nothing accumulates in `~/.agent-browser/tmp/`. Use filenames like `NN-<journey>-<state>.png` and reference these paths in the Phase 4 report.
 
 ---
 
@@ -237,6 +245,16 @@ Do not silently swallow findings. If `TODO.md` doesn't exist in the project, cre
 ### 4c. State the GO / NO-GO verdict in chat
 
 End the session with an explicit one-line verdict so the user doesn't have to open the report to know the result.
+
+### 4d. Clean up tmp
+
+After the verdict, purge the agent-browser scratch directory:
+
+```bash
+rm -f ~/.agent-browser/tmp/screenshot-*.png
+```
+
+Screenshots are already saved to `./e2e-screenshots/<date>/` via `AGENT_BROWSER_SCREENSHOT_DIR` — anything left in tmp is a stale artefact.
 
 ---
 

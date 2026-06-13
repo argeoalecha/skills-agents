@@ -2,9 +2,13 @@
 
 ## Table of Contents
 1. [Next.js App Router + Supabase + React Hook Form + Zod](#nextjs-app-router)
-2. [Next.js App Router + NextAuth.js](#nextjs-nextauth)
-3. [React + Vite + Supabase](#react-vite)
-4. [Shared Zod Schema](#shared-zod-schema)
+2. [Server Client + Middleware + Route Protection](#server-protection)
+3. [Email Confirmation Flow (`/check-email` + `/auth/callback`)](#email-confirmation)
+4. [Forgot / Reset Password Flow](#forgot-password)
+5. [Sign Out Helper](#sign-out)
+6. [Next.js App Router + NextAuth.js](#nextjs-nextauth) — stub, extend before use
+7. [React + Vite + Supabase](#react-vite) — stub, extend before use
+8. [Shared Zod Schema](#shared-zod-schema)
 
 ---
 
@@ -17,6 +21,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -88,7 +93,10 @@ export default function LoginPage() {
         </button>
 
         <p>
-          No account? <a href="/signup">Sign up</a>
+          No account? <Link href="/signup">Sign up</Link>
+        </p>
+        <p>
+          <Link href="/forgot-password">Forgot password?</Link>
         </p>
       </form>
     </main>
@@ -103,6 +111,7 @@ export default function LoginPage() {
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -137,9 +146,12 @@ export default function SignupPage() {
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     })
     if (error) {
-      setServerError(error.message)
+      setServerError('Could not create your account. Please try again.')
       return
     }
     router.push('/check-email')
@@ -180,7 +192,7 @@ export default function SignupPage() {
           {isSubmitting ? 'Creating account...' : 'Create account'}
         </button>
 
-        <p>Already have an account? <a href="/login">Sign in</a></p>
+        <p>Already have an account? <Link href="/login">Sign in</Link></p>
       </form>
     </main>
   )
@@ -203,21 +215,356 @@ export function createClient() {
 
 ---
 
+## Server Client + Middleware + Route Protection {#server-protection}
+
+The browser client alone doesn't protect routes. For any Next.js App Router + Supabase project you also need a server client and middleware to refresh sessions and gate protected pages.
+
+### File: `lib/supabase/server.ts`
+
+```ts
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+
+export async function createClient() {
+  const cookieStore = await cookies()
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options),
+            )
+          } catch {
+            // Called from a Server Component — safely ignored if middleware refreshes the session.
+          }
+        },
+      },
+    },
+  )
+}
+```
+
+### File: `lib/supabase/middleware.ts`
+
+```ts
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
+
+const PUBLIC_PATHS = ['/login', '/signup', '/forgot-password', '/reset-password', '/check-email', '/auth/callback']
+
+export async function updateSession(request: NextRequest) {
+  let response = NextResponse.next({ request })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          response = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
+        },
+      },
+    },
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+  const pathname = request.nextUrl.pathname
+  const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+
+  if (!user && !isPublic) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.searchParams.set('next', pathname)
+    return NextResponse.redirect(url)
+  }
+
+  return response
+}
+```
+
+### File: `middleware.ts` (project root)
+
+```ts
+import { updateSession } from '@/lib/supabase/middleware'
+import type { NextRequest } from 'next/server'
+
+export async function middleware(request: NextRequest) {
+  return updateSession(request)
+}
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+}
+```
+
+---
+
+## Email Confirmation Flow {#email-confirmation}
+
+Supabase defaults to email confirmation. Without the callback route, the confirmation link goes nowhere. Without `/check-email`, signup users hit a 404.
+
+### File: `app/auth/callback/route.ts`
+
+```ts
+import { NextResponse, type NextRequest } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+
+export async function GET(request: NextRequest) {
+  const { searchParams, origin } = new URL(request.url)
+  const code = searchParams.get('code')
+  const next = searchParams.get('next') ?? '/dashboard'
+
+  if (code) {
+    const supabase = await createClient()
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error) {
+      return NextResponse.redirect(`${origin}${next}`)
+    }
+  }
+
+  return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`)
+}
+```
+
+### File: `app/(auth)/check-email/page.tsx`
+
+```tsx
+import Link from 'next/link'
+
+export default function CheckEmailPage() {
+  return (
+    <main className="flex min-h-screen items-center justify-center p-6">
+      <div className="w-full max-w-md space-y-4 text-center">
+        <h1 className="text-2xl font-semibold">Check your email</h1>
+        <p className="text-sm text-gray-600">
+          We sent a confirmation link to your inbox. Click it to activate your account.
+        </p>
+        <p className="text-sm">
+          Didn&apos;t get it? Check your spam folder, or{' '}
+          <Link href="/signup" className="underline">try signing up again</Link>.
+        </p>
+      </div>
+    </main>
+  )
+}
+```
+
+---
+
+## Forgot / Reset Password Flow {#forgot-password}
+
+### File: `app/(auth)/forgot-password/page.tsx`
+
+```tsx
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { createClient } from '@/lib/supabase/client'
+
+const schema = z.object({
+  email: z.string().email('Enter a valid email address'),
+})
+type FormData = z.infer<typeof schema>
+
+export default function ForgotPasswordPage() {
+  const supabase = createClient()
+  const [submitted, setSubmitted] = useState(false)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({ resolver: zodResolver(schema) })
+
+  async function onSubmit(data: FormData) {
+    await supabase.auth.resetPasswordForEmail(data.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    // Always show success to prevent email enumeration.
+    setSubmitted(true)
+  }
+
+  if (submitted) {
+    return (
+      <main className="flex min-h-screen items-center justify-center p-6">
+        <div className="w-full max-w-md text-center">
+          <h1 className="text-2xl font-semibold">Check your email</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            If an account exists for that email, we&apos;ve sent a reset link.
+          </p>
+        </div>
+      </main>
+    )
+  }
+
+  return (
+    <main className="flex min-h-screen items-center justify-center">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm space-y-4" aria-label="Forgot password form">
+        <h1 className="text-2xl font-semibold">Reset password</h1>
+        <div>
+          <label htmlFor="email">Email</label>
+          <input id="email" type="email" autoComplete="email" {...register('email')} />
+          {errors.email && <p role="alert">{errors.email.message}</p>}
+        </div>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Sending...' : 'Send reset link'}
+        </button>
+        <p><Link href="/login">Back to sign in</Link></p>
+      </form>
+    </main>
+  )
+}
+```
+
+### File: `app/(auth)/reset-password/page.tsx`
+
+```tsx
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { createClient } from '@/lib/supabase/client'
+
+const schema = z
+  .object({
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string(),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+type FormData = z.infer<typeof schema>
+
+export default function ResetPasswordPage() {
+  const router = useRouter()
+  const supabase = createClient()
+  const [serverError, setServerError] = useState<string | null>(null)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({ resolver: zodResolver(schema) })
+
+  async function onSubmit(data: FormData) {
+    setServerError(null)
+    const { error } = await supabase.auth.updateUser({ password: data.password })
+    if (error) {
+      setServerError('Could not reset your password. The link may have expired.')
+      return
+    }
+    router.push('/login?reset=success')
+  }
+
+  return (
+    <main className="flex min-h-screen items-center justify-center">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm space-y-4" aria-label="Reset password form">
+        <h1 className="text-2xl font-semibold">Set a new password</h1>
+        {serverError && <p role="alert" className="text-sm text-red-600">{serverError}</p>}
+        <div>
+          <label htmlFor="password">New password</label>
+          <input id="password" type="password" autoComplete="new-password" {...register('password')} />
+          {errors.password && <p role="alert">{errors.password.message}</p>}
+        </div>
+        <div>
+          <label htmlFor="confirmPassword">Confirm new password</label>
+          <input id="confirmPassword" type="password" autoComplete="new-password" {...register('confirmPassword')} />
+          {errors.confirmPassword && <p role="alert">{errors.confirmPassword.message}</p>}
+        </div>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Updating...' : 'Update password'}
+        </button>
+      </form>
+    </main>
+  )
+}
+```
+
+---
+
+## Sign Out Helper {#sign-out}
+
+### File: `app/auth/signout/route.ts`
+
+```ts
+import { NextResponse, type NextRequest } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+
+export async function POST(request: NextRequest) {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  return NextResponse.redirect(new URL('/login', request.url), { status: 303 })
+}
+```
+
+Trigger from any client component with a plain form: `<form action="/auth/signout" method="post"><button>Sign out</button></form>`.
+
+---
+
 ## Next.js App Router + NextAuth.js {#nextjs-nextauth}
 
-Use `signIn('credentials', { email, password, redirect: false })` inside `onSubmit`. Check the returned `error` field for failed attempts. On success, call `router.push('/dashboard')`.
+> **Stub — extend before use.** The Supabase variant above is the only fully scaffolded option. NextAuth requires its own `auth.ts` config, route handler, and provider setup that vary by app. If you choose NextAuth, treat the notes below as a starting point and fill in the missing config from the NextAuth.js docs.
 
-For NextAuth setup (`auth.ts`, `app/api/auth/[...nextauth]/route.ts`), check existing project structure first — do not duplicate if already present.
+In the login form `onSubmit`:
+
+```ts
+import { signIn } from 'next-auth/react'
+
+const result = await signIn('credentials', {
+  email: data.email,
+  password: data.password,
+  redirect: false,
+})
+if (result?.error) {
+  setServerError('Invalid email or password.')
+  return
+}
+router.push('/dashboard')
+```
+
+Confirm `auth.ts` and `app/api/auth/[...nextauth]/route.ts` exist before scaffolding. Do not duplicate them.
 
 ---
 
 ## React + Vite + Supabase {#react-vite}
 
-Same logic as Next.js App Router, but:
-- Use `useNavigate()` from `react-router-dom` instead of `useRouter()`
-- No `'use client'` directive needed
-- Place file at `src/pages/LoginPage.tsx`
-- Import Supabase from `src/lib/supabase.ts` (a singleton `createClient()` call)
+> **Stub — extend before use.** Reuse the Next.js Supabase form bodies and adapt the imports below. There is no middleware / SSR session refresh in a Vite SPA — protect routes with a `<RequireAuth>` wrapper or react-router loader instead.
+
+Differences vs. the Next.js variant:
+
+- Replace `'use client'` — remove it (Vite has no directives).
+- Replace `useRouter` with `useNavigate` from `react-router-dom`. `router.push('/x')` → `navigate('/x')`.
+- Replace `next/link` `<Link>` with `react-router-dom` `<Link to="/x">`.
+- File location: `src/pages/LoginPage.tsx`, `src/pages/SignupPage.tsx`.
+- Supabase client: singleton in `src/lib/supabase.ts`:
+  ```ts
+  import { createClient } from '@supabase/supabase-js'
+  export const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL!,
+    import.meta.env.VITE_SUPABASE_ANON_KEY!,
+  )
+  ```
+- Email-confirmation callback in a Vite SPA: use a `/auth/callback` route component that reads `code` from the URL and calls `supabase.auth.exchangeCodeForSession(code)`.
 
 ---
 
@@ -245,6 +592,7 @@ Color tokens used (all via Tailwind arbitrary values):
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -294,7 +642,7 @@ export default function LoginPage() {
               <path d="M4 3v14M16 3v14M4 10h12" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span className="font-serif text-[22px] text-[#faf7f5]">Hayah</span>
+          <span className="font-serif text-[22px] text-[#faf7f5]">Hayah-AI</span>
         </div>
         <div>
           <p className="text-[11px] font-bold uppercase tracking-widest text-[#A1E4DB] mb-7">
@@ -308,7 +656,7 @@ export default function LoginPage() {
             The AI command center built for professionals who refuse to compromise on quality or clarity.
           </p>
         </div>
-        <p className="text-xs text-[#7a9b96]">© 2026 Hayah AI</p>
+        <p className="text-xs text-[#7a9b96]">© 2026 Hayah-AI</p>
       </div>
 
       {/* Right Panel — form */}
@@ -319,13 +667,13 @@ export default function LoginPage() {
               Welcome back
             </p>
             <h2 className="text-[34px] leading-tight tracking-tight text-[#0a3d3a] mb-2">
-              Sign in to Hayah
+              Sign in to Hayah-AI
             </h2>
             <p className="text-[15px] text-[#7a9b96]">
               New here?{' '}
-              <a href="/signup" className="font-semibold text-[#ff6b47] hover:underline">
+              <Link href="/signup" className="font-semibold text-[#ff6b47] hover:underline">
                 Create a free account
-              </a>
+              </Link>
             </p>
           </div>
 
@@ -382,9 +730,9 @@ export default function LoginPage() {
               </div>
 
               <div className="flex justify-end">
-                <a href="/forgot-password" className="text-[13px] font-semibold text-[#ff6b47] hover:underline">
+                <Link href="/forgot-password" className="text-[13px] font-semibold text-[#ff6b47] hover:underline">
                   Forgot password?
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -410,6 +758,7 @@ export default function LoginPage() {
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -446,9 +795,12 @@ export default function SignupPage() {
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     })
     if (error) {
-      setServerError(error.message)
+      setServerError('Could not create your account. Please try again.')
       return
     }
     router.push('/check-email')
@@ -464,7 +816,7 @@ export default function SignupPage() {
               <path d="M4 3v14M16 3v14M4 10h12" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span className="font-serif text-[22px] text-[#faf7f5]">Hayah</span>
+          <span className="font-serif text-[22px] text-[#faf7f5]">Hayah-AI</span>
         </div>
         <div>
           <p className="text-[11px] font-bold uppercase tracking-widest text-[#A1E4DB] mb-7">
@@ -475,10 +827,10 @@ export default function SignupPage() {
             workspace awaits.
           </h1>
           <p className="text-base leading-relaxed text-[#A1E4DB] max-w-sm">
-            Join thousands of teams already building smarter with Hayah.
+            Join thousands of teams already building smarter with Hayah-AI.
           </p>
         </div>
-        <p className="text-xs text-[#7a9b96]">© 2026 Hayah AI</p>
+        <p className="text-xs text-[#7a9b96]">© 2026 Hayah-AI</p>
       </div>
 
       {/* Right Panel — form */}
@@ -493,9 +845,9 @@ export default function SignupPage() {
             </h2>
             <p className="text-[15px] text-[#7a9b96]">
               Already a member?{' '}
-              <a href="/login" className="font-semibold text-[#ff6b47] hover:underline">
+              <Link href="/login" className="font-semibold text-[#ff6b47] hover:underline">
                 Sign in
-              </a>
+              </Link>
             </p>
           </div>
 
@@ -580,9 +932,9 @@ export default function SignupPage() {
 
           <p className="mt-4 text-center text-[12px] text-[#7a9b96]">
             By signing up, you agree to our{' '}
-            <a href="/terms" className="text-[#1E6E66] hover:underline">Terms</a>
+            <Link href="/terms" className="text-[#1E6E66] hover:underline">Terms</Link>
             {' '}and{' '}
-            <a href="/privacy" className="text-[#1E6E66] hover:underline">Privacy Policy</a>.
+            <Link href="/privacy" className="text-[#1E6E66] hover:underline">Privacy Policy</Link>.
           </p>
         </div>
       </div>

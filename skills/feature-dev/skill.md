@@ -135,20 +135,27 @@ After implementation is complete, run `/simplify` to catch reuse opportunities, 
 - Test the full request → database → response cycle for critical paths
 - Validate RLS policies enforce access correctly
 
-**E2E (for user-facing flows):**
-```bash
-/e2e-test
-```
+**E2E — two tools, two purposes:**
+
+| Tool | When to use | What it produces |
+|---|---|---|
+| `/e2e-playwright` | Write regression tests for the feature — committed to the repo, run in CI | `e2e/*.spec.ts` files |
+| `/e2e-test` | Interactive exploratory pass before code review — one-time validation | `E2E_TEST.md` report + screenshots |
+
+For every user-facing feature, do both:
+1. Run `/e2e-playwright` to write the Playwright spec covering the feature's critical journeys. Every feature must have at least one tier-2 (feature-level) test — not just a smoke test.
+2. Run `/e2e-test` for the interactive browser pass to catch UX issues that code alone misses.
 
 **Run the quality gates before review:**
 ```bash
-pnpm build          # Must pass — catches type errors and import issues
-pnpm typecheck      # npx tsc --noEmit if no typecheck script
-pnpm lint           # ESLint
-pnpm test           # Vitest unit tests
+pnpm build                    # Must pass — catches type errors and import issues
+pnpm typecheck                # npx tsc --noEmit if no typecheck script
+pnpm lint                     # ESLint
+pnpm test                     # Vitest unit tests
+npx playwright test           # Playwright E2E suite
 ```
 
-Reference: `references/testing-strategy.md`
+Reference: `references/testing-strategy.md`, `/e2e-playwright` skill
 
 ---
 

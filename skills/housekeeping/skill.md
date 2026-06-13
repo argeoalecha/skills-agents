@@ -87,6 +87,13 @@ comm -23 /tmp/_hk_all_dirs /tmp/_hk_skill_dirs
 
 # Skill backup folders older than 14 days (auto-safe — live skill.md files are the source of truth)
 find ~/.claude/skills/_backups -maxdepth 1 -mindepth 1 -type d -mtime +13 2>/dev/null
+
+# agent-browser: leftover screenshots in tmp (auto-safe — e2e-test skill cleans these, but old runs may linger)
+find ~/.agent-browser/tmp -name "screenshot-*.png" -type f 2>/dev/null
+
+# agent-browser: stale Chromium builds — all but the newest directory are superseded
+# After an agent-browser upgrade, old chrome-X.Y.Z dirs accumulate at ~345 MB each
+ls -dt ~/.agent-browser/browsers/*/ 2>/dev/null | tail -n +2
 ```
 
 ### Step 2 — Cross-Check Skills for Internal Redundancy
@@ -122,12 +129,14 @@ Group every finding into one of these categories:
 - `shell-snapshots/` files
 - `file-history/` session folders older than 7 days (undo snapshots for sessions too old to revert)
 - `skills/_backups/` dated subfolders older than 14 days (live skill.md files are the source of truth; old backups are not needed)
+- `~/.agent-browser/tmp/screenshot-*.png` files (e2e scratch files; canonical copies are in the project's `e2e-screenshots/` folder)
 
 **STALE** — Files older than a set threshold with no clear active use. Show with age and size. Require confirmation per item or group before moving to Trash:
 - `todos/` JSON files older than 7 days (never delete todos without age filter — active session todos must survive)
 - `tasks/` session folders older than 7 days
 - `paste-cache/` files older than 7 days
 - Plan files older than 30 days
+- `~/.agent-browser/browsers/chrome-X.Y.Z/` directories that are not the newest — each is ~345 MB. After an `agent-browser` upgrade, old Chromium builds are never auto-removed. Confirm the newest build is working before trashing older ones.
 
 **SUPERSEDED** — Confirmed replaced by a newer file (e.g., PDF replaced by HTML, single JSON replaced by variant JSONs). Require explicit confirmation per item or as a group.
 
@@ -154,8 +163,9 @@ Date: [today's date PHT]
   .DS_Store       [n files] · [size]
   ide/ locks      [n files] · [size]
   shell-snapshots [n files] · [size]
-  file-history/   [n session folders, 7+ days old] · [size]
-  _backups/       [n dated folders, 14+ days old] · [size]
+  file-history/         [n session folders, 7+ days old] · [size]
+  _backups/             [n dated folders, 14+ days old] · [size]
+  agent-browser/tmp/    [n screenshot files] · [size]
 
 → Move all AUTO-SAFE to Trash? [yes/no]
 
@@ -172,8 +182,11 @@ Files confirmed replaced by newer equivalents:
 ---
 
 ### STALE (age threshold exceeded, requires confirmation)
-  [file path] ([size]) — last modified [date] · category: todos|tasks|paste-cache|plans
+  [file path] ([size]) — last modified [date] · category: todos|tasks|paste-cache|plans|agent-browser-builds
   ...
+
+agent-browser builds (if multiple found):
+  ~/.agent-browser/browsers/chrome-OLD/ ([size]) — superseded by chrome-NEW/ (current)
 
 → Review each before deciding.
 
@@ -267,5 +280,7 @@ After each housekeeping run, log the result here for trend tracking:
 | 2026-03-08 | 198 MB | 174 MB | ~24 MB — 65 files: 41 debug logs, 4 telemetry, 9 todos, 1 ide lock, 1 shell snapshot, 5 stale plans, 4 orphaned tool-result files (data-analyst). Skills clean. |
 | 2026-05-06 | 180 MB | 174 MB | ~6 MB — 22 items: 15 .DS_Store, 1 telemetry, 1 ide lock, 1 shell snapshot, 19 file-history folders (Apr 6–Apr 29). 5 stale plans + 1 orphaned PNG pending user decision. |
 | 2026-05-07 | 180 MB | 177 MB | ~3.1 MB — 1 ide lock, 1 shell snapshot, 1 file-history folder (3.1MB), 1 stale plan, 1 orphaned PNG (hayahailogo.png). Rebuilt 16 truncated skill.md files. Added _backups/ cleanup rule (14-day expiry). |
+| 2026-05-25 | 244 MB | 237 MB | ~7 MB — 17 .DS_Store, 1 ide lock, 2 shell snapshots, 35 file-history folders, 2 _backups folders (2026-05-07+08), 4 stale task folders, 1 orphaned skills/.vscode/ (Power Query IDE config). No debug/telemetry/statsig this run. |
+| 2026-06-06 | 181 MB | 172 MB | ~9 MB — 17 .DS_Store, 1 ide lock, 2 telemetry, 2 shell snapshots, 24 file-history folders, 2 stale task folders, 9 paste-cache files, 1 orphaned skills/.vscode/ (same one — wasn't cleaned May 25). |
 
 Update this table after every run so you can track accumulation patterns over time.

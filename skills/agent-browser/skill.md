@@ -67,9 +67,13 @@ agent-browser uncheck @e6                   # Uncheck a checkbox
 
 ### Screenshots
 ```bash
-agent-browser screenshot                    # Screenshot of current viewport
-agent-browser screenshot --full             # Full-page screenshot
+agent-browser screenshot                              # Screenshot to ~/.agent-browser/tmp/ (default)
+agent-browser screenshot ./path/to/file.png           # Screenshot to a specific file
+agent-browser screenshot --full ./path/to/file.png    # Full-page screenshot to a specific file
+agent-browser screenshot --screenshot-dir ./dir/      # Override output directory for this call
 ```
+
+Set `AGENT_BROWSER_SCREENSHOT_DIR=./dir/` in the environment to route all screenshots to a fixed directory without repeating the flag on every call.
 
 ### Waiting
 ```bash

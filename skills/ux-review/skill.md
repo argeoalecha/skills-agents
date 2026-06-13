@@ -181,6 +181,8 @@ Check at each:
 - No autoplay video on mobile data
 - Polling intervals reasonable (no 1s polling on mobile data)
 
+If the page is deployed, run `/web-perf-audit` against the live URL and cite its measured numbers here instead of "feels slow" — it translates payload to PH-mobile impact (e.g. ~600KB raw JS ≈ 2–4s parse+execute on mid-range Android over 4G) and splits warm/cold TTFB. This review covers the *symptoms* (blank screens, missing states); `/web-perf-audit` measures the *causes* (JS weight, TTFB, caching).
+
 ### Currency, address, language
 
 - Currency formatted as `₱1,234.00` (Philippine Peso, not `$`)

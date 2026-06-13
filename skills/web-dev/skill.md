@@ -380,7 +380,15 @@ In `tailwind.config.ts`, extend the palette with these CSS vars so Tailwind util
 
 ### Fonts
 
-Read `typography.googleFontsUrl` from the chosen theme JSON. Import in `app/layout.tsx` via `<link>` tag in metadata or Next.js `next/font/google`.
+Read the font families from the chosen theme JSON (`typography.displayFont` + `bodyFont`) and load them with **`next/font/google` in `app/layout.tsx` — never a `<link>` tag to Google Fonts**. `next/font` self-hosts at build time: no render-blocking external CSS, no `fonts.googleapis.com`/`fonts.gstatic.com` CSP allowances, zero layout shift.
+
+Budget (from `/web-perf-audit`): ≤2 typefaces × ≤2 weights, `subsets: ['latin']`, total <60KB / ≤4 files. The theme JSON's `googleFontsUrl` is for artifact preview (Phase A) only.
+
+```ts
+import { DM_Serif_Display, Inter } from 'next/font/google';
+const display = DM_Serif_Display({ weight: '400', subsets: ['latin'], variable: '--font-display' });
+const body = Inter({ weight: ['400', '600'], subsets: ['latin'], variable: '--font-body' });
+```
 
 ### Component conversion rules
 
@@ -412,9 +420,17 @@ When splitting the single-file artifact into proper components:
 - [ ] **Cloudflare Turnstile** (or honeypot field) on every public POST form
 - [ ] **CSP + Permissions-Policy headers** in `next.config.ts`:
   ```ts
-  { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co" }
+  { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co" }
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" }
   ```
+  (No Google Fonts origins needed — fonts are self-hosted via `next/font`, see Fonts section.)
+- [ ] **Cache-Control headers** in the same `next.config.ts` `headers()` block — framework defaults ship `max-age=0, must-revalidate` HTML with no CDN persistence (observed 1.4–2.4s cold TTFB):
+  ```ts
+  // static pages (marketing site = all pages)
+  { key: "Vercel-CDN-Cache-Control", value: "public, s-maxage=31536000, stale-while-revalidate=86400" },
+  { key: "Cache-Control", value: "public, max-age=0, s-maxage=86400, stale-while-revalidate=300" },
+  ```
+  On Netlify use `Netlify-CDN-Cache-Control: public, durable, s-maxage=31536000, stale-while-revalidate=86400` instead. Rationale + platform variants: `~/.claude/skills/web-perf-audit/references/host-vercel.md` / `host-netlify.md`.
 - [ ] **PH DPA / RA 10173 consent checkbox** on every form that captures personal data (required, not pre-checked). Delegate full privacy-policy generation to `/ph-dpa-compliance`.
 - [ ] **Admin login moved off public nav** — put it at `/admin` route, not in marketing footer
 - [ ] **Sentry** (`@sentry/nextjs`) installed and `SENTRY_DSN` env var documented
@@ -430,7 +446,7 @@ When splitting the single-file artifact into proper components:
 - [ ] Test Turnstile / honeypot blocks bots
 - [ ] Verify consent checkbox is required and stored (`consent_dpa` column)
 
-For deeper review run `/audit` (security + compliance gates) and `/ph-dpa-compliance` before deployment.
+For deeper review run `/audit` (security + compliance gates) and `/ph-dpa-compliance` before deployment. After the first production deploy, run `/web-perf-audit` against the live URL — it verifies delivered headers, TTFB, CDN caching, and DNS-level issues (double-proxy) that no pre-deploy check can see.
 
 ---
 
@@ -471,3 +487,4 @@ Before delivering Phase B:
 - [ ] RLS migration included
 - [ ] All form submissions go through API routes (not direct client Supabase calls)
 - [ ] `.env.local.example` committed, `.env.local` in `.gitignore`
+- [ ] Bundle within budget: run `npm run build`, read the route table — First Load JS <200KB per route, all routes `○ (Static)` (a marketing site has no excuse for `ƒ (Dynamic)`). Budgets and bloat patterns: `~/.claude/skills/web-perf-audit/references/local-build-audit.md`

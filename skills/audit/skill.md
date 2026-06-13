@@ -57,8 +57,9 @@ git status --short                                     # Should be empty (no unc
 git log origin/main..HEAD --oneline 2>/dev/null        # Commits to be deployed
 
 # Working tree sanity
-test -f package.json && test -f package-lock.json      # Lockfile present
-git ls-files | xargs grep -l "<<<<<<< HEAD" 2>/dev/null # Merge conflict markers
+test -f package.json                                   # Manifest present
+ls package-lock.json pnpm-lock.yaml yarn.lock bun.lockb 2>/dev/null | head -1  # Any lockfile present
+git grep -l "^<<<<<<< " -- ':!*.md' 2>/dev/null        # Merge conflict markers (excludes docs)
 
 # Migrations
 ls supabase/migrations/ 2>/dev/null | sort | tail -5   # Check for un-applied migrations
@@ -83,7 +84,7 @@ Run sequentially. Any failure halts the audit.
 npx tsc --noEmit
 
 # 2. Lint
-npx eslint . --ext .ts,.tsx --max-warnings 0
+npx eslint . --max-warnings 0   # add --ext .ts,.tsx only on legacy ESLint 8 .eslintrc projects (flag removed in ESLint 9 flat config)
 
 # 3. Tests
 npx vitest run        # or: npm test / npx jest
@@ -92,10 +93,13 @@ npx vitest run        # or: npm test / npx jest
 npm run build         # catches what tsc misses (env access, RSC boundaries, route conflicts)
 
 # 5. Bundle size sanity (if applicable)
-ls -lh .next/static/chunks/*.js 2>/dev/null | sort -k5 -h | tail -5  # largest 5 chunks
+# Vite/Next.js: apply the budgets and analysis workflow from
+# ~/.claude/skills/web-perf-audit/references/local-build-audit.md
+# (largest chunk <150KB marketing / <250KB app, First Load JS per route <200KB,
+#  total JS, named bloat patterns). Read the next build / vite build output table.
 ```
 
-**Pass criteria:** Zero TS errors, zero ESLint errors, all tests green, production build succeeds, no chunk exceeds 500KB without justification.
+**Pass criteria:** Zero TS errors, zero ESLint errors, all tests green, production build succeeds, bundle within the local-build-audit budgets (or overage justified in the report).
 
 If Phase 1 fails: report exact errors, halt. Do not proceed to Phase 2.
 
@@ -239,6 +243,8 @@ Each item is a checkbox: PASS / FAIL / N/A. Fail blocks deployment.
 - [ ] X-Frame-Options or frame-ancestors set
 - [ ] X-Content-Type-Options: nosniff
 
+> Config presence is NOT delivery. After deploy, verify the headers actually served with `/web-perf-audit` — headers configured in `next.config.js` can be dropped by the platform, middleware ordering, or a proxy in front. (Observed: CSP "configured" but never shipped across 3 consecutive audits.)
+
 ### Data Integrity & Disaster Recovery
 - [ ] All Supabase migrations have reversal SQL (or documented rollback plan)
 - [ ] Foreign keys with appropriate `ON DELETE` behavior (CASCADE vs. RESTRICT vs. SET NULL — intentional)
@@ -365,10 +371,12 @@ If signals are ambiguous, ask the user to confirm stage in one short question be
 - `/legal-docs` — generate template ToS, Privacy Policy, Refund Policy
 - `/ph-dpa-compliance` — if Philippines-targeted and not yet implemented
 - Smoke test on production-equivalent environment
+- `/web-perf-audit` on the deployed URL immediately after first deploy — verifies delivered security headers, TTFB, CDN caching, and DNS-level issues (double-proxy) that static audit cannot see
 
 **Stage C → D (after launch, before scale)**
 - Set up incident response runbook
 - Schedule recurring `/audit` cadence (every 30 days or per major release)
+- `/web-perf-audit` re-check after each fix deploy (before→after deltas) and as a live TTFB/caching baseline for monitoring thresholds
 - Manual user research session (5–10 real users) — Claude cannot do this
 - Privacy policy review by qualified counsel if not yet done
 - Tune monitoring alert thresholds based on real traffic baselines
@@ -474,8 +482,9 @@ When the user runs `/audit` after a previous audit:
 1. Read prior `AUDIT.md` if present.
 2. Diff prior Critical/High findings vs. current code state.
 3. Mark resolved items in TODO.md with `~~strikethrough~~ (resolved YYYY-MM-DD)`.
-4. Run only Phase 1 (build validation) + Phase 2 (focused on prior issues + new files since last audit) + Phase 3 (recheck all gates) + Phase 4 + Phase 5.
-5. Issue new sign-off.
+4. **Count unresolved repeats.** Any Critical/High finding present in a prior audit and still open gets an explicit escalation tag in the report and TODO: `(flagged 2× — was: Audit YYYY-MM-DD)`. Repeat findings lead their severity section — unescalated repeat findings never ship (observed: CSP flagged 3 consecutive audits before fixing).
+5. Run only Phase 1 (build validation) + Phase 2 (focused on prior issues + new files since last audit) + Phase 3 (recheck all gates) + Phase 4 + Phase 5.
+6. Issue new sign-off.
 
 ---
 

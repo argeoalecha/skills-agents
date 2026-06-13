@@ -438,6 +438,7 @@ Appended N items to TODO.md under "Phase X: Performance Remediation (YYYY-MM-DD)
 ## Integration Points
 
 - **Triggered by `/audit`** — Recommended Follow-ups at Stage B (pre-launch) and Stage D (pre-scale)
+- **Pre-flight: `/web-perf-audit` first** — load-testing a site with broken CDN caching measures the origin, not the real user path. If `/web-perf-audit` shows bimodal TTFB or cold-cache markers (`fwd=miss`, `x-vercel-cache: MISS`), fix caching before burning k6 compute. Its 5-sample curl diagnosis also explains "high p99 / low p50" results in 30 seconds.
 - **Feeds `/feature-dev`** — Performance Remediation TODO items become feature-dev inputs
 - **Re-test cycle** — After fixes, run `/load-test` again in re-test mode to mark items resolved
 - **Vercel preview URLs** — Default target. Find via `vercel ls` or `VERCEL_URL` env var
@@ -461,7 +462,7 @@ Appended N items to TODO.md under "Phase X: Performance Remediation (YYYY-MM-DD)
 ## Out of Scope
 
 - Real-user monitoring (RUM) — needs production traffic + analytics tool
-- Frontend performance (Lighthouse, Core Web Vitals) — different concern; use Lighthouse CI
+- Frontend delivery performance (TTFB, caching, headers, payload weight) — use `/web-perf-audit` (curl-based, works in this sandbox; Lighthouse is not available here)
 - Distributed load from multiple regions — k6 Cloud or BlazeMeter; out of scope for solo MVP
 - Browser-based load (full page render under load) — k6 browser module; defer until needed
 - Chaos / fault injection — separate discipline

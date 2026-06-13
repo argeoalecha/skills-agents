@@ -105,6 +105,20 @@ If the deploy fails, show the build log output and suggest fixes.
 
 ---
 
+## Step 8 — Post-Deploy Verification (production deploys)
+
+After a `--prod` deploy, verify what is actually being served — config presence is not delivery:
+
+```bash
+bash ~/.claude/skills/web-perf-audit/scripts/audit.sh https://<production-domain>
+```
+
+Report against `/web-perf-audit` thresholds: TTFB (warm/cold split — watch for `"Netlify Edge"; fwd=miss` edge eviction), security header gaps, cache-control on HTML and `/assets/*`, payload budgets. For fixes, read `~/.claude/skills/web-perf-audit/references/host-netlify.md`.
+
+**Custom domain on Cloudflare DNS:** records MUST be gray-clouded (DNS-only). Orange-cloud in front of Netlify creates a double-proxy — observed adding 3+ seconds of TTFB with `cf-cache-status: DYNAMIC` (Cloudflare not caching anything). The audit script detects this automatically. Also verify BOTH `https://www.<domain>` and apex resolve — a missing www DNS record is a real observed failure.
+
+---
+
 ## Common Issues
 
 | Issue | Fix |
@@ -145,3 +159,22 @@ For React + Vite:
   to = "/index.html"
   status = 200
 ```
+
+**Always ship a `_headers` file in the publish directory** (caching + security — the bare toml above is not enough):
+
+```
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*
+  Netlify-CDN-Cache-Control: public, durable, s-maxage=31536000, stale-while-revalidate=86400
+  Cache-Control: public, max-age=0, s-maxage=86400, stale-while-revalidate=300
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+```
+
+`durable` pins objects in Netlify's persistent cache across PoPs — eliminates the cold-edge eviction path (bimodal TTFB). For Next.js, set the same via `headers()` in `next.config.js` — see `~/.claude/skills/web-perf-audit/references/host-netlify.md`.

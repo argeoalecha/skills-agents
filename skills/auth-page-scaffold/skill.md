@@ -24,26 +24,37 @@ ls package.json && cat package.json | grep -E '"next"|"vite"|"react"'
 
 # Identify auth provider
 grep -r "supabase\|nextauth\|clerk\|auth0" package.json
-
-# Check if Hayah-AI design system is in use
-grep -r "hayah\|#0a3d3a\|#ff6b47" tailwind.config* src/ --include="*.ts" --include="*.tsx" -l 2>/dev/null | head -5
 ```
 
 **Stack matrix:**
 
 | Stack | Auth provider | Pattern to use |
 |---|---|---|
-| Next.js App Router | Supabase | `references/auth-patterns.md` → Next.js App Router + Supabase |
-| Next.js App Router | NextAuth | `references/auth-patterns.md` → Next.js App Router + NextAuth |
-| React + Vite | Supabase | `references/auth-patterns.md` → React + Vite + Supabase |
+| Next.js App Router | Supabase | `references/auth-patterns.md` → Next.js App Router + Supabase (full) |
+| Next.js App Router | NextAuth | `references/auth-patterns.md` → NextAuth stub (extend before use) |
+| React + Vite | Supabase | `references/auth-patterns.md` → Vite stub (extend before use) |
+
+Only the Next.js + Supabase path is fully scaffolded end-to-end. The other two are starting points that need filling in.
 
 ---
 
-## Step 2 — Detect Hayah-AI Design System
+## Step 2 — Detect Design System
 
-If the project uses Hayah-AI colors (`#0a3d3a`, `#ff6b47`) or the theme system, use the Hayah-AI variant from `references/auth-patterns.md` (Next.js App Router + Supabase + Hayah-AI Design System section). This produces the split-screen layout: teal left panel + cream form right.
+Check in this order — first hit wins:
 
-Otherwise, use the plain unstyled variant and let the user apply their own styles.
+```bash
+# 1. Client brand from /theme-client (project-scoped overrides)
+ls brand/theme.json brand/tokens.css 2>/dev/null
+
+# 2. Hayah-AI design system
+grep -r "hayah\|#0a3d3a\|#ff6b47" tailwind.config* src/ app/ --include="*.ts" --include="*.tsx" --include="*.css" -l 2>/dev/null | head -5
+```
+
+| Detection | Action |
+|---|---|
+| `brand/theme.json` exists | Use the plain unstyled variant, then apply tokens from `brand/tokens.css`. Tell the user to confirm the auth pages match the client brand spec. |
+| Hayah-AI tokens present | Use the Hayah-AI variant (split-screen, teal + coral) from `references/auth-patterns.md`. |
+| Neither | Use the plain unstyled variant; let the user apply styles. |
 
 ---
 
@@ -52,29 +63,47 @@ Otherwise, use the plain unstyled variant and let the user apply their own style
 Determine which pages to generate:
 - Login only
 - Signup only
-- Both (most common)
+- Both (most common — this is the default for new projects)
 
-**File paths:**
-- Next.js App Router: `app/(auth)/login/page.tsx`, `app/(auth)/signup/page.tsx`
-- React + Vite: `src/pages/LoginPage.tsx`, `src/pages/SignupPage.tsx`
+**Always scaffolded together for a working Next.js + Supabase auth flow:**
 
-Copy from `references/auth-patterns.md` and adapt:
-1. Replace placeholder text with project-specific copy (app name, tagline)
-2. Replace `/dashboard` redirect with the project's actual post-login route
-3. Update the `createClient` import path to match the project's Supabase setup
+| File | From section in `references/auth-patterns.md` | Required? |
+|---|---|---|
+| `app/(auth)/login/page.tsx` | Next.js App Router + Supabase | Yes |
+| `app/(auth)/signup/page.tsx` | Next.js App Router + Supabase | Yes |
+| `app/(auth)/check-email/page.tsx` | Email Confirmation Flow | Yes (signup redirects here) |
+| `app/auth/callback/route.ts` | Email Confirmation Flow | Yes (Supabase confirmation links) |
+| `lib/supabase/client.ts` | Next.js App Router + Supabase | Yes (if missing) |
+| `lib/supabase/server.ts` | Server Client + Middleware | Yes |
+| `lib/supabase/middleware.ts` | Server Client + Middleware | Yes |
+| `middleware.ts` (root) | Server Client + Middleware | Yes (route protection) |
+| `app/auth/signout/route.ts` | Sign Out Helper | Yes |
+| `app/(auth)/forgot-password/page.tsx` | Forgot / Reset Password Flow | Yes |
+| `app/(auth)/reset-password/page.tsx` | Forgot / Reset Password Flow | Yes |
+| `lib/validations/auth.ts` | Shared Zod Schema | Yes if both login + signup |
 
-If both login + signup are generated, extract shared Zod schemas to `lib/validations/auth.ts` (see Shared Zod Schema section in references).
+Before creating any file, check it doesn't already exist:
+
+```bash
+ls <path> 2>/dev/null
+```
+
+When copying from `references/auth-patterns.md`, adapt:
+1. Replace placeholder copy (app name, taglines) with project-specific text.
+2. Replace `/dashboard` redirect with the project's actual post-login route.
+3. Confirm the `createClient` import path matches the project's Supabase setup.
+4. Confirm the middleware `PUBLIC_PATHS` list matches what the project actually exposes publicly.
 
 ---
 
 ## Step 4 — Generate Tests
 
-Read `references/test-patterns.md` for the matching test framework:
+Read `references/test-patterns.md` for the matching framework:
 
 | Project test setup | Test pattern |
 |---|---|
-| Vitest + RTL present | Use Vitest + React Testing Library |
-| Jest + RTL present | Use Jest + React Testing Library (same patterns, replace `vi.` → `jest.`) |
+| Vitest + RTL present | Vitest + React Testing Library |
+| Jest + RTL present | Jest + React Testing Library (replace `vi.` → `jest.`) |
 | Playwright configured | Add E2E tests |
 | No test setup | Scaffold Vitest + RTL first, then tests |
 
@@ -87,6 +116,7 @@ Read `references/test-patterns.md` for the matching test framework:
 **Required test cases for signup:**
 - Password mismatch → "Passwords do not match" error
 - Short password → validation error
+- Server error path → generic "Could not create your account" message shown (not raw provider error)
 - Successful signup → redirect to `/check-email`
 
 Copy from `references/test-patterns.md` and adapt imports/mocks to match project paths.
@@ -105,37 +135,60 @@ npx vitest run __tests__/login.test.tsx __tests__/signup.test.tsx
 npx jest __tests__/login.test.tsx __tests__/signup.test.tsx
 ```
 
-Fix any import path errors or missing mock configurations until all tests pass before reporting completion.
+Fix any import path errors or missing mock configurations until all tests pass before moving on.
 
 ---
 
-## Additional Files
+## Step 6 — Post-Scaffold Report
 
-Check if these helpers already exist before creating them:
+After tests pass, report the following to the user as a checklist of work still required outside this skill's scope:
 
-```bash
-ls lib/supabase/client.ts 2>/dev/null || echo "missing"
-ls lib/validations/auth.ts 2>/dev/null || echo "missing"
+```
+Auth pages scaffolded. Still required before going live:
+
+[ ] Supabase project: confirm Site URL + Redirect URLs include
+    - <your-domain>/auth/callback
+    - <your-domain>/reset-password
+
+[ ] Database: create `profiles` table (or equivalent) with a trigger to insert
+    a row on `auth.users` INSERT. Add RLS policies — owner read/write only.
+
+[ ] Rate limiting: protect /login, /signup, /forgot-password, and the
+    /auth/callback route at the edge (middleware, Upstash, or platform).
+
+[ ] Middleware `matcher`: root middleware.ts runs on EVERY request by default,
+    forcing dynamic serving and bypassing CDN caching on static assets and
+    public marketing pages (shows up as frequent x-vercel-cache: MISS / slow
+    TTFB in /web-perf-audit). Scope it:
+      export const config = {
+        matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|webp|woff2)$).*)'],
+      };
+    and exclude public marketing routes that need no auth check.
+
+[ ] Env vars set in production:
+    - NEXT_PUBLIC_SUPABASE_URL
+    - NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+[ ] Legal pages exist at /terms and /privacy (linked from signup).
+    Use /legal-docs and /ph-dpa-compliance if missing.
+
+[ ] Email templates: customize Supabase confirmation + reset templates
+    to match brand voice.
+
+[ ] OAuth providers (Google / GitHub / etc.): not scaffolded by this skill.
+    Add via supabase.auth.signInWithOAuth() if needed.
 ```
 
-**`lib/supabase/client.ts`** (create only if missing):
-```typescript
-import { createBrowserClient } from '@supabase/ssr'
-
-export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  )
-}
-```
+Tailor the list to what was actually scaffolded (skip items that already existed).
 
 ---
 
 ## Rules
 
-- Always read project files before generating — never assume the stack
-- Do not duplicate the Supabase client helper if it already exists
-- If the project uses a design system, match it — never output unstyled HTML in a themed project
-- Always run tests after generating them — passing tests are the acceptance criterion
-- If a test fails due to a missing `vitest.config.ts`, scaffold it from `references/test-patterns.md`
+- Always read project files before generating — never assume the stack.
+- Never overwrite an existing helper without confirming first.
+- Never output unstyled HTML when a design system is detected.
+- Always run tests after generating them — passing tests are the acceptance criterion.
+- Never leak provider error messages directly to the UI — sanitize to generic copy.
+- Use `next/link` for in-app navigation in Next.js, never raw `<a href>`.
+- If `vitest.config.ts` is missing, scaffold it from `references/test-patterns.md`.

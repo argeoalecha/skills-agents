@@ -61,7 +61,7 @@ Score each dimension: **Strong / Adequate / Weak / Missing**
 | User personas | Are personas distinct with real behavioral differences? Or generic? |
 | User stories | Do stories follow As a / I can / so that? Are MVP vs. future items separated? |
 | Success metrics | Are metrics tied to goals? Is measurement method defined? |
-| Constraints | Are budget, timeline, technical, and regulatory constraints stated? |
+| Constraints | Are budget, timeline, technical, scale (expected traffic), and regulatory constraints stated? |
 | Open questions | Are unresolved decisions surfaced? Or buried/ignored? |
 | Scope clarity | Can an engineer read this and know what to build and what NOT to build? |
 | Philippines DPA | Required if PII is collected — is consent mechanism mentioned? |
@@ -103,9 +103,10 @@ Score each dimension: **Strong / Adequate / Weak / Missing**
 | RLS policies | Is row-level security defined for every user-facing table? |
 | API design | Are endpoints, auth requirements, and error shapes defined? |
 | Request/response shapes | Are TypeScript interfaces or Zod schemas specified? |
-| Security | Auth, input validation, PII handling, DPA compliance |
-| Performance | Caching, pagination, N+1 avoidance |
-| Testing strategy | Unit, integration, E2E coverage defined? |
+| Security | Auth, input validation, PII handling, DPA compliance, security headers (CSP allowlist from actual origins), rate limiting plan |
+| Performance & delivery | Per-route rendering strategy (static/ISR/dynamic with reasons)? JS/font budgets stated? CDN caching plan (immutable assets, HTML s-maxage/SWR)? |
+| Operational readiness | Monitoring (Sentry, health endpoint, logging), backups + migration rollback, CI gates, domain/DNS plan (incl. Cloudflare gray-cloud if applicable) |
+| Testing strategy | Unit, integration, E2E coverage defined? Feature-tier E2E per MVP story? Accessibility planned (keyboard, labels, contrast)? |
 | Open questions | Unresolved technical decisions surfaced? |
 
 **AI/Agent TDD:**
@@ -117,7 +118,8 @@ Score each dimension: **Strong / Adequate / Weak / Missing**
 | Tool definitions | Are all tools defined with schema and purpose? |
 | Model selection | Is the model chosen with rationale? Is there a fallback? |
 | Token cost estimate | Estimated input/output tokens per run? Frequency? Monthly cost? |
-| Error / fallback handling | What happens on API failure, bad model output, or tool error? |
+| Cost guardrails | Hard cost cap per run? Max iterations? Per-user rate limit on runs? (Estimates are not limits) |
+| Error / fallback handling | What happens on API failure, bad model output, tool error, or runaway loop? |
 | Orchestration | Multi-agent: is delegation and handoff logic defined? |
 | Data flow | What data enters, transforms, and exits the agent? |
 | Security | Prompt injection risks? Tool permission scope? |
@@ -174,6 +176,7 @@ Output format: same structure as PRD review, adapted to TDD dimensions.
 - **Budget:** <if relevant>
 - **Timeline:** <if relevant>
 - **Technical:** <known limitations>
+- **Scale:** <expected users / requests at launch and at 6 months — sizes /load-test thresholds and the TDD rendering/caching strategy>
 - **Regulatory:** Philippines DPA (RA 10173) — <required / not required>
 
 ## 8. Open Questions
@@ -289,23 +292,46 @@ lib/validations/
 - Auth: <how auth is enforced at the route level>
 - RLS: <which tables have RLS and the policy logic>
 - Input validation: Zod schemas on all API inputs
+- Security headers: CSP allowlist derived from the third-party origins THIS design uses (Supabase, Turnstile, analytics — list them), plus HSTS, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy. Planned here = ships in `next.config.ts` headers() from day one, not flagged 3 audits in a row.
+- Rate limiting: <which public endpoints, limit + window, store (e.g. Upstash sliding window 5/10m)>
 - PII: <what personal data is handled and how>
 - Philippines DPA: <consent mechanism, data rights endpoints — or "not applicable">
 
-## 8. Performance Considerations
-- Caching: <what is cached and TTL>
+## 8. Performance & Delivery
+### Rendering strategy (per route)
+| Route | Mode (Static / ISR / Dynamic) | Why |
+|---|---|---|
+| / | Static | marketing |
+| /dashboard | Dynamic | per-user data |
+
+Anything `ƒ (Dynamic)` needs a stated reason (`cookies()`, auth, personalization). Middleware `matcher` scoped so it never force-dynamics static routes or assets.
+
+### Budgets (enforced later by /web-perf-audit — set targets now)
+- Total JS <300KB raw, largest chunk <150KB, First Load JS <200KB/route
+- Fonts: ≤2 typefaces × ≤2 weights via `next/font` latin subset, <60KB total
+- TTFB: <200ms warm, no cold sample >600ms
+
+### CDN & data caching
+- Hashed assets: `immutable, max-age=31536000`
+- HTML (static routes): `s-maxage` + `stale-while-revalidate` + platform CDN header (Vercel-CDN-Cache-Control / Netlify-CDN-Cache-Control durable)
+- Data caching: <what is cached and TTL>
 - Pagination: <cursor-based / offset, page size>
 - N+1 avoidance: <join strategy>
 
 ## 9. Testing Strategy
 - Unit tests: <what is unit tested, e.g. validation logic, utilities>
 - Integration tests: <e.g. API routes against real DB>
-- E2E tests: <critical user journeys — Playwright>
+- E2E tests: <critical user journeys — Playwright>. Every Must-Have (MVP) user story gets at least one feature-tier test (completes a real workflow — smoke tests don't count toward coverage)
+- Accessibility: keyboard navigation, labels/alt text, WCAG AA contrast — planned per component, not retrofitted after /audit flags it
 
-## 10. Deployment
+## 10. Deployment & Operations
 - Environment: Vercel (preview + production)
-- Migrations: `supabase db push` before app deploy
-- Required env vars: `<VAR_NAME>`, `<VAR_NAME>`
+- Domain & DNS: <registrar, DNS provider, apex + www both resolving to one canonical>. If DNS is on Cloudflare with a Vercel/Netlify host: records gray-clouded (DNS-only) — orange-cloud creates a double-proxy (observed 3+ seconds added TTFB)
+- Migrations: `supabase db push` before app deploy; rollback plan (reversal SQL or documented restore path) per migration
+- Monitoring: Sentry (client + server), `/api/health` endpoint, structured logging (request id, user id, duration)
+- Backups: <Supabase PITR / schedule, restore tested when>
+- CI: typecheck + lint + tests + build on every PR; branch protection on main
+- Required env vars: `<VAR_NAME>`, `<VAR_NAME>` — placeholders in `.env.example`, set per environment in platform dashboard
 
 ## 11. Open Questions
 - <technical decision that needs resolution before implementation>
@@ -380,6 +406,11 @@ lib/validations/
 | **Total per run** | ~<N> | |
 | **Est. monthly cost** | $<X> | At <N> runs/day |
 
+### Cost guardrails (hard limits, not estimates)
+- Max cost per run: $<X> — agent self-aborts beyond this
+- Max iterations per agent loop: <N>
+- Per-user rate limit on agent runs: <N per period>
+
 ## 8. Error & Fallback Handling
 | Failure mode | Behavior |
 |---|---|
@@ -387,6 +418,7 @@ lib/validations/
 | Bad model output (parse failure) | <retry with stricter prompt / default value / escalate> |
 | Tool call failure | <retry / skip / abort run> |
 | Timeout | <max wait, then fallback> |
+| Runaway loop | Abort at max iterations / max cost per run (see §7 guardrails) — never unbounded |
 
 ## 9. Data Flow & Storage
 - **Input source**: <where data comes from — DB, webhook, user input>
@@ -417,6 +449,23 @@ lib/validations/
 
 ---
 
+## Design for the Downstream Gates
+
+Every project specced here later passes through hard gates. A gap found at gate time is a planning failure — the TDD must pre-answer each gate. When drafting or reviewing, walk this table:
+
+| Downstream gate | What it will check | TDD/PRD section that must answer it |
+|---|---|---|
+| `/audit` Phase 3 | Env/secrets, monitoring, rate limits, security headers, backups, CI | Web TDD §7, §10 |
+| `/web-perf-audit` | TTFB, CDN caching, delivered headers, JS/font budgets, DNS double-proxy | Web TDD §8, §10 (Domain & DNS) |
+| `/load-test` | p95/p99 vs. expected traffic, cost cap on AI endpoints | PRD §7 Scale + Web TDD §8; AI TDD §7 guardrails |
+| `/ux-review` | Loading/error/empty states, PH mobile resilience | Web TDD §9 + PRD personas |
+| `/ph-dpa-compliance` | Consent, data rights endpoints, PII minimization | PRD §7 Regulatory + TDD security sections |
+| `/e2e-test` / `/e2e-playwright` | Feature-tier coverage of every MVP story | Web TDD §9 + PRD §5 Must-Haves |
+
+If a TDD section can't answer its gate yet, that's an Open Question (§11/§13) — never silence.
+
+---
+
 ## Philippines Market Notes
 
 When the project targets the Philippines market, add to PRD constraints and TDD:
@@ -424,4 +473,4 @@ When the project targets the Philippines market, add to PRD constraints and TDD:
 - Address structure: Barangay → Municipality → Province → Region
 - Primary payments: COD, GCash, Maya, bank transfer
 - DPA compliance required (RA 10173) — add consent mechanism and data rights endpoints
-- Optimize for mobile-first, slower connections (target Core Web Vitals on 4G)
+- Optimize for mobile-first, slower connections — JS weight is the lever: ~600KB raw JS ≈ 2–4s parse+execute on mid-range Android over 4G (budgets in Web TDD §8)

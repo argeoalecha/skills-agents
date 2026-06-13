@@ -13,8 +13,8 @@
 | **Classic** | Sophisticated, trustworthy | SaaS landing pages, professional services | DM Serif Display + Plus Jakarta Sans |
 | **Coral** | Warm, approachable, energetic | Consumer, marketplaces, wellness, e-comm | Fraunces + Outfit |
 | **Editorial** | Bold, authoritative, type-led | Thought leadership, premium launches | Clash Display + Satoshi |
-| **Bento** | Innovative, dynamic, technical | AI products, dev tools, modern SaaS | Space Grotesk + Inter |
-| **Midnight** | Powerful, cutting-edge | Dark dashboards, AI/fintech, platforms | Syne + Inter |
+| **Bento** | Innovative, dynamic, technical | AI products, dev tools, modern SaaS | Space Grotesk + Geist |
+| **Midnight** | Powerful, cutting-edge | Dark dashboards, AI/fintech, platforms | Syne + Geist |
 
 All five share these brand colors:
 

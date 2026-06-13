@@ -58,7 +58,7 @@ export default function HayahaiLogo({ tagline = null, scale = 1, className = '' 
         <text
           x="0"
           y="84"
-          fontFamily="Inter, Helvetica Neue, sans-serif"
+          fontFamily="Geist, Helvetica Neue, sans-serif"
           fontSize="15"
           fontWeight="300"
           fill="#0a3d3a"

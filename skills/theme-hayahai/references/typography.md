@@ -1,6 +1,6 @@
 # Hayah-AI Typography Reference
 
-Each theme variant has its own font pairing. Never use a generic system. The **canonical source** is `claudedesign/hayah-ai-design-system/project/colors_and_type.css` — it imports all fonts at once and defines the type scale + semantic classes.
+Each theme variant has its own font pairing. Never use a generic system. The **canonical source** is `hayahai-design/project/colors_and_type.css` — it imports all fonts at once and defines the type scale + semantic classes.
 
 ---
 
@@ -24,9 +24,9 @@ The rest of this doc is for the case where you're hand-rolling fonts in a one-of
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 ```
 
-### Hayah Midnight — Syne + Inter
+### Hayah Midnight — Syne + Geist
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 ```
 
 ### Hayah Coral — Fraunces + Outfit
@@ -43,14 +43,14 @@ The rest of this doc is for the case where you're hand-rolling fonts in a one-of
 
 **Fallback if Fontshare unreachable:** Space Grotesk + Plus Jakarta Sans.
 
-### Hayah Bento — Space Grotesk + Inter
+### Hayah Bento — Space Grotesk + Geist
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 ```
 
 ### All five at once (matches `colors_and_type.css`)
 ```html
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 ```
 
 ---

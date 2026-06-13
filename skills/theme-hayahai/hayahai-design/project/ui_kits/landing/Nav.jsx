@@ -31,7 +31,7 @@ function LandingNav({ theme, setTheme }) {
           <text x="68" y="48" fontFamily="DM Serif Display, Georgia, serif" fontSize="44" fontWeight="400" fill={isDark ? "#faf7f5" : "#0a3d3a"} letterSpacing="-1.2">
             hayah<tspan fill={isDark ? "#A1E4DB" : "#7a9b96"}>-</tspan><tspan fill="#ff6b47" fontStyle="italic">ai</tspan>
           </text>
-          <text x="0" y="84" fontFamily="Inter, Helvetica Neue, sans-serif" fontSize="15" fontWeight="300" fill={isDark ? "#faf7f5" : "#0a3d3a"} textLength="230" lengthAdjust="spacing">
+          <text x="0" y="84" fontFamily="Geist, Helvetica Neue, sans-serif" fontSize="15" fontWeight="300" fill={isDark ? "#faf7f5" : "#0a3d3a"} textLength="230" lengthAdjust="spacing">
             business automation
           </text>
         </svg>

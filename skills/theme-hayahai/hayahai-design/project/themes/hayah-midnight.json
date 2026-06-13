@@ -55,22 +55,22 @@
     "fonts": {
       "display": "Syne",
       "heading": "Syne",
-      "body": "Inter",
+      "body": "Geist",
       "mono": "JetBrains Mono"
     },
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap",
     "scale": {
       "hero": { "size": "80px", "lineHeight": "1.0", "weight": 800, "letterSpacing": "-0.04em", "font": "Syne" },
       "display": { "size": "60px", "lineHeight": "1.05", "weight": 700, "letterSpacing": "-0.03em", "font": "Syne" },
       "h1": { "size": "44px", "lineHeight": "1.15", "weight": 700, "letterSpacing": "-0.025em", "font": "Syne" },
       "h2": { "size": "30px", "lineHeight": "1.25", "weight": 700, "letterSpacing": "-0.015em", "font": "Syne" },
       "h3": { "size": "20px", "lineHeight": "1.4", "weight": 600, "letterSpacing": "-0.01em", "font": "Syne" },
-      "h4": { "size": "16px", "lineHeight": "1.5", "weight": 600, "font": "Inter" },
-      "bodyLg": { "size": "18px", "lineHeight": "1.7", "weight": 400, "font": "Inter" },
-      "body": { "size": "16px", "lineHeight": "1.7", "weight": 400, "font": "Inter" },
-      "bodySm": { "size": "14px", "lineHeight": "1.6", "weight": 400, "font": "Inter" },
-      "caption": { "size": "12px", "lineHeight": "1.5", "weight": 500, "letterSpacing": "0.02em", "font": "Inter" },
-      "label": { "size": "11px", "lineHeight": "1.4", "weight": 600, "letterSpacing": "0.1em", "font": "Inter", "textTransform": "uppercase" },
+      "h4": { "size": "16px", "lineHeight": "1.5", "weight": 600, "font": "Geist" },
+      "bodyLg": { "size": "18px", "lineHeight": "1.7", "weight": 400, "font": "Geist" },
+      "body": { "size": "16px", "lineHeight": "1.7", "weight": 400, "font": "Geist" },
+      "bodySm": { "size": "14px", "lineHeight": "1.6", "weight": 400, "font": "Geist" },
+      "caption": { "size": "12px", "lineHeight": "1.5", "weight": 500, "letterSpacing": "0.02em", "font": "Geist" },
+      "label": { "size": "11px", "lineHeight": "1.4", "weight": 600, "letterSpacing": "0.1em", "font": "Geist", "textTransform": "uppercase" },
       "code": { "size": "14px", "lineHeight": "1.5", "weight": 400, "font": "JetBrains Mono" }
     }
   },
@@ -79,7 +79,7 @@
       "primary": {
         "bg": "#ff6b47", "text": "#ffffff", "hover": "#e55a38",
         "padding": "14px 28px", "borderRadius": "10px",
-        "font": "Inter", "fontSize": "15px", "fontWeight": 600,
+        "font": "Geist", "fontSize": "15px", "fontWeight": 600,
         "boxShadow": "0 4px 20px rgba(255, 107, 71, 0.4)"
       },
       "secondary": {
@@ -87,13 +87,13 @@
         "border": "1px solid rgba(161, 228, 219, 0.3)",
         "hover": "rgba(37, 164, 151, 0.2)",
         "padding": "14px 28px", "borderRadius": "10px",
-        "font": "Inter", "fontSize": "15px", "fontWeight": 500
+        "font": "Geist", "fontSize": "15px", "fontWeight": 500
       },
       "ghost": {
         "bg": "transparent", "text": "#7a9b96",
         "hover": "rgba(161, 228, 219, 0.1)",
         "padding": "14px 20px", "borderRadius": "10px",
-        "font": "Inter", "fontSize": "15px", "fontWeight": 400
+        "font": "Geist", "fontSize": "15px", "fontWeight": 400
       }
     },
     "card": {
@@ -137,7 +137,7 @@
       "bg": "rgba(28, 87, 83, 0.4)", "border": "1px solid rgba(161, 228, 219, 0.2)",
       "borderFocus": "1px solid #25A497",
       "borderRadius": "10px", "padding": "14px 16px",
-      "font": "Inter", "fontSize": "15px", "color": "#faf7f5",
+      "font": "Geist", "fontSize": "15px", "color": "#faf7f5",
       "placeholder": "#7a9b96"
     }
   },

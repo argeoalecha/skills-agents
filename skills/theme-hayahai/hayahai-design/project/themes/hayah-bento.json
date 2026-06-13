@@ -59,11 +59,11 @@
     "fonts": {
       "display": "Space Grotesk",
       "heading": "Space Grotesk",
-      "body": "Inter",
+      "body": "Geist",
       "mono": "JetBrains Mono"
     },
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap",
-    "notes": "Space Grotesk has a technical-yet-approachable character with distinctive letterforms, perfect for AI/tech products. Pairs naturally with Inter's neutral clarity.",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap",
+    "notes": "Space Grotesk has a technical-yet-approachable character with distinctive letterforms, perfect for AI/tech products. Pairs naturally with Geist's neutral clarity.",
     "scale": {
       "hero": { "size": "80px", "lineHeight": "1.0", "weight": 700, "letterSpacing": "-0.04em", "font": "Space Grotesk" },
       "display": { "size": "60px", "lineHeight": "1.05", "weight": 700, "letterSpacing": "-0.03em", "font": "Space Grotesk" },
@@ -71,10 +71,10 @@
       "h2": { "size": "32px", "lineHeight": "1.25", "weight": 600, "letterSpacing": "-0.02em", "font": "Space Grotesk" },
       "h3": { "size": "22px", "lineHeight": "1.35", "weight": 600, "letterSpacing": "-0.015em", "font": "Space Grotesk" },
       "h4": { "size": "17px", "lineHeight": "1.45", "weight": 600, "font": "Space Grotesk" },
-      "bodyLg": { "size": "18px", "lineHeight": "1.7", "weight": 400, "font": "Inter" },
-      "body": { "size": "16px", "lineHeight": "1.7", "weight": 400, "font": "Inter" },
-      "bodySm": { "size": "14px", "lineHeight": "1.6", "weight": 400, "font": "Inter" },
-      "caption": { "size": "12px", "lineHeight": "1.5", "weight": 500, "letterSpacing": "0.01em", "font": "Inter" },
+      "bodyLg": { "size": "18px", "lineHeight": "1.7", "weight": 400, "font": "Geist" },
+      "body": { "size": "16px", "lineHeight": "1.7", "weight": 400, "font": "Geist" },
+      "bodySm": { "size": "14px", "lineHeight": "1.6", "weight": 400, "font": "Geist" },
+      "caption": { "size": "12px", "lineHeight": "1.5", "weight": 500, "letterSpacing": "0.01em", "font": "Geist" },
       "label": { "size": "11px", "lineHeight": "1.4", "weight": 600, "letterSpacing": "0.08em", "font": "Space Grotesk", "textTransform": "uppercase" },
       "metric": { "size": "48px", "lineHeight": "1.0", "weight": 700, "letterSpacing": "-0.03em", "font": "Space Grotesk" },
       "code": { "size": "13px", "lineHeight": "1.5", "weight": 400, "font": "JetBrains Mono" }
@@ -189,7 +189,7 @@
       "bg": "#ffffff", "border": "1.5px solid rgba(161, 228, 219, 0.5)",
       "borderFocus": "1.5px solid #25A497",
       "borderRadius": "12px", "padding": "14px 16px",
-      "font": "Inter", "fontSize": "15px", "color": "#0a3d3a",
+      "font": "Geist", "fontSize": "15px", "color": "#0a3d3a",
       "boxShadow": "0 0 0 4px transparent",
       "boxShadowFocus": "0 0 0 4px rgba(37, 164, 151, 0.12)"
     }

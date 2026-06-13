@@ -7,7 +7,7 @@
 /* ---------------------------------------------------------------
    FONTS — load once, use everywhere
    --------------------------------------------------------------- */
-@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
 
 /* ---------------------------------------------------------------
    CORE PALETTE — constant across themes
@@ -108,7 +108,7 @@
 
   /* Type families — themes override --font-display + --font-body */
   --font-display: "DM Serif Display", "Fraunces", Georgia, serif;
-  --font-body: "Plus Jakarta Sans", "Outfit", "Inter", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", "Outfit", "Geist", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
 
   /* Type scale (Classic defaults) */
@@ -196,10 +196,10 @@
   --t-h2-weight: 600;
 }
 
-/* Bento — Space Grotesk + Inter, modern AI grid */
+/* Bento — Space Grotesk + Geist, modern AI grid */
 [data-theme="bento"] {
   --font-display: "Space Grotesk", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
+  --font-body: "Geist", system-ui, sans-serif;
   --bg-page: var(--cream);
   --primary: var(--teal-500);
   --on-primary: var(--white);
@@ -211,10 +211,10 @@
   --t-h2-weight: 600;
 }
 
-/* Midnight — Syne + Inter, dark mode */
+/* Midnight — Syne + Geist, dark mode */
 [data-theme="midnight"] {
   --font-display: "Syne", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
+  --font-body: "Geist", system-ui, sans-serif;
   --bg-page: var(--teal-950);
   --bg-card: rgba(28, 87, 83, 0.5);
   --fg-1: var(--cream);

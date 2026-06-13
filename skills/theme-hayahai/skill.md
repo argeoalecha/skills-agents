@@ -88,10 +88,10 @@ Then:
 | Variant | JSON | Best For | Display Font | Body Font | Mood |
 |---|---|---|---|---|---|
 | **Classic** | `hayah-classic.json` | SaaS, professional services, consulting, premium B2B. **Default if uncertain.** | DM Serif Display | Plus Jakarta Sans | Sophisticated, premium |
-| **Midnight** | `hayah-midnight.json` | AI products, fintech, dev tools, dark-mode tech | Syne | Inter | Powerful, cutting-edge |
+| **Midnight** | `hayah-midnight.json` | AI products, fintech, dev tools, dark-mode tech | Syne | Geist | Powerful, cutting-edge |
 | **Coral** | `hayah-coral.json` | Marketplaces, consumer apps, wellness, hospitality, travel, local service businesses | Fraunces | Outfit | Warm, approachable |
 | **Editorial** | `hayah-editorial.json` | B2B thought leadership, premium launches. Sharp 0px corners — most distinctive. | Clash Display | Satoshi | Bold, authoritative |
-| **Bento** | `hayah-bento.json` | AI / tech SaaS with multi-feature surface (3+ featured capabilities), developer tools | Space Grotesk | Inter | Innovative, dynamic |
+| **Bento** | `hayah-bento.json` | AI / tech SaaS with multi-feature surface (3+ featured capabilities), developer tools | Space Grotesk | Geist | Innovative, dynamic |
 
 Mood → variant mapping for ambiguous requests: Sophisticated → Classic · Powerful → Midnight · Warm → Coral · Authoritative → Editorial · Innovative → Bento.
 
@@ -121,10 +121,10 @@ Full guidelines and contrast ratios: `references/color-palette.md`.
 | Variant | Display | Body | Mono |
 |---|---|---|---|
 | Classic | DM Serif Display | Plus Jakarta Sans | JetBrains Mono |
-| Midnight | Syne | Inter | JetBrains Mono |
+| Midnight | Syne | Geist | JetBrains Mono |
 | Coral | Fraunces | Outfit | JetBrains Mono |
 | Editorial | Clash Display (Fontshare) | Satoshi (Fontshare) | JetBrains Mono |
-| Bento | Space Grotesk | Inter | JetBrains Mono |
+| Bento | Space Grotesk | Geist | JetBrains Mono |
 
 **Rules:**
 - Display goes big — hero up to 96px (Editorial). Always pair with negative letter-spacing `-0.025em` to `-0.045em`.
@@ -146,6 +146,7 @@ Soft, teal-tinted — never harsh black:
 --shadow-sm:    0 2px 8px  rgba(10, 61, 58, 0.06);
 --shadow-md:    0 4px 16px rgba(10, 61, 58, 0.08);
 --shadow-lg:    0 8px 32px rgba(10, 61, 58, 0.10), 0 2px 8px rgba(10, 61, 58, 0.06);
+--shadow-xl:    0 16px 48px rgba(10, 61, 58, 0.14);
 --shadow-coral: 0 4px 20px rgba(255, 107, 71, 0.4);   /* coral CTAs only */
 --shadow-teal:  0 4px 16px rgba(37, 164, 151, 0.35);  /* aqua CTAs only */
 --glow-teal:    0 0 40px   rgba(37, 164, 151, 0.2);   /* Midnight only */
@@ -200,7 +201,7 @@ Soft, teal-tinted — never harsh black:
 - **Soft:** mint-tinted bg `#e8f4f1`, no shadow, optional 1px mint border
 - **Warm:** `#fff5f2` bg, coral-subtle border
 - **Dark feature:** deep teal gradient or solid `#0a3d3a`, cream text
-- **Glass** (Bento/Midnight only): `rgba(28,87,83,0.4)` + `backdrop-filter: blur(16px)`
+- **Glass** (Bento/Midnight only): `rgba(28,87,83,0.4)` + `backdrop-filter: blur(16px)` — Midnight uses `0.5` for a denser feel
 - **Editorial:** `0px` corners + `border-top: 3px solid #0F3836`
 
 ---
@@ -267,7 +268,7 @@ The canonical logo is defined in `hayahai-design/project/assets/HayahaiLogo.jsx`
   <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#0a3d3a" stroke-width="8" stroke-linecap="round"/>
   <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
   <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#0a3d3a" letter-spacing="-1.2">hayah<tspan fill="#7a9b96">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
-  <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#0a3d3a" textLength="230" lengthAdjust="spacing">business automation</text>
+  <text x="0" y="84" font-family="Geist, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#0a3d3a" textLength="230" lengthAdjust="spacing">business automation</text>
 </svg>
 ```
 
@@ -285,7 +286,7 @@ The canonical logo is defined in `hayahai-design/project/assets/HayahaiLogo.jsx`
   <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#faf7f5" stroke-width="8" stroke-linecap="round"/>
   <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
   <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#faf7f5" letter-spacing="-1.2">hayah<tspan fill="#A1E4DB">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
-  <text x="0" y="84" font-family="Inter, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#faf7f5" textLength="230" lengthAdjust="spacing">business automation</text>
+  <text x="0" y="84" font-family="Geist, Helvetica Neue, sans-serif" font-size="15" font-weight="300" fill="#faf7f5" textLength="230" lengthAdjust="spacing">business automation</text>
 </svg>
 ```
 

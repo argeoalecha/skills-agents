@@ -1,6 +1,6 @@
 # Hayah-AI Color Palette Reference
 
-Complete color system. The **canonical source** is `claudedesign/hayah-ai-design-system/project/colors_and_type.css` — every value below maps to a CSS variable defined there.
+Complete color system. The **canonical source** is `hayahai-design/project/colors_and_type.css` — every value below maps to a CSS variable defined there.
 
 ---
 
@@ -142,7 +142,8 @@ background: radial-gradient(ellipse 100% 80% at 50% -20%, rgba(37,164,151,0.15) 
 | Soft | `--bg-card-soft` (`#e8f4f1`) | optional `--border-1` | none | Secondary cards |
 | Warm | `--bg-card-warm` (`#fff5f2`) | `--border-coral` | none | Coral/Classic feature cards |
 | Dark feature | `--bg-dark` or `--grad-teal-linear` | none | `--shadow-md` | Hero sub-cards, CTAs |
-| Glass | `rgba(28,87,83,0.4)` + `blur(16px)` | `--border-1` | none | **Bento + Midnight only** |
+| Glass (Bento) | `rgba(28,87,83,0.4)` + `blur(16px)` | `--border-1` | none | Bento only |
+| Glass (Midnight) | `rgba(28,87,83,0.5)` + `blur(16px)` | `--border-1` | none | Midnight only — denser opacity |
 | Editorial | `--white` | `border-top: 3px solid #0F3836` | none | Editorial only |
 
 **Never combine glass + heavy shadow on the same element.**

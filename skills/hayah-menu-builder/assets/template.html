@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hayah-AI Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#0a3d3a;        /* dark forest teal */
+    --aqua:#1a6b63;        /* aqua green */
+    --coral:#ff6b47;       /* vibrant coral */
+    --coral-deep:#e0492b;
+    --mint:#7fd1bf;        /* fresh mint */
+    --mint-deep:#3d8c7c;
+    --cream:#f5efe4;       /* page bg */
+    --card:#fbf8f1;
+    --ink:#0a3d3a;
+    --ink-soft:#5d6b66;
+    --line:#dfd6c4;
+    --shadow:rgba(10,61,58,.10);
+    --display:"Playfair Display",Georgia,"Times New Roman",serif;
+    --body:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --mono:"JetBrains Mono","SF Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--cream);color:var(--ink);
+    font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:780px;margin:0 auto;padding:0 22px 90px}
+
+  /* ---------- BRAND BAR ---------- */
+  .brandbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 0 18px;border-bottom:1px solid var(--line);margin-bottom:6px;
+  }
+  .logo{display:flex;align-items:flex-end;gap:11px}
+  .logo svg{display:block}
+  .logo .word{font-family:var(--display);font-weight:700;font-size:26px;
+    color:var(--teal);letter-spacing:-.5px;line-height:1}
+  .logo .word .ai{color:var(--coral);font-style:italic}
+  .logo .word .sep{color:var(--mint-deep)}
+  .logo .tag{font-family:var(--mono);font-size:9px;letter-spacing:.14em;
+    text-transform:lowercase;color:var(--ink-soft);margin-top:3px}
+  .brandbar .badge{font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--aqua);border:1px solid var(--mint);
+    border-radius:999px;padding:5px 12px}
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:40px 0 26px}
+  .kicker{font-family:var(--mono);text-transform:uppercase;letter-spacing:.26em;
+    font-size:11px;font-weight:600;color:var(--coral-deep);margin-bottom:16px}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(38px,7vw,60px);
+    line-height:1.04;color:var(--teal);letter-spacing:-.8px}
+  h1 .sub{display:block;font-style:italic;font-weight:500;color:var(--aqua);
+    font-size:.62em;margin-top:8px;letter-spacing:0}
+  .desc{max-width:560px;margin:20px 0 0;color:var(--ink-soft);font-size:17px}
+  .allergen{display:inline-block;margin-top:18px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--coral-deep);
+    border:1px solid var(--coral);border-radius:999px;padding:5px 14px}
+
+  /* ---------- META ---------- */
+  .meta{display:flex;flex-wrap:wrap;border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);margin:32px 0}
+  .meta div{flex:1;min-width:110px;text-align:center;padding:18px 8px;
+    border-right:1px solid var(--line)}
+  .meta div:last-child{border-right:none}
+  .meta .lab{font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+  .meta .val{font-family:var(--display);font-size:24px;color:var(--coral-deep)}
+  .meta .val .u{font-family:var(--body);font-size:13px;color:var(--ink-soft)}
+
+  /* ---------- SERVINGS ---------- */
+  .servings{display:flex;align-items:center;justify-content:center;gap:20px;
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:18px 26px;margin-bottom:40px;box-shadow:0 8px 26px var(--shadow)}
+  .servings .label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-soft)}
+  .stepper{display:flex;align-items:center;gap:16px}
+  .stepper button{width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;
+    background:var(--coral);color:#fff;font-size:23px;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .12s ease,background .2s ease}
+  .stepper button:hover{background:var(--coral-deep)}
+  .stepper button:active{transform:scale(.9)}
+  .stepper button:disabled{background:var(--line);cursor:not-allowed}
+  .stepper .count{font-family:var(--display);font-size:32px;min-width:48px;
+    text-align:center;color:var(--teal)}
+  .stepper .count small{display:block;font-family:var(--mono);font-size:9px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+
+  /* ---------- SECTION TITLES ---------- */
+  .sec-title{font-family:var(--mono);text-transform:uppercase;letter-spacing:.2em;
+    font-size:13px;font-weight:600;color:var(--coral-deep);
+    display:flex;align-items:center;gap:14px;margin:8px 0 22px}
+  .sec-title::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- INGREDIENTS ---------- */
+  .ingredients{list-style:none;margin-bottom:54px}
+  .ingredients li{display:flex;align-items:baseline;gap:12px;padding:11px 4px;
+    border-bottom:1px dotted var(--line)}
+  .ingredients li.optional{opacity:.66}
+  .amt{font-family:var(--mono);font-variant-numeric:tabular-nums;
+    color:var(--coral-deep);font-weight:600;min-width:96px;font-size:15px}
+  .nm{flex:1;color:var(--ink)}
+  .tag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--mint-deep);align-self:center;border:1px solid var(--mint);
+    border-radius:4px;padding:2px 6px}
+
+  /* ---------- STEPS ---------- */
+  .steps{list-style:none;counter-reset:step;margin-bottom:50px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:20px 22px;margin-bottom:16px;box-shadow:0 4px 16px var(--shadow);
+    transition:opacity .25s ease}
+  .step.done{opacity:.5}
+  .step.done .step-body{text-decoration:line-through;text-decoration-color:var(--ink-soft)}
+  .step-head{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+  .step-num{counter-increment:step;width:34px;height:34px;flex:0 0 34px;border-radius:50%;
+    background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-weight:600;font-size:14px}
+  .step-num::before{content:counter(step)}
+  .step-title{font-family:var(--display);font-weight:700;font-size:19px;
+    color:var(--teal);flex:1;letter-spacing:-.3px}
+  .check{width:27px;height:27px;border-radius:50%;border:2px solid var(--line);
+    background:transparent;cursor:pointer;flex:0 0 27px;position:relative;transition:all .2s ease}
+  .check:hover{border-color:var(--mint-deep)}
+  .step.done .check{background:var(--mint-deep);border-color:var(--mint-deep)}
+  .check::after{content:"";position:absolute;left:8px;top:3px;width:6px;height:12px;
+    border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) scale(0);transition:transform .2s ease}
+  .step.done .check::after{transform:rotate(45deg) scale(1)}
+  .step-body{color:var(--ink-soft);font-size:16px;padding-left:48px}
+
+  /* ---------- TIMER ---------- */
+  .timer{margin:14px 0 0 48px;display:inline-flex;align-items:center;gap:12px;
+    background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:8px 14px}
+  .timer .timer-label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink-soft)}
+  .timer .time{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:20px;
+    font-weight:600;color:var(--teal);min-width:64px}
+  .timer.running .time{color:var(--coral-deep)}
+  .timer.fin .time{color:var(--mint-deep)}
+  .timer button{border:none;background:var(--teal);color:var(--cream);cursor:pointer;
+    font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    padding:7px 12px;border-radius:7px;transition:background .2s}
+  .timer button:hover{background:var(--coral-deep)}
+
+  /* ---------- NOTES ---------- */
+  .notes{background:var(--card);border-left:4px solid var(--coral);
+    border-radius:0 14px 14px 0;padding:22px 26px;margin-top:8px;box-shadow:0 4px 16px var(--shadow)}
+  .notes h3{font-family:var(--mono);text-transform:uppercase;letter-spacing:.16em;
+    font-size:12px;color:var(--coral-deep);margin-bottom:14px}
+  .notes ul{list-style:none}
+  .notes li{padding:6px 0;color:var(--ink-soft);font-size:15px;position:relative;padding-left:20px}
+  .notes li::before{content:"";position:absolute;left:0;top:14px;width:8px;height:8px;
+    border-radius:50%;background:var(--mint)}
+
+  footer{display:flex;align-items:center;justify-content:center;gap:10px;
+    margin-top:60px;color:var(--ink-soft);font-family:var(--mono);font-size:11px;
+    letter-spacing:.06em}
+  footer .dot{width:6px;height:6px;border-radius:50%;background:var(--coral)}
+
+  @media (max-width:560px){
+    .step-body,.timer{padding-left:0;margin-left:0}
+    .timer{margin-left:0}
+    .amt{min-width:80px;font-size:14px}
+    .brandbar .badge{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+  :focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- BRAND BAR -->
+  <div class="brandbar">
+    <div class="logo">
+      <svg width="40" height="40" viewBox="0 0 64 64" role="img" aria-label="Hayah-AI logomark">
+        <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#0a3d3a"
+              stroke-width="6" stroke-linecap="round"/>
+        <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+      </svg>
+      <div>
+        <div class="word">hayah<span class="sep">-</span><span class="ai">ai</span></div>
+        <div class="tag">integrity in every build</div>
+      </div>
+    </div>
+    <span class="badge">Kitchen Edition</span>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="kicker" id="kicker">Recipe</div>
+    <h1 id="title"><span class="sub" id="subtitle"></span></h1>
+    <p class="desc" id="desc"></p>
+    <span class="allergen" id="allergen" hidden></span>
+  </header>
+
+  <div class="meta" id="meta"></div>
+
+  <div class="servings">
+    <span class="label">Servings</span>
+    <div class="stepper">
+      <button id="minus" aria-label="Fewer servings">−</button>
+      <div class="count"><span id="servCount">4</span><small>plates</small></div>
+      <button id="plus" aria-label="More servings">+</button>
+    </div>
+  </div>
+
+  <div class="sec-title">Ingredients</div>
+  <ul class="ingredients" id="ingList"></ul>
+
+  <div class="sec-title">Method</div>
+  <ol class="steps" id="stepList"></ol>
+
+  <div id="notesWrap"></div>
+
+  <footer><span class="dot"></span>Adjust servings to scale · check off steps · tap a timer to run it</footer>
+</div>
+
+<script>
+/* ============================================================
+   DATA  —  replace this object only. Everything below renders it.
+   ingredients: [amount, unit, name, optional?]
+   steps:       [title, body, timerSeconds | null]
+   ============================================================ */
+const DATA = {
+  "title": "Fresh Tomato & Herb Spaghetti",
+  "subtitle": "Quezo de Bola",
+  "description": "Spaghetti with a homemade sauce of fresh tomatoes, mushrooms, olives and herbs in extra virgin olive oil, finished with grated quezo de bola.",
+  "allergen": "Contains seafood essence",
+  "prep": 15,
+  "cook": 35,
+  "difficulty": "Easy",
+  "baseServings": 4,
+  "ingredients": [
+    [
+      400,
+      "g",
+      "spaghetti",
+      false
+    ],
+    [
+      800,
+      "g",
+      "ripe fresh tomatoes, chopped (or 1 can whole, crushed)",
+      false
+    ],
+    [
+      250,
+      "g",
+      "button or shiitake mushrooms, sliced",
+      false
+    ],
+    [
+      80,
+      "g",
+      "pitted black olives, sliced",
+      false
+    ],
+    [
+      4,
+      "tbsp",
+      "extra virgin olive oil",
+      false
+    ],
+    [
+      4,
+      "",
+      "garlic cloves, sliced",
+      false
+    ],
+    [
+      1,
+      "",
+      "small onion, finely diced",
+      false
+    ],
+    [
+      3,
+      "",
+      "anchovy fillets (or 1 tsp patis) — the seafood essence",
+      false
+    ],
+    [
+      1,
+      "tsp",
+      "dried oregano",
+      false
+    ],
+    [
+      10,
+      "",
+      "fresh basil leaves, torn",
+      false
+    ],
+    [
+      0.5,
+      "tsp",
+      "chili flakes",
+      true
+    ],
+    [
+      1,
+      "tsp",
+      "sugar (only if tomatoes are acidic)",
+      true
+    ],
+    [
+      60,
+      "g",
+      "quezo de bola, finely grated",
+      false
+    ],
+    [
+      1,
+      "tsp",
+      "salt",
+      false
+    ],
+    [
+      3,
+      "tbsp",
+      "toasted breadcrumbs (menu-photo finish)",
+      true
+    ]
+  ],
+  "steps": [
+    [
+      "Brown the mushrooms",
+      "Heat half the oil in a large deep pan over medium-high heat. Add mushrooms in a single layer — don't crowd. Leave until golden, flip, season lightly, brown the other side. Work in two batches. Set aside.",
+      480
+    ],
+    [
+      "Build the umami base",
+      "Lower to medium heat. Add the rest of the oil, then the onion; cook until soft. Add garlic, anchovies and chili flakes; press the anchovies into the oil until they dissolve.",
+      300
+    ],
+    [
+      "Simmer the sauce",
+      "Add tomatoes, oregano, salt and sugar if needed. Simmer uncovered on medium-low until the tomatoes break down and a spoon scrapes a clear path on the pan bottom.",
+      1200
+    ],
+    [
+      "Cook the spaghetti",
+      "Boil spaghetti in generously salted water until 1–2 minutes shy of al dente. Reserve 1 cup of pasta water before draining.",
+      480
+    ],
+    [
+      "Marry pasta and sauce",
+      "Return mushrooms and olives to the sauce. Transfer spaghetti straight in with tongs, add a splash of pasta water and a drizzle of oil, toss until the sauce clings to every strand.",
+      120
+    ],
+    [
+      "Finish and serve",
+      "Off heat, fold in the basil. Plate in a twirled mound, shower with grated quezo de bola, scatter breadcrumbs for a golden crust. Serve with garlic toast.",
+      null
+    ]
+  ],
+  "notes": [
+    "Quezo de bola is saltier than parmesan — taste before adding extra salt.",
+    "Blanch and peel fresh tomatoes for a smoother sauce, or leave it rustic.",
+    "Patis (½–1 tsp) substitutes cleanly for the anchovies.",
+    "Three things make it taste like a restaurant: hard-brown the mushrooms, dissolve the anchovy into the oil, finish the pasta in the sauce with starchy water."
+  ]
+};
+/* ============================================================ */
+
+let servings = DATA.baseServings;
+const BASE = DATA.baseServings;
+
+function fmtAmount(base){
+  const v = base * servings / BASE;
+  if (Number.isInteger(v)) return String(v);
+  const r = Math.round(v*100)/100;
+  return (r % 1 === 0) ? String(r) : r.toFixed(2).replace(/0+$/,'').replace(/\.$/,'');
+}
+function fmtClock(s){const m=Math.floor(s/60),sec=s%60;return m+':'+String(sec).padStart(2,'0');}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* HERO + META */
+document.getElementById('kicker').textContent = 'Recipe';
+document.title = 'Hayah-AI · ' + DATA.title;
+const titleEl = document.getElementById('title');
+const subEl = document.getElementById('subtitle');
+titleEl.insertBefore(document.createTextNode(DATA.title), subEl);
+if(DATA.subtitle){ subEl.textContent = DATA.subtitle; } else { subEl.remove(); }
+document.getElementById('desc').textContent = DATA.description;
+const alg = document.getElementById('allergen');
+if(DATA.allergen){ alg.textContent = '★ ' + DATA.allergen; alg.hidden = false; }
+
+document.getElementById('meta').innerHTML = `
+  <div><div class="lab">Prep</div><div class="val">${DATA.prep}<span class="u"> min</span></div></div>
+  <div><div class="lab">Cook</div><div class="val">${DATA.cook}<span class="u"> min</span></div></div>
+  <div><div class="lab">Difficulty</div><div class="val" style="font-size:19px">${esc(DATA.difficulty)}</div></div>`;
+
+/* INGREDIENTS */
+function renderIngredients(){
+  document.getElementById('ingList').innerHTML = DATA.ingredients.map(([amt,unit,name,opt])=>{
+    const u = unit ? ' '+esc(unit) : '';
+    return `<li class="${opt?'optional':''}">
+      <span class="amt">${fmtAmount(amt)}${u}</span>
+      <span class="nm">${esc(name)}</span>
+      ${opt?'<span class="tag">optional</span>':''}</li>`;
+  }).join('');
+}
+
+/* STEPS */
+function renderSteps(){
+  const el = document.getElementById('stepList');
+  el.innerHTML = DATA.steps.map(([title,body,secs])=>{
+    const timer = secs ? `
+      <div class="timer" data-secs="${secs}">
+        <span class="timer-label">Timer</span>
+        <span class="time">${fmtClock(secs)}</span>
+        <button class="t-toggle">Start</button>
+        <button class="t-reset">Reset</button>
+      </div>` : '';
+    return `<li class="step">
+      <div class="step-head">
+        <div class="step-num"></div>
+        <div class="step-title">${esc(title)}</div>
+        <button class="check" aria-label="Mark step done" aria-pressed="false"></button>
+      </div>
+      <div class="step-body">${esc(body)}</div>${timer}</li>`;
+  }).join('');
+  el.querySelectorAll('.check').forEach(b=>b.addEventListener('click',()=>{
+    const done=b.closest('.step').classList.toggle('done');
+    b.setAttribute('aria-pressed',done?'true':'false');
+  }));
+  el.querySelectorAll('.timer').forEach(setupTimer);
+}
+
+/* NOTES */
+if(DATA.notes && DATA.notes.length){
+  document.getElementById('notesWrap').innerHTML = `
+    <div class="notes"><h3>Cook's Notes</h3><ul>
+    ${DATA.notes.map(n=>`<li>${esc(n)}</li>`).join('')}
+    </ul></div>`;
+}
+
+/* TIMERS */
+let actx;
+function beep(){
+  actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+  [0,0.18,0.36].forEach(d=>{
+    const o=actx.createOscillator(),g=actx.createGain();
+    o.frequency.value=880;o.connect(g);g.connect(actx.destination);
+    const t=actx.currentTime+d;
+    g.gain.setValueAtTime(0.001,t);
+    g.gain.exponentialRampToValueAtTime(0.22,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.15);
+    o.start(t);o.stop(t+0.16);
+  });
+}
+function setupTimer(t){
+  const full=+t.dataset.secs;let remaining=full,id=null;
+  const disp=t.querySelector('.time'),toggle=t.querySelector('.t-toggle'),reset=t.querySelector('.t-reset');
+  function tick(){
+    remaining--;disp.textContent=fmtClock(remaining);
+    if(remaining<=0){clearInterval(id);id=null;t.classList.remove('running');t.classList.add('fin');
+      toggle.textContent='Done';toggle.disabled=true;disp.textContent='Done ✓';try{beep();}catch(e){}}
+  }
+  toggle.addEventListener('click',()=>{
+    if(id){clearInterval(id);id=null;t.classList.remove('running');toggle.textContent='Resume';}
+    else{id=setInterval(tick,1000);t.classList.add('running');toggle.textContent='Pause';}
+  });
+  reset.addEventListener('click',()=>{clearInterval(id);id=null;remaining=full;
+    t.classList.remove('running','fin');disp.textContent=fmtClock(full);toggle.textContent='Start';toggle.disabled=false;});
+}
+
+/* SERVINGS */
+document.getElementById('plus').addEventListener('click',()=>{if(servings<20){servings++;updateServings();}});
+document.getElementById('minus').addEventListener('click',()=>{if(servings>1){servings--;updateServings();}});
+function updateServings(){
+  document.getElementById('servCount').textContent=servings;
+  document.getElementById('minus').disabled=servings<=1;
+  document.getElementById('plus').disabled=servings>=20;
+  renderIngredients();
+}
+
+renderIngredients();renderSteps();updateServings();
+</script>
+</body>
+</html>

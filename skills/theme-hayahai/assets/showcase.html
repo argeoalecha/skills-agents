@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hayahai · 5 Theme Variants</title>
+  <title>Hayahai · 6 Theme Variants</title>
 
-  <!-- Google Fonts: all variants -->
+  <!-- Google Fonts: all variants (Fraunces loaded with WONK axis for the Coral signature word) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&family=Fraunces:ital,opsz,wght,WONK@0,9..144,300..700,0..1;1,9..144,400,0&family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <!-- Fontshare: Clash Display + Satoshi -->
   <link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet" />
 
@@ -328,7 +328,9 @@
     }
     .midnight-live-dot {
       width: 6px; height: 6px;
-      background: var(--teal-500);
+      /* v2.1: live = the coral logo dot, glowing (bioluminescence) */
+      background: var(--coral-500);
+      box-shadow: 0 0 12px rgba(255,107,71,0.6);
       border-radius: 50%;
       animation: pulse 2s ease-in-out infinite;
       /* Own layer so the animation doesn't repaint parent */
@@ -984,6 +986,227 @@
     .bento-cta h2 em { color: var(--teal-500); font-style: normal; }
     .bento-cta p { color: var(--teal-400); font-size: 17px; margin-bottom: 40px; }
 
+    /* ── v2.1 SIGNATURE TOUCHES ───────────────── */
+
+    /* Classic: arc ornament replaces gradient washes (signature.arcOrnament) */
+    .classic-hero { position: relative; overflow: hidden; }
+    .arc-ornament {
+      position: absolute;
+      top: -130px; right: -140px;
+      width: 480px; height: 480px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .classic-hero > div { position: relative; z-index: 1; }
+
+    /* Coral: WONK word (signature.wonkWord) + solid arc shape (signature.arcShapes) */
+    .coral-h1 .warmword {
+      color: var(--coral-500);
+      font-variation-settings: 'opsz' 144, 'WONK' 1;
+    }
+    .coral-hero { position: relative; overflow: hidden; }
+    .coral-arc-shape {
+      position: absolute;
+      bottom: -90px; right: -90px;
+      width: 180px; height: 180px;
+      background: var(--coral-300);
+      border-radius: 100% 0 0 0;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* Midnight: bioluminescence — glow anchored to content, noise kills banding */
+    .midnight-noise {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* Editorial: marker underline on the accent word (signature.markerUnderline) */
+    .editorial-h1 .accent {
+      color: var(--teal-950);
+      text-decoration: underline;
+      text-decoration-color: var(--coral-500);
+      text-decoration-thickness: 6px;
+      text-underline-offset: 10px;
+      text-decoration-skip-ink: none;
+    }
+
+    /* Bento: blueprint crosshair markers at grid intersections (signature.blueprintCorners) */
+    .bento-grid { position: relative; }
+    .bp-cross { position: absolute; width: 13px; height: 13px; pointer-events: none; }
+    .bp-cross::before, .bp-cross::after { content: ''; position: absolute; background: rgba(37,164,151,0.55); }
+    .bp-cross::before { left: 6px; top: 0; width: 1px; height: 13px; }
+    .bp-cross::after { top: 6px; left: 0; height: 1px; width: 13px; }
+
+    /* ══════════════════════════════════════════════════
+       THEME 6 · HAYAH CONSOLE — dense app UI
+    ══════════════════════════════════════════════════ */
+    #console {
+      font-family: 'Geist', sans-serif;
+      background: var(--cream);
+      color: var(--teal-900);
+      font-size: 14px;
+    }
+    .console-frame {
+      max-width: 1160px;
+      margin: 40px auto 0;
+      background: #fff;
+      border: 1px solid rgba(161,228,219,0.4);
+      border-radius: 12px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 208px 1fr;
+      box-shadow: 0 1px 2px rgba(10,61,58,0.05);
+    }
+    .console-sidebar {
+      background: var(--teal-950);
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-height: 520px;
+    }
+    .console-side-item {
+      display: flex; align-items: center; gap: 9px;
+      color: var(--teal-400);
+      font-size: 13px; font-weight: 500;
+      padding: 7px 10px;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+    .console-side-item:hover { background: rgba(161,228,219,0.08); }
+    .console-side-item.active {
+      background: rgba(37,164,151,0.18);
+      color: var(--cream);
+      box-shadow: inset 2px 0 0 var(--teal-500);
+    }
+    .console-side-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+      text-transform: uppercase; color: var(--muted);
+      padding: 18px 10px 6px;
+    }
+    .console-main { background: var(--cream); }
+    .console-topbar {
+      height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+      background: var(--cream);
+      border-bottom: 1px solid rgba(10,61,58,0.08);
+    }
+    .console-search {
+      background: var(--teal-200);
+      color: var(--muted);
+      font-size: 13px;
+      border-radius: 8px;
+      padding: 7px 14px;
+      width: 320px;
+    }
+    .console-content { padding: 20px; }
+    .console-page-title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+    .console-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+    .console-metric-card {
+      background: #fff;
+      border: 1px solid rgba(161,228,219,0.4);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .console-metric-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .console-metric-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px; font-weight: 700; letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.05;
+    }
+    .console-metric-delta { font-size: 12px; font-weight: 500; margin-top: 4px; }
+
+    .console-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid rgba(161,228,219,0.4);
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 13px;
+    }
+    .console-table thead th {
+      background: var(--teal-200);
+      color: var(--teal-700);
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      text-align: left;
+      height: 38px; padding: 0 16px;
+    }
+    .console-table td {
+      height: 44px; padding: 0 16px;
+      border-top: 1px solid rgba(10,61,58,0.06);
+    }
+    .console-table tbody tr:hover { background: var(--teal-100); }
+    .console-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      border: 1px solid;
+    }
+    .status-badge .sdot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+    .st-success { color: #1E6E66; background: #d4f4f1; border-color: rgba(30,110,102,0.3); }
+    .st-success .sdot { background: #1E6E66; }
+    .st-info { color: #1E6E66; background: rgba(37,164,151,0.1); border-color: rgba(37,164,151,0.3); }
+    .st-info .sdot { background: #25A497; }
+    .st-warning { color: #8a5512; background: #fdf3e3; border-color: rgba(199,123,30,0.35); }
+    .st-warning .sdot { background: #c77b1e; }
+    .st-danger { color: #a32a1f; background: #fdeeec; border-color: rgba(214,60,47,0.3); }
+    .st-danger .sdot { background: #d63c2f; }
+    .st-neutral { color: #5f7a76; background: #eef2f1; border-color: rgba(122,155,150,0.3); }
+    .st-neutral .sdot { background: #7a9b96; }
+    .st-live { color: #1E6E66; background: rgba(37,164,151,0.1); border-color: rgba(37,164,151,0.4); }
+    .st-live .sdot { background: var(--coral-500); animation: pulse 2s ease-in-out infinite; }
+
+    .console-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'Geist', sans-serif;
+      font-size: 13px; font-weight: 500;
+      padding: 8px 16px; border-radius: 8px;
+      border: none; cursor: pointer; text-decoration: none;
+    }
+    .console-btn-primary { background: var(--teal-900); color: var(--cream); }
+    .console-btn-primary:hover { background: var(--teal-700); }
+    .console-btn-cta { background: var(--coral-500); color: #fff; font-weight: 600; box-shadow: 0 2px 8px rgba(255,107,71,0.3); }
+    .console-btn-secondary { background: #fff; color: var(--teal-900); border: 1px solid rgba(10,61,58,0.15); }
+    .console-btn-destructive { background: #fff; color: #a32a1f; border: 1px solid rgba(214,60,47,0.3); }
+
+    .console-input {
+      font: inherit; font-size: 13px;
+      color: var(--teal-900);
+      background: #fff;
+      border: 1px solid rgba(10,61,58,0.15);
+      border-radius: 8px;
+      padding: 8px 12px;
+      width: 220px;
+    }
+    .console-input:focus { outline: none; border-color: var(--teal-500); box-shadow: 0 0 0 3px rgba(37,164,151,0.15); }
+    .console-input.err { border-color: #d63c2f; box-shadow: 0 0 0 3px rgba(214,60,47,0.12); }
+
+    /* Arc loader — the brand mark as the spinner (signature.arcProgress) */
+    .arc-loader-demo { width: 28px; height: 28px; animation: arc-spin 0.9s linear infinite; }
+    @keyframes arc-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      .arc-loader-demo { animation-duration: 3s; }
+      .st-live .sdot, .midnight-live-dot { animation: none; }
+    }
+
+    .dataviz-row { display: flex; gap: 8px; align-items: flex-end; }
+    .dataviz-bar { width: 36px; border-radius: 6px 6px 0 0; }
+
     /* ── SHARED UTILS ─────────────────────────── */
     .flex { display: flex; }
     .gap-12 { gap: 12px; }
@@ -1082,18 +1305,20 @@
   <a href="#coral-theme" class="nav-pill" data-accent="coral">Coral</a>
   <a href="#editorial" class="nav-pill">Editorial</a>
   <a href="#bento" class="nav-pill" data-accent="teal">Bento</a>
+  <a href="#console" class="nav-pill">Console</a>
 </nav>
 
 <!-- ── PAGE INTRO ────────────────────────────────── -->
 <div class="page-intro">
   <h1>Hayahai <span>Design System</span></h1>
-  <p>5 landing-page-optimized variants. Same ocean-teal + vibrant coral palette. Each with a distinct mood, typography pairing, and layout personality.</p>
+  <p>6 variants — five marketing personalities plus Console, the app-UI workhorse. One reef palette: deep ocean teal, living coral, aqua shallows, cream sand. The logo's arc + dot work as the system's signature device — ornament, status, and loader.</p>
   <div class="variant-pills">
     <span class="variant-pill" style="background:#e8f4f1;color:#0a3d3a">Classic · DM Serif + Plus Jakarta Sans</span>
     <span class="variant-pill" style="background:#1C5753;color:#A1E4DB">Midnight · Syne + Geist</span>
     <span class="variant-pill" style="background:#ffb5a0;color:#7d2d15">Coral · Fraunces + Outfit</span>
     <span class="variant-pill" style="background:#0F3836;color:#fff">Editorial · Clash Display + Satoshi</span>
     <span class="variant-pill" style="background:rgba(37,164,151,0.15);color:#25A497;border:1px solid rgba(37,164,151,0.3)">Bento · Space Grotesk + Geist</span>
+    <span class="variant-pill" style="background:#fff;color:#0a3d3a;border:1px solid #A1E4DB">Console · Geist, no display font</span>
   </div>
 </div>
 
@@ -1141,6 +1366,10 @@
 
   <!-- Hero -->
   <div class="classic-hero">
+    <!-- Signature: the logo arc as hero ornament (replaces gradient washes) -->
+    <svg class="arc-ornament" viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#A1E4DB" stroke-width="8" stroke-linecap="round" opacity="0.35"/>
+    </svg>
     <div>
       <div class="classic-eyebrow">
         <span>&#x2728;</span> Now in public beta
@@ -1238,6 +1467,8 @@
   <!-- Hero -->
   <div class="midnight-hero">
     <div class="midnight-glow"></div>
+    <!-- v2.1: 2.5% noise overlay kills gradient banding (signature.noise) -->
+    <div class="midnight-noise"></div>
     <div class="midnight-badge">
       <span class="midnight-live-dot"></span>
       Now in beta · 2,000+ active teams
@@ -1338,11 +1569,13 @@
 
   <!-- Hero -->
   <div class="coral-hero">
+    <!-- v2.1: solid quarter-circle arc shape (signature.arcShapes) -->
+    <div class="coral-arc-shape" aria-hidden="true"></div>
     <div>
       <div class="coral-eyebrow">
         <span>☀️</span> Trusted by 14,000+ businesses
       </div>
-      <h1 class="coral-h1">Grow your business with <span class="warmword">AI that cares.</span></h1>
+      <h1 class="coral-h1">Grow your business with <span style="color:var(--coral-500);">AI that</span> <span class="warmword">cares.</span></h1>
       <p class="coral-body">Hayah AI is the friendliest way to get business intelligence working for you. No PhD required — just connect, ask, and grow.</p>
       <div class="flex gap-12 items-center">
         <a href="#" class="btn-coral-warm">Get started free <span class="arrow">→</span></a>
@@ -1549,6 +1782,11 @@
 
   <!-- Bento Grid -->
   <div class="bento-grid">
+    <!-- v2.1: blueprint crosshair markers at grid intersections (signature.blueprintCorners) -->
+    <div class="bp-cross" style="top:-7px;left:42px;" aria-hidden="true"></div>
+    <div class="bp-cross" style="top:-7px;right:42px;" aria-hidden="true"></div>
+    <div class="bp-cross" style="bottom:-7px;left:42px;" aria-hidden="true"></div>
+    <div class="bp-cross" style="bottom:-7px;right:42px;" aria-hidden="true"></div>
     <!-- Large dark card -->
     <div class="bento-card-dark bento-span2" style="min-height:220px;display:flex;flex-direction:column;justify-content:space-between;">
       <div>
@@ -1572,14 +1810,16 @@
       <div class="bento-metric-label" style="color:rgba(255,255,255,0.75);">uptime SLA</div>
     </div>
 
-    <!-- Feature card -->
-    <div class="bento-card bento-span1">
-      <div class="bento-accent-bar"></div>
-      <div class="bento-card-title">Developer-first API</div>
-      <div class="bento-card-text">OpenAPI-compatible REST endpoints. SDKs for TypeScript, Python, and more.</div>
-      <div style="margin-top:16px;">
-        <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#1E6E66;background:#F3FFF9;padding:4px 8px;border-radius:6px;">npm install @hayah/sdk</code>
+    <!-- v2.1: demo terminal card — content-typed, earns its place (bentoGrid.cards.demo) -->
+    <div class="bento-span1" style="background:#0F3836;border:1px solid rgba(161,228,219,0.15);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;">
+      <div style="display:flex;gap:5px;padding:12px 16px;border-bottom:1px solid rgba(161,228,219,0.12);">
+        <span style="width:9px;height:9px;border-radius:50%;background:#7a9b96;opacity:0.5;"></span>
+        <span style="width:9px;height:9px;border-radius:50%;background:#7a9b96;opacity:0.5;"></span>
+        <span style="width:9px;height:9px;border-radius:50%;background:#7a9b96;opacity:0.5;"></span>
       </div>
+      <pre style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:#A1E4DB;padding:16px;margin:0;flex:1;">$ npm i @hayah/sdk
+$ hayah agents deploy
+<span style="color:#25A497;">✓</span> revenue-agent live</pre>
     </div>
 
     <!-- Glass card -->
@@ -1643,10 +1883,180 @@
 
 </section>
 
+<div class="section-break"></div>
+
+<!-- ══════════════════════════════════════════════════
+     THEME 6 · HAYAH CONSOLE
+══════════════════════════════════════════════════ -->
+<section class="theme-section" id="console">
+
+  <div class="theme-header-bar" style="background:var(--cream);border-bottom:1px solid rgba(161,228,219,0.35);">
+    <span class="theme-number">06</span>
+    <span class="theme-name-tag" style="background:#fff;color:#0a3d3a;border:1px solid #A1E4DB;">Hayah Console</span>
+    <span style="font-family:'Geist',sans-serif;font-size:12px;color:#7a9b96;">Geist only, no display font · Dense app UI — CRM, dashboards, admin. The instrument panel.</span>
+  </div>
+
+  <!-- App shell demo -->
+  <div class="console-frame">
+    <!-- Sidebar -->
+    <aside class="console-sidebar">
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 14px;">
+        <svg viewBox="0 0 64 64" width="22" height="22" aria-label="Hayah-AI">
+          <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#faf7f5" stroke-width="8" stroke-linecap="round"/>
+          <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+        </svg>
+        <span style="font-size:13px;font-weight:600;color:var(--cream);">levelup-crm</span>
+      </div>
+      <a href="#" class="console-side-item active">Dashboard</a>
+      <a href="#" class="console-side-item">Deals</a>
+      <a href="#" class="console-side-item">Contacts</a>
+      <a href="#" class="console-side-item">Tasks</a>
+      <div class="console-side-label">Workspace</div>
+      <a href="#" class="console-side-item">Reports</a>
+      <a href="#" class="console-side-item">Settings</a>
+    </aside>
+
+    <!-- Main -->
+    <div class="console-main">
+      <div class="console-topbar">
+        <div class="console-search">Search deals, contacts…&nbsp; <span style="font-family:'JetBrains Mono',monospace;font-size:11px;opacity:0.7;">⌘K</span></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="status-badge st-live"><span class="sdot"></span>Sync live</span>
+          <span style="width:28px;height:28px;border-radius:50%;background:var(--teal-200);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--teal-700);">AT</span>
+        </div>
+      </div>
+
+      <div class="console-content">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="console-page-title">Pipeline</div>
+          <div style="display:flex;gap:8px;">
+            <button class="console-btn console-btn-secondary">Export</button>
+            <button class="console-btn console-btn-primary">New deal</button>
+          </div>
+        </div>
+
+        <!-- Metric cards: label → Space Grotesk value → status-colored delta -->
+        <div class="console-metrics">
+          <div class="console-metric-card">
+            <div class="console-metric-label">Pipeline value</div>
+            <div class="console-metric-value">₱4,218,000</div>
+            <div class="console-metric-delta" style="color:#1E6E66;">▲ 12% vs last month</div>
+          </div>
+          <div class="console-metric-card">
+            <div class="console-metric-label">Open deals</div>
+            <div class="console-metric-value">38</div>
+            <div class="console-metric-delta" style="color:#7a9b96;">— unchanged</div>
+          </div>
+          <div class="console-metric-card">
+            <div class="console-metric-label">At risk</div>
+            <div class="console-metric-value">5</div>
+            <div class="console-metric-delta" style="color:#a32a1f;">▲ 2 need action</div>
+          </div>
+        </div>
+
+        <!-- Table: pearl header, 44px rows, status dots + labels, tabular numerals -->
+        <table class="console-table">
+          <thead>
+            <tr><th>Deal</th><th>Stage</th><th>Owner</th><th class="num">Value</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:500;">Cebu Pacific onboarding</td>
+              <td><span class="status-badge st-success"><span class="sdot"></span>Won</span></td>
+              <td style="color:var(--muted);">Argeo</td>
+              <td class="num">₱1,400,000</td>
+            </tr>
+            <tr>
+              <td style="font-weight:500;">SM Retail pilot</td>
+              <td><span class="status-badge st-live"><span class="sdot"></span>In negotiation</span></td>
+              <td style="color:var(--muted);">Argeo</td>
+              <td class="num">₱960,000</td>
+            </tr>
+            <tr>
+              <td style="font-weight:500;">Ayala Land proposal</td>
+              <td><span class="status-badge st-warning"><span class="sdot"></span>Stalled 14d</span></td>
+              <td style="color:var(--muted);">Maria</td>
+              <td class="num">₱720,000</td>
+            </tr>
+            <tr>
+              <td style="font-weight:500;">Jollibee franchise demo</td>
+              <td><span class="status-badge st-danger"><span class="sdot"></span>Churn risk</span></td>
+              <td style="color:var(--muted);">Argeo</td>
+              <td class="num">₱310,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Components -->
+  <div style="background:#fff;padding:48px 64px;margin-top:48px;border-top:1px solid rgba(161,228,219,0.4);">
+    <div class="section-h2" style="color:#7a9b96;">Components — Status system, arc loader, data-viz</div>
+
+    <div class="comp-row" style="margin-bottom:24px;align-items:center;">
+      <button class="console-btn console-btn-primary">Primary</button>
+      <button class="console-btn console-btn-cta">Upgrade plan</button>
+      <button class="console-btn console-btn-secondary">Secondary</button>
+      <button class="console-btn console-btn-destructive">Delete record</button>
+      <span style="font-size:12px;color:#7a9b96;margin-left:4px;">← at most one coral button per screen; danger ≠ CTA coral</span>
+    </div>
+
+    <div class="comp-row" style="margin-bottom:24px;">
+      <span class="status-badge st-success"><span class="sdot"></span>Success</span>
+      <span class="status-badge st-info"><span class="sdot"></span>Info</span>
+      <span class="status-badge st-warning"><span class="sdot"></span>Warning</span>
+      <span class="status-badge st-danger"><span class="sdot"></span>Danger</span>
+      <span class="status-badge st-neutral"><span class="sdot"></span>Neutral</span>
+      <span class="status-badge st-live"><span class="sdot"></span>Live — the coral logo dot</span>
+    </div>
+
+    <div class="comp-row" style="margin-bottom:24px;align-items:center;">
+      <input class="console-input" placeholder="you@company.com" />
+      <span>
+        <input class="console-input err" value="not-an-email" readonly />
+        <span style="display:block;font-size:12px;color:#a32a1f;margin-top:4px;">Enter a valid email address.</span>
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:10px;margin-left:8px;">
+        <svg class="arc-loader-demo" viewBox="0 0 64 64" aria-label="Loading">
+          <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#A1E4DB" stroke-width="8" stroke-linecap="round"/>
+          <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+        </svg>
+        <span style="font-size:12px;color:#7a9b96;">the arc is the spinner — no generic loaders</span>
+      </span>
+    </div>
+
+    <div class="comp-row" style="align-items:flex-end;gap:24px;">
+      <div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#7a9b96;margin-bottom:10px;">Data-viz categorical (fixed order)</div>
+        <div class="dataviz-row">
+          <div class="dataviz-bar" style="height:64px;background:#25A497;"></div>
+          <div class="dataviz-bar" style="height:48px;background:#ff6b47;"></div>
+          <div class="dataviz-bar" style="height:56px;background:#1E6E66;"></div>
+          <div class="dataviz-bar" style="height:32px;background:#ffb5a0;"></div>
+          <div class="dataviz-bar" style="height:40px;background:#7a9b96;"></div>
+          <div class="dataviz-bar" style="height:24px;background:#A1E4DB;"></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#7a9b96;margin-bottom:10px;">Sequential ramp</div>
+        <div class="swatch-row">
+          <div class="swatch" style="background:#F3FFF9;border:1px solid #e8f4f1"></div>
+          <div class="swatch" style="background:#A1E4DB"></div>
+          <div class="swatch" style="background:#25A497"></div>
+          <div class="swatch" style="background:#1E6E66"></div>
+          <div class="swatch" style="background:#0a3d3a"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
 <!-- ── FOOTER ───────────────────────────────────── -->
 <footer style="background:#080808;padding:48px 64px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
-  <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.02em;color:#fff;margin-bottom:8px;">Hayahai Theme System <span style="color:var(--teal-500)">v2.0</span></div>
-  <div style="font-family:'Geist',sans-serif;font-size:13px;color:rgba(255,255,255,0.35);">5 variants · Same palette, distinct personalities · Built for landing pages that convert</div>
+  <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.02em;color:#fff;margin-bottom:8px;">Hayahai Theme System <span style="color:var(--teal-500)">v2.1</span></div>
+  <div style="font-family:'Geist',sans-serif;font-size:13px;color:rgba(255,255,255,0.35);">6 variants · One reef palette · Arc + dot as the signature device · Marketing pages that convert, app UI that disappears into the task</div>
 </footer>
 
 </body>

@@ -1,0 +1,238 @@
+{
+  "name": "Hayah Console",
+  "id": "hayah-console",
+  "version": "1.0",
+  "description": "Dense product-UI theme for the surfaces people stare at all day — CRMs, dashboards, admin panels, client portals, internal tools. The only variant without a display font: restraint is the identity. Quiet cream-and-white chrome, a full semantic status system, table and data-viz tokens the marketing variants don't carry, and the brand mark working as functional vocabulary (dot = status, arc = progress).",
+  "mood": "Precise, calm, legible — mission control in daylight",
+  "role": "The instrument panel — where the work happens. Quiet on purpose.",
+  "inspiration": "Linear's app (not its landing page), Stripe Dashboard, Height — interfaces that disappear into the task",
+  "signature": {
+    "dotStatus": "The logo's coral dot is the status language: a 6px filled circle precedes every stateful entity (deal, run, booking, sync). Colors map to the semantic set; live/in-progress states pulse (opacity 1 → 0.5 → 1, 2s loop, respects prefers-reduced-motion). The brand mark stops being decoration and becomes vocabulary.",
+    "arcProgress": "Circular progress and the loading spinner are the logo arc: a quarter-arc stroke that sweeps to full circle as progress completes, coral dot at the leading end. Replaces every generic spinner. Linear progress bars stay plain aqua per system animation rules.",
+    "noDisplay": "No display font, deliberately. Page titles are Geist 600 at 20px. The single exception: metric values use Space Grotesk (the system's shared data voice, owned by Bento). If a Console screen starts wanting a hero, it is a landing page — use Bento or Classic."
+  },
+  "colors": {
+    "brand": {
+      "primary": "#0a3d3a",
+      "accent": "#25A497",
+      "accentHover": "#1E6E66",
+      "cta": "#ff6b47",
+      "ctaHover": "#e55a38"
+    },
+    "interactive": {
+      "link": "#1E6E66",
+      "linkHover": "#0a3d3a",
+      "focus": "#25A497",
+      "focusRing": "0 0 0 2px #faf7f5, 0 0 0 4px #25A497",
+      "muted": "#7a9b96",
+      "selection": "rgba(37, 164, 151, 0.15)"
+    },
+    "surface": {
+      "page": "#faf7f5",
+      "card": "#ffffff",
+      "panel": "#e8f4f1",
+      "sidebar": "#0F3836",
+      "sidebarHover": "rgba(161, 228, 219, 0.08)",
+      "sidebarActive": "rgba(37, 164, 151, 0.18)",
+      "rowHover": "#F3FFF9",
+      "rowSelected": "rgba(37, 164, 151, 0.08)",
+      "overlay": "rgba(15, 56, 54, 0.45)"
+    },
+    "text": {
+      "primary": "#0a3d3a",
+      "secondary": "#1C5753",
+      "muted": "#7a9b96",
+      "onDark": "#faf7f5",
+      "onDarkMuted": "#A1E4DB",
+      "onAccent": "#ffffff"
+    },
+    "border": {
+      "default": "rgba(161, 228, 219, 0.4)",
+      "subtle": "rgba(10, 61, 58, 0.06)",
+      "strong": "#A1E4DB",
+      "divider": "rgba(10, 61, 58, 0.08)"
+    },
+    "status": {
+      "success": { "text": "#1E6E66", "bg": "#d4f4f1", "border": "rgba(30, 110, 102, 0.3)", "dot": "#1E6E66" },
+      "info": { "text": "#1E6E66", "bg": "rgba(37, 164, 151, 0.1)", "border": "rgba(37, 164, 151, 0.3)", "dot": "#25A497" },
+      "warning": { "text": "#8a5512", "bg": "#fdf3e3", "border": "rgba(199, 123, 30, 0.35)", "dot": "#c77b1e" },
+      "danger": { "text": "#a32a1f", "bg": "#fdeeec", "border": "rgba(214, 60, 47, 0.3)", "dot": "#d63c2f" },
+      "neutral": { "text": "#5f7a76", "bg": "#eef2f1", "border": "rgba(122, 155, 150, 0.3)", "dot": "#7a9b96" },
+      "live": { "text": "#1E6E66", "bg": "rgba(37, 164, 151, 0.1)", "border": "rgba(37, 164, 151, 0.4)", "dot": "#ff6b47", "pulse": true },
+      "notes": "Danger is red-shifted coral, warning is amber between coral and cream — both derived from the palette, neither collides with the coral CTA. Coral dot is reserved for live states (it is the logo dot)."
+    },
+    "dataViz": {
+      "categorical": ["#25A497", "#ff6b47", "#1E6E66", "#ffb5a0", "#7a9b96", "#A1E4DB"],
+      "sequential": ["#F3FFF9", "#A1E4DB", "#25A497", "#1E6E66", "#0a3d3a"],
+      "diverging": ["#d63c2f", "#ffb5a0", "#faf7f5", "#A1E4DB", "#1E6E66"],
+      "gridLine": "rgba(10, 61, 58, 0.06)",
+      "axisLabel": "#7a9b96",
+      "notes": "Categorical order is fixed — series 1 is always aqua, series 2 always coral. Charts on white cards only, never on pearl."
+    }
+  },
+  "typography": {
+    "fonts": {
+      "display": "none — see signature.noDisplay",
+      "heading": "Geist",
+      "body": "Geist",
+      "metric": "Space Grotesk",
+      "mono": "JetBrains Mono"
+    },
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+    "notes": "tabular-nums (font-variant-numeric) on every cell, metric, and timestamp — data must align.",
+    "scale": {
+      "pageTitle": { "size": "20px", "lineHeight": "1.3", "weight": 600, "letterSpacing": "-0.01em", "font": "Geist" },
+      "sectionTitle": { "size": "16px", "lineHeight": "1.4", "weight": 600, "font": "Geist" },
+      "cardTitle": { "size": "14px", "lineHeight": "1.4", "weight": 600, "font": "Geist" },
+      "body": { "size": "14px", "lineHeight": "1.55", "weight": 400, "font": "Geist" },
+      "bodySm": { "size": "13px", "lineHeight": "1.5", "weight": 400, "font": "Geist" },
+      "caption": { "size": "12px", "lineHeight": "1.45", "weight": 400, "font": "Geist" },
+      "label": { "size": "11px", "lineHeight": "1.4", "weight": 600, "letterSpacing": "0.07em", "font": "Geist", "textTransform": "uppercase" },
+      "metric": { "size": "32px", "lineHeight": "1.05", "weight": 700, "letterSpacing": "-0.02em", "font": "Space Grotesk", "fontVariantNumeric": "tabular-nums" },
+      "metricSm": { "size": "22px", "lineHeight": "1.1", "weight": 600, "letterSpacing": "-0.015em", "font": "Space Grotesk", "fontVariantNumeric": "tabular-nums" },
+      "code": { "size": "13px", "lineHeight": "1.5", "weight": 400, "font": "JetBrains Mono" }
+    }
+  },
+  "components": {
+    "button": {
+      "primary": {
+        "bg": "#0a3d3a", "text": "#faf7f5", "hover": "#1C5753",
+        "padding": "8px 16px", "borderRadius": "8px",
+        "font": "Geist", "fontSize": "13px", "fontWeight": 500,
+        "notes": "Teal primary in app chrome — coral is reserved for the rare conversion moment (upgrade, publish)"
+      },
+      "cta": {
+        "bg": "#ff6b47", "text": "#ffffff", "hover": "#e55a38",
+        "padding": "8px 16px", "borderRadius": "8px",
+        "font": "Geist", "fontSize": "13px", "fontWeight": 600,
+        "boxShadow": "0 2px 8px rgba(255, 107, 71, 0.3)",
+        "notes": "At most one coral button per screen"
+      },
+      "secondary": {
+        "bg": "#ffffff", "text": "#0a3d3a",
+        "border": "1px solid rgba(10, 61, 58, 0.15)",
+        "hover": "#F3FFF9",
+        "padding": "7px 15px", "borderRadius": "8px",
+        "font": "Geist", "fontSize": "13px", "fontWeight": 500
+      },
+      "ghost": {
+        "bg": "transparent", "text": "#1C5753",
+        "hover": "rgba(37, 164, 151, 0.08)",
+        "padding": "7px 12px", "borderRadius": "8px",
+        "font": "Geist", "fontSize": "13px", "fontWeight": 500
+      },
+      "destructive": {
+        "bg": "#ffffff", "text": "#a32a1f",
+        "border": "1px solid rgba(214, 60, 47, 0.3)",
+        "hover": "#fdeeec",
+        "padding": "7px 15px", "borderRadius": "8px",
+        "font": "Geist", "fontSize": "13px", "fontWeight": 500,
+        "confirmNotes": "Destructive actions always get a confirm step; the confirm button may fill #d63c2f"
+      }
+    },
+    "shell": {
+      "sidebar": {
+        "width": "240px", "widthCollapsed": "64px",
+        "bg": "#0F3836", "text": "#A1E4DB", "textActive": "#faf7f5",
+        "itemPadding": "8px 12px", "itemRadius": "8px",
+        "itemHover": "rgba(161, 228, 219, 0.08)",
+        "itemActive": "rgba(37, 164, 151, 0.18)",
+        "activeIndicator": "2px solid #25A497 (left edge)",
+        "sectionLabel": "11px uppercase #7a9b96, tracked 0.07em, 24px top margin"
+      },
+      "topbar": {
+        "height": "56px", "bg": "#faf7f5",
+        "border": "1px solid rgba(10, 61, 58, 0.08)",
+        "search": "centered, max-width 480px, pearl bg, 8px radius"
+      },
+      "content": {
+        "padding": "24px 32px", "maxWidth": "fluid — no container cap in app UI",
+        "bg": "#faf7f5"
+      }
+    },
+    "table": {
+      "rowHeight": "44px", "rowHeightDense": "36px",
+      "header": {
+        "bg": "#e8f4f1", "text": "#1C5753",
+        "font": "Geist", "fontSize": "11px", "fontWeight": 600,
+        "letterSpacing": "0.07em", "textTransform": "uppercase",
+        "height": "40px", "position": "sticky"
+      },
+      "cell": { "font": "Geist", "fontSize": "13px", "padding": "0 16px", "numericAlign": "right, tabular-nums" },
+      "border": "1px solid rgba(10, 61, 58, 0.06) (horizontal only — no vertical rules)",
+      "rowHover": "#F3FFF9",
+      "rowSelected": "rgba(37, 164, 151, 0.08) + 2px solid #25A497 left edge",
+      "emptyState": "centered, 48px icon in #A1E4DB, one-line explanation, one action button — an empty screen is an invitation to act"
+    },
+    "card": {
+      "default": {
+        "bg": "#ffffff",
+        "border": "1px solid rgba(161, 228, 219, 0.4)",
+        "borderRadius": "12px", "padding": "20px",
+        "boxShadow": "0 1px 2px rgba(10, 61, 58, 0.05)",
+        "notes": "xs shadow only — app UI doesn't float"
+      },
+      "metric": {
+        "bg": "#ffffff",
+        "border": "1px solid rgba(161, 228, 219, 0.4)",
+        "borderRadius": "12px", "padding": "16px 20px",
+        "structure": "label (11px uppercase) → value (metric, Space Grotesk) → delta (12px, status-colored with ▲▼)"
+      },
+      "panel": {
+        "bg": "#e8f4f1", "border": "none",
+        "borderRadius": "12px", "padding": "16px 20px",
+        "notes": "Inline help, summaries, calculation explanations"
+      }
+    },
+    "badge": {
+      "structure": "6px status dot + 12px label, 4px gap, 4px 10px padding, full-radius pill, status bg + border",
+      "notes": "Badges always pair dot + text — never color alone (color-blind safe)"
+    },
+    "input": {
+      "bg": "#ffffff", "border": "1px solid rgba(10, 61, 58, 0.15)",
+      "borderFocus": "1px solid #25A497",
+      "boxShadowFocus": "0 0 0 3px rgba(37, 164, 151, 0.15)",
+      "borderError": "1px solid #d63c2f", "errorText": "#a32a1f",
+      "boxShadowError": "0 0 0 3px rgba(214, 60, 47, 0.12)",
+      "borderRadius": "8px", "padding": "8px 12px",
+      "font": "Geist", "fontSize": "13px", "color": "#0a3d3a",
+      "label": "12px, weight 500, #1C5753, 6px below-gap",
+      "helpText": "12px #7a9b96",
+      "errorMessage": "12px #a32a1f, explains what to fix — never vague, never apologizes"
+    },
+    "toast": {
+      "bg": "#0F3836", "text": "#faf7f5",
+      "borderRadius": "10px", "padding": "12px 16px",
+      "statusDot": "6px, status-colored, leading",
+      "position": "bottom-right, 400ms slide-fade",
+      "duration": "4s info/success, sticky for danger until dismissed"
+    },
+    "modal": {
+      "bg": "#ffffff", "borderRadius": "16px", "padding": "24px",
+      "maxWidth": "480px (confirm) / 640px (form) / 960px (detail)",
+      "overlay": "rgba(15, 56, 54, 0.45)",
+      "notes": "Focus trapped, Escape closes, focus returns to trigger on close"
+    },
+    "loading": {
+      "spinner": "see signature.arcProgress — the arc sweep, 20px inline / 32px page-level",
+      "skeleton": "pearl #e8f4f1 blocks, 1.5s shimmer, matching final layout exactly",
+      "progressBar": "3px, aqua #25A497 on rgba(37,164,151,0.15) track"
+    }
+  },
+  "spacing": {
+    "unit": 4,
+    "notes": "The only variant on a 4px grid — app density needs the finer step",
+    "contentPadding": "24px 32px",
+    "cardPadding": "20px",
+    "cardGap": "16px",
+    "formFieldGap": "16px",
+    "sectionGap": "32px",
+    "borderRadius": { "sm": "6px", "md": "8px", "lg": "12px", "xl": "16px", "full": "9999px" }
+  },
+  "accessibility": {
+    "focusRing": "2px #25A497 ring offset 2px on every interactive element — app users live on the keyboard",
+    "statusColor": "Status is never conveyed by color alone — always dot + label",
+    "contrast": "All status text/bg pairs meet WCAG AA at 13px weight 500",
+    "reducedMotion": "Pulse, count-up, and shimmer all respect prefers-reduced-motion"
+  }
+}

@@ -1,12 +1,39 @@
 # Hayah Design System
 
-> Five themes. One brand. The Hayah palette stays constant — only the personality changes.
+> Six themes. One brand. The Hayah palette stays constant — only the personality changes.
 
-**Hayah-ai Design** is a brand language built around a consistent core palette (deep teal, aqua, coral, cream) that flexes across **five thematic personalities**. Pick the theme that matches the product surface — or compose them across a multi-product portfolio.
+**Hayah-ai Design** is a brand language built around a consistent core palette (deep teal, aqua, coral, cream) that flexes across **six thematic personalities**. Pick the theme that matches the product surface — or compose them across a multi-product portfolio.
 
 ---
 
-## The five themes
+## The story: a living reef
+
+**"Hayah" means life** — and the palette is literally a coral reef: deep ocean teal (`#0F3836`), living coral (`#ff6b47`), aqua and mint shallows (`#25A497` / `#A1E4DB`), cream sand (`#faf7f5`). Every variant is a view of the same reef. This is the metaphor to reach for when making a new design decision — not borrowed SaaS references.
+
+| Theme | Role in the reef |
+|---|---|
+| **Classic** | Calm shallows — the brand at rest, clear water over sand |
+| **Coral** | The reef itself — where the life is |
+| **Editorial** | The field journal — observations recorded with authority |
+| **Bento** | The lab studying it — instruments, readings, live data |
+| **Midnight** | Bioluminescent depth — light comes from living things, not the sky |
+| **Console** | The instrument panel — where the work happens |
+
+It also sets the imagery direction: water, light through water, living texture, warm sand neutrals. Never bluish-purple tech abstractions.
+
+## The signature device: arc + dot
+
+The logo's quarter-arc and coral dot are the system's geometric primitives — use them beyond the logo:
+
+- **Arc as ornament** — the same arc geometry, scaled ~10×, mint `#A1E4DB` at 8–12% opacity, cropped at a hero or section edge. Replaces generic radial-gradient washes (Classic, Coral). One arc per page.
+- **Dot as status** — the coral dot is the live/status indicator across all product UI (see Console's `dotStatus`), and the list/timeline marker in marketing pages.
+- **Arc as motion** — the system's one branded motion moment: circular progress and loading are the arc sweeping closed, dot at the leading end. Everything else stays fades-and-4px-translates per the animation rules.
+
+This is the cheapest distinctiveness available — it's already the mark.
+
+---
+
+## The six themes
 
 | Theme | Mood | Use for | Display / Body |
 |---|---|---|---|
@@ -15,8 +42,9 @@
 | **Editorial** | Bold, authoritative, type-led | Thought leadership, premium launches | Clash Display + Satoshi |
 | **Bento** | Innovative, dynamic, technical | AI products, dev tools, modern SaaS | Space Grotesk + Geist |
 | **Midnight** | Powerful, cutting-edge | Dark dashboards, AI/fintech, platforms | Syne + Geist |
+| **Console** | Precise, calm, legible | CRM, dashboards, admin, internal tools | none (Geist only) — restraint is the identity |
 
-All five share these brand colors:
+All six share these brand colors:
 
 - **Teal anchor** `#0a3d3a` / `#0F3836` — primary text + dark surfaces
 - **Aqua primary** `#25A497` — links, focus, technical accent
@@ -28,12 +56,13 @@ All five share these brand colors:
 
 ## Sources
 
-- **Source codebase:** mounted at `themes/` (5 theme JSON files, version 2.0).
+- **Source codebase:** mounted at `themes/` (6 theme JSON files, version 2.1 / Console 1.0).
   - `themes/hayah-classic.json`
   - `themes/hayah-coral.json`
   - `themes/hayah-editorial.json`
   - `themes/hayah-bento.json`
   - `themes/hayah-midnight.json`
+  - `themes/hayah-console.json` — app/product UI (status colors, data-viz, tables, shell)
 
 The theme JSONs are the canonical source of truth. They've been copied into this project at the same paths.
 
@@ -44,7 +73,7 @@ The theme JSONs are the canonical source of truth. They've been copied into this
 - `README.md` — this file
 - `SKILL.md` — instructions for use as a Claude Code skill
 - `colors_and_type.css` — single source CSS variables + theme overrides + semantic type classes
-- `themes/` — original 5 theme JSON definitions (v2.0)
+- `themes/` — 6 theme JSON definitions (v2.1 / Console 1.0)
 - `assets/` — logos, marks, brand imagery placeholders
 - `preview/` — design system review cards (rendered in the Design System tab)
 - `ui_kits/` — high-fidelity component kits per product surface
@@ -61,6 +90,7 @@ The brand voice is **calm, confident, and contemporary** — never shouty, never
 - **Classic / Editorial** lean editorial-confident: declarative sentences, sparing adjectives, the occasional rhetorical pivot.
 - **Coral** is warmer and more human — uses "you," softens edges with everyday language.
 - **Bento / Midnight** take a technical-precise voice: shorter, more product-led, more verbs.
+- **Console** is pure product voice: second-person commands ("Connect a source"), labels that name what the user controls, errors that say what to fix. No marketing register anywhere in app chrome.
 
 ### Tone & casing
 
@@ -114,8 +144,8 @@ Hayah pairs a **distinctive display face** with a **neutral, humanist body**. Th
 
 ### Backgrounds
 
-- Page background: cream `#faf7f5` (or dark `#0F3836`). Subtle radial gradients are common in hero sections (`radial-gradient(ellipse 100% 80% at 50% -20%, rgba(37,164,151,0.15) 0%, transparent 60%)`).
-- **No grain, no textures, no hand-drawn illustrations.** The look is digital-clean.
+- Page background: cream `#faf7f5` (or dark `#0F3836`). Prefer the **arc ornament** (see signature device above) over generic radial washes in heroes; on Midnight, glows must be anchored to a content element (`bioluminescence` rule in its JSON).
+- **No grain, no textures, no hand-drawn illustrations** on light themes — the look is digital-clean. **One exception:** Midnight may apply 2.5% monochrome noise over gradient surfaces to kill banding (its JSON `signature.noise`).
 - **Mesh gradients** appear in Bento (subtle teal + coral wash). **Glassmorphism** appears in Bento and Midnight (`rgba(28, 87, 83, 0.4)` + `backdrop-filter: blur(16px)`). Never combine glass + heavy shadow on the same element — pick one.
 - **Full-bleed images:** rare. The brand prefers structured, editorial layouts over photography-led pages. When images appear, they're warm-toned and high-contrast — never washed out, never overly saturated.
 - Editorial uses **horizontal rules** as structural devices (`1px` teal, `3px` coral for emphasis). Other themes do not.
@@ -123,7 +153,7 @@ Hayah pairs a **distinctive display face** with a **neutral, humanist body**. Th
 ### Animation
 
 - **Subtle and functional only.** Easing: `cubic-bezier(0.4, 0, 0.2, 1)` (ease-in-out). Standard duration: 150ms (micro-interactions), 250ms (hover/expand), 400ms (page-level transitions).
-- **No bounces. No springs over 1.0 overshoot. No spinning loaders with personality** — use a clean teal progress bar or a quiet pulse.
+- **No bounces. No springs over 1.0 overshoot. No spinning loaders with personality** — linear progress is a clean teal bar; circular progress/loading is the **brand arc sweep** (signature device above), which is the system's one sanctioned motion moment.
 - Fades and small (~4px) translates only. Hero elements may stagger-fade-up on load (`opacity 0→1, translateY 8px→0`, 60ms stagger).
 - Hover transitions: `transition: color 150ms, background 150ms, transform 200ms`.
 
@@ -185,9 +215,12 @@ CTAs **always** get a colored shadow (coral or teal). Cards never do — cards u
 
 ### Imagery vibe
 
-- Warm-leaning, editorial photography. Natural light. No HDR drama, no overlays, no duotone treatments.
+- Warm-leaning, editorial photography. Natural light. No HDR drama, no heavy filters, no full duotones.
+- When photos need brand treatment (Coral especially), use the **brand wash**: deepen shadows toward teal (multiply `rgba(10,61,58,0.15)`) + 10% warm highlight overlay (screen `rgba(255,143,115,0.1)`). Subtle — the photo stays a photo.
+- Image masks: `--r-xl` rounds, or quarter-circle arc masks (signature device) in Coral.
 - Product screenshots: shown on a soft cream backplate (`#faf7f5`) with a subtle shadow, often rotated slightly (1–2deg) when used in marketing — never in product UI.
 - Avoid stock-feeling imagery. Avoid bluish-purple gradients (off-brand).
+- Subject direction from the reef story: water, light through water, living texture, warm sand neutrals.
 
 ### Cards
 
@@ -204,7 +237,7 @@ CTAs **always** get a colored shadow (coral or teal). Cards never do — cards u
 
 The Hayah codebase **does not ship a custom icon set**. Theme JSONs do not reference any icon assets, sprites, or icon fonts. So the recommended approach is:
 
-- **Primary icon library: [Lucide](https://lucide.dev)** — clean, geometric, 1.5px stroke (sometimes 2px), rounded line caps. Pairs perfectly with all five themes. Available via CDN: `https://unpkg.com/lucide@latest`.
+- **Primary icon library: [Lucide](https://lucide.dev)** — clean, geometric, 1.5px stroke (sometimes 2px), rounded line caps. Pairs perfectly with all six themes. Available via CDN: `https://unpkg.com/lucide@latest`.
 - **Stroke width:** 1.5px default, 2px for emphasis. Never mix weights.
 - **Icon sizes:** 16, 20, 24px in UI; 32–48px for feature cards; 64–96px for hero illustrations.
 - **Icon color:** inherits text color (`currentColor`). Aqua `#25A497` for primary action icons; coral `#ff6b47` reserved for warnings/highlights/CTAs only.

@@ -1,7 +1,13 @@
 {
   "name": "Hayah Bento",
   "id": "hayah-bento",
-  "version": "2.0",
+  "version": "2.1",
+  "role": "The lab studying the reef — instruments, readings, live data.",
+  "signature": {
+    "blueprintCorners": "Hairline mint crosshair '+' markers at grid intersections (1px strokes, 12px arms, rgba(161,228,219,0.5)). Makes the grid itself visible — lab-notebook feel the default bento aesthetic doesn't have. Section-level, not on every card.",
+    "liveMetrics": "Metric values use tabular-nums and count up once on scroll-into-view (400ms, ease-out, respects prefers-reduced-motion). Numbers feel measured, not typeset.",
+    "radiusNesting": "Inner radius = outer radius − gap. A 20px card with 8px internal padding gives inner elements 12px. Nested bento breaks visually when radii don't step down — never reuse the outer radius inside."
+  },
   "description": "Modern bento grid aesthetic inspired by the best AI and tech landing pages of 2025. Asymmetric grid cards, gradient surfaces, glassmorphism on dark teal panels, and aqua green as a starring accent. Built for AI products, developer tools, and SaaS platforms that need to feel alive and cutting-edge.",
   "mood": "Innovative, dynamic, technical, premium",
   "inspiration": "Anthropic.com, Cursor, Perplexity, Luma — tech-forward bento grid landing pages",
@@ -137,8 +143,32 @@
           "backdropFilter": "blur(16px)",
           "border": "1px solid rgba(161, 228, 219, 0.5)",
           "borderRadius": "20px", "padding": "32px"
+        },
+        "demo": {
+          "gridArea": "2 cols, 1 row (or 2x2 if the demo is the page's centerpiece)",
+          "bg": "#0F3836", "text": "#A1E4DB",
+          "font": "JetBrains Mono", "fontSize": "13px",
+          "chrome": "terminal header bar: 3 dots in #7a9b96, 12px, top-left",
+          "borderRadius": "20px", "padding": "0 (header) + 24px (body)",
+          "notes": "Terminal/code demo card — earns a wide span because code needs line length"
+        },
+        "integration": {
+          "gridArea": "2 cols, 1 row",
+          "bg": "#ffffff",
+          "border": "1px solid rgba(161, 228, 219, 0.4)",
+          "borderRadius": "20px", "padding": "28px",
+          "logoTreatment": "partner logos at 24px height, #7a9b96 monochrome, full color on hover",
+          "notes": "Logo-wall card for integrations/stack"
+        },
+        "comparison": {
+          "gridArea": "2 cols, 1 row",
+          "bg": "#ffffff",
+          "split": "50/50 vertical rule 1px rgba(161,228,219,0.5); left label 'Before' #7a9b96, right label 'After' #25A497",
+          "borderRadius": "20px", "padding": "28px",
+          "notes": "Before/after card — the comparison IS the content"
         }
-      }
+      },
+      "cardSelectionRule": "A card's grid span follows its content weight — demo and comparison earn 2 cols because their content needs width; never inflate a thin feature to fill the grid. Restructure the grid instead."
     },
     "card": {
       "default": {
@@ -188,6 +218,7 @@
     "input": {
       "bg": "#ffffff", "border": "1.5px solid rgba(161, 228, 219, 0.5)",
       "borderFocus": "1.5px solid #25A497",
+      "borderError": "1.5px solid #d63c2f", "errorText": "#a32a1f",
       "borderRadius": "12px", "padding": "14px 16px",
       "font": "Geist", "fontSize": "15px", "color": "#0a3d3a",
       "boxShadow": "0 0 0 4px transparent",

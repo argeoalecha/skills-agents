@@ -9,6 +9,12 @@ A skill for producing and reviewing lean, professional PRDs and TDDs for web app
 
 ---
 
+## Upstream: invoked by /init
+
+`/init` is the project bootstrapper and auto-runs this skill at the end of its chain. When invoked that way (or any time the cwd is a freshly-bootstrapped project), **a concept doc exists at `docs/concept.md`** — read it first (see Write Mode step 3). The skeleton's `CLAUDE.md` will say `Stack: TBD — decided in the TDD`; this skill's TDD is where stack, theme variant, and deploy target actually get pinned down. Treat that as a responsibility: the rest of the pipeline (`/company-site`, `/feature-dev`) reads the TDD to author framework files, so the TDD must state the chosen stack, the Hayah theme variant, and the deploy target explicitly.
+
+---
+
 ## Mode Detection
 
 Determine mode from the user's intent:
@@ -26,7 +32,7 @@ If ambiguous, ask in one sentence before proceeding.
 
 1. **Identify doc type**: PRD (what + why), TDD (how), or both.
 2. **Identify project type**: web app, AI/agent/automation, or data product. This determines which TDD template to use.
-3. **Extract context** from the conversation:
+3. **Extract context.** First, if `docs/concept.md` exists in the project folder (it will when reached via `/init`), read it — it is the seed idea and the primary input. Then supplement from the conversation:
    - Problem / goal
    - Target users / personas
    - Core features (MVP vs. later)
@@ -210,6 +216,7 @@ Output format: same structure as PRD review, adapted to TDD dimensions.
 |---|---|---|
 | Frontend | <e.g. Next.js 15 App Router + TypeScript> | <reason> |
 | Styling | <e.g. Tailwind CSS + shadcn/ui> | <reason> |
+| Theme | <Hayah variant: classic / midnight / coral / editorial / bento / console> | <fit for audience/mood — drives /company-site + /ui-builder> |
 | Backend | <e.g. Next.js API Routes / Express> | <reason> |
 | Database | <e.g. Supabase PostgreSQL> | <reason> |
 | Auth | <e.g. Supabase Auth> | <reason> |

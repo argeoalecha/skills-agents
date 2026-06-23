@@ -334,7 +334,7 @@ Given the project context (**{{project-context}}**), the following sibling skill
 | `/theme-client` | Seed Section 4 (Brand assets) directly into the intake — saves re-asking for logo, colors, fonts |
 | `/proposal-comm` | Pre-fill client name, location, industry, and contact for the commercial proposal |
 | `/proposal-tech` | Pre-fill technical context (existing tech stack, page count) for scope estimation |
-| `/web-dev` | Use the existing-site analysis to scope a rebuild — same content sections, same brand |
+| `/company-site` | Use the existing-site analysis to scope a rebuild — same content sections, same brand |
 | `/ph-dpa-compliance` | If the target is PH-based, run compliance review on the existing site |
 | `/seo-leads-gen` | Add this prospect to the SEO leads pipeline for follow-up |
 

@@ -124,7 +124,7 @@ Out of scope for v1 brand intake. Use the client's existing brand guide if avail
 
 | Skill | What it reads |
 |---|---|
-| `/web-dev` | `brand/theme.json` → injected as `SITE_CONFIG.theme` block in templates; `brand/logo.svg` referenced in nav + footer |
+| `/company-site` | `brand/theme.json` → injected as `SITE_CONFIG.theme` block in templates; `brand/logo.svg` referenced in nav + footer |
 | `/ui-builder` | All of `brand/` — uses for layout, components, and logo placement |
 | `/auth-page-scaffold` | `brand/theme.json` + `brand/logo.svg` → applied to the matching Hayah variant skeleton |
 | Direct Tailwind use | `brand/tailwind.config.js` extends Tailwind theme |

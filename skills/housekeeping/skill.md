@@ -68,14 +68,25 @@ find ~/.claude/plans -type f -mtime +30 2>/dev/null
 # Shell snapshots
 find ~/.claude/shell-snapshots -type f 2>/dev/null
 
-# Todos older than 7 days (active session todos must not be deleted)
-find ~/.claude/todos -type f -mtime +6 2>/dev/null
-
-# Stale tasks session folders older than 7 days
+# Stale tasks session folders older than 7 days (TaskCreate/TaskUpdate state —
+# this superseded the old ~/.claude/todos/ directory, which no longer exists
+# on this machine as of the 2026-05-06 run; do not re-add a todos/ scan unless
+# it reappears)
 find ~/.claude/tasks -maxdepth 1 -mindepth 1 -type d -mtime +6 2>/dev/null
+
+# Stale session-env folders older than 7 days (per-session environment state —
+# same accumulation pattern as file-history/tasks/paste-cache)
+find ~/.claude/session-env -maxdepth 1 -mindepth 1 -type d -mtime +6 2>/dev/null
+
+# Stale background-job folders older than 7 days (per-job state; never touch
+# jobs/pins.json itself — that's the pinned/active-job index)
+find ~/.claude/jobs -maxdepth 1 -mindepth 1 -type d -mtime +6 2>/dev/null
 
 # Paste cache older than 7 days
 find ~/.claude/paste-cache -type f -mtime +6 2>/dev/null
+
+# cache/ files other than changelog.md (changelog.md is protected — see "Never Touches")
+find ~/.claude/cache -type f -not -name "changelog.md" -mtime +13 2>/dev/null
 
 # Skill asset files — PDFs, old JSONs, images possibly superseded
 find ~/.claude/skills -type f \( -name "*.pdf" -o -name "*.png" -o -name "*.jpg" \) 2>/dev/null
@@ -104,6 +115,7 @@ For each skill directory under `~/.claude/skills/`, read its `skill.md` and chec
 - Do any `assets/` files go unmentioned in the skill.md?
 - Are there multiple versions of the same file type (e.g., two showcase files, old + new JSON configs)?
 - Are there scripts in `scripts/` that aren't invoked anywhere?
+- Does the skill reference another skill by name (`/skill-name`) that no longer has a matching directory under `~/.claude/skills/`? Renames happen (e.g. `/web-dev` → `/company-site`) and leave stale pointers in sibling skills. Cross-check every `/name` mention against `find ~/.claude/skills -maxdepth 1 -mindepth 1 -type d`. **Caveat:** a miss here is not automatically a broken reference — some invocable skills (e.g. `/simplify`, `/security-review`) are harness- or plugin-provided and have no local directory. Before flagging, check whether the name appears with a description in the current session's available-skills list; only flag it if it doesn't resolve there either.
 
 Flag anything that fails these checks as **potentially orphaned**.
 
@@ -113,6 +125,7 @@ Read each file in `~/.claude/agents/`. Flag an agent as stale if:
 - Its role is fully covered by a built-in Claude Code agent type
 - It hasn't been referenced in any recent skill or CLAUDE.md
 - It duplicates another agent file's purpose
+- Its frontmatter `model:` field names a retired/non-existent model ID (mechanically checkable — cross-check against the current model list; this is a real bug, not just a judgment call, so surface it prominently even though the fix itself still needs confirmation like everything else in this section)
 
 Do not delete agents automatically — just flag for review.
 
@@ -132,9 +145,11 @@ Group every finding into one of these categories:
 - `~/.agent-browser/tmp/screenshot-*.png` files (e2e scratch files; canonical copies are in the project's `e2e-screenshots/` folder)
 
 **STALE** — Files older than a set threshold with no clear active use. Show with age and size. Require confirmation per item or group before moving to Trash:
-- `todos/` JSON files older than 7 days (never delete todos without age filter — active session todos must survive)
-- `tasks/` session folders older than 7 days
+- `tasks/` session folders older than 7 days (active session task state — never delete without the age filter)
+- `session-env/` session folders older than 7 days
+- `jobs/` per-job folders older than 7 days (never touch `jobs/pins.json` — pinned/active-job index)
 - `paste-cache/` files older than 7 days
+- `cache/` files other than `changelog.md`, older than 14 days
 - Plan files older than 30 days
 - `~/.agent-browser/browsers/chrome-X.Y.Z/` directories that are not the newest — each is ~345 MB. After an `agent-browser` upgrade, old Chromium builds are never auto-removed. Confirm the newest build is working before trashing older ones.
 
@@ -182,7 +197,7 @@ Files confirmed replaced by newer equivalents:
 ---
 
 ### STALE (age threshold exceeded, requires confirmation)
-  [file path] ([size]) — last modified [date] · category: todos|tasks|paste-cache|plans|agent-browser-builds
+  [file path] ([size]) — last modified [date] · category: tasks|session-env|jobs|paste-cache|cache|plans|agent-browser-builds
   ...
 
 agent-browser builds (if multiple found):
@@ -264,6 +279,10 @@ These are off-limits regardless of age or apparent redundancy:
 - `plugins/` directory
 - `cache/changelog.md`
 - `keybindings.json`
+- `sessions/` (active session registry — small, not a growth source)
+- `jobs/pins.json` (pinned/active-job index — only the per-job dated folders are cleanup candidates)
+- `chrome/` (native messaging host config for the Chrome extension, not a cache)
+- `daemon/`, `.anthropic/` (currently empty on this machine; not log/cache dirs — re-evaluate only if they start accumulating)
 - Any file actively referenced in a current project's `CLAUDE.md`
 
 ---
@@ -282,5 +301,6 @@ After each housekeeping run, log the result here for trend tracking:
 | 2026-05-07 | 180 MB | 177 MB | ~3.1 MB — 1 ide lock, 1 shell snapshot, 1 file-history folder (3.1MB), 1 stale plan, 1 orphaned PNG (hayahailogo.png). Rebuilt 16 truncated skill.md files. Added _backups/ cleanup rule (14-day expiry). |
 | 2026-05-25 | 244 MB | 237 MB | ~7 MB — 17 .DS_Store, 1 ide lock, 2 shell snapshots, 35 file-history folders, 2 _backups folders (2026-05-07+08), 4 stale task folders, 1 orphaned skills/.vscode/ (Power Query IDE config). No debug/telemetry/statsig this run. |
 | 2026-06-06 | 181 MB | 172 MB | ~9 MB — 17 .DS_Store, 1 ide lock, 2 telemetry, 2 shell snapshots, 24 file-history folders, 2 stale task folders, 9 paste-cache files, 1 orphaned skills/.vscode/ (same one — wasn't cleaned May 25). |
+| 2026-07-03 | 184 MB | 173 MB | ~11 MB — 11 .DS_Store, 2 ide locks, 8 shell snapshots, 31 file-history folders, 3 stale task folders, 51 stale session-env folders (first run scanning this category — added this session), 2 stale job folders, 1 paste-cache file, 1 orphaned script (feature-dev/scripts/run_tests.sh, project-specific/unreferenced), 1 duplicate skills/.vscode/ removed (canonical copy already existed at ~/.claude/.vscode/ — resolves the repeat flag from 2026-05-25/06-06). Also fixed a stale model ID (claude-sonnet-4-6 → claude-sonnet-5) in secret-agent/team-orchestrator.md, missed by the earlier agents/ sweep because secret-agent/ is protected from automated edits. |
 
 Update this table after every run so you can track accumulation patterns over time.

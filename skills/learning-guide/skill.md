@@ -12,6 +12,8 @@ user-invocable: true
 
 Generates a self-paced, non-linear, interactive HTML learning guide for any subject. Output matches the style and interactivity of the hayah-ai Data Analyst Learning Guide: sidebar navigation, progress tracking, mobile-responsive, scrollspy, code blocks with language labels.
 
+**Built into the shell automatically (no authoring needed):** progress persists across reloads via `localStorage` (namespaced per guide); Placement Quiz sections get a live "Your score: X / N" badge; checklist items are wrapped in a full-line clickable `<label>` meeting WCAG 2.2's 24×24px target-size minimum (SC 2.5.8), not just the small checkbox glyph; a skip-to-content link for keyboard/screen-reader users (WCAG 2.4.1); a sidebar module search/filter box; and a print stylesheet for offline/PDF study copies.
+
 **Shell template:** `~/.claude/skills/learning-guide/assets/guide_shell.html`
 **Output location:** `/Volumes/1TB_SSD/projects-mvp-ext/learning-guides/<subject-slug>/<subject-slug>_learning_guide.html`
 
@@ -140,7 +142,7 @@ Open with the section heading (use this exact id), then add one quiz section per
 ```
 
 Each quiz section:
-- 4 yes/no checkbox items: `<li>[ ] I can...</li>` (the JS converts these to real checkboxes)
+- 4 yes/no checkbox items in a single `<ul>`: `<li>[ ] I can...</li>` (the shell JS converts these to real checkboxes wrapped in a full-line clickable `<label>`, and automatically injects a live "Your score: X / 4" badge after each `<ul>` — no extra markup needed to get this)
 - Items progress from beginner to intermediate skills
 - Scoring key immediately after: `<p><strong>0–1 yes</strong> → Start <strong>Module X.X</strong> | <strong>2–3 yes</strong> → Start <strong>Module Y.Y</strong> | <strong>4 yes</strong> → Skip to <strong>Phase Z</strong></p>`
 
@@ -307,9 +309,11 @@ The **Communities** group is the Wisdom layer — high-reputation forums, Discor
 
 **Critical:** The Progress Tracker must use real `<ul><li>[ ]</li></ul>` lists — NOT `<pre><code>` blocks. The JS converts these `<li>[ ]` items into checkboxes, and the sidebar "Module progress" meter counts ONLY the checkboxes that appear after the `#progress-tracker` heading. (Placement-quiz `<li>[ ]` items stay interactive but are excluded from the meter.) Putting the tracker in a `<pre>` block makes it inert and leaves the meter empty.
 
+Checked state now **persists automatically** via `localStorage`, namespaced per guide by `document.title` — the learner can close the file and reopen it days later without losing progress. This is a real downloaded HTML file opened via `file://`, not a sandboxed claude.ai artifact, so `localStorage` is available; no authoring changes are needed to get this, it's handled entirely by the shell JS.
+
 ```html
 <h2 id="progress-tracker">Progress Tracker</h2>
-<blockquote class="module-meta"><p>Check items off as you finish them — this checklist drives the <strong>Module progress</strong> meter in the sidebar. Progress is session-only and resets on reload.</p></blockquote>
+<blockquote class="module-meta"><p>Check items off as you finish them — this checklist drives the <strong>Module progress</strong> meter in the sidebar. Progress is saved automatically in this browser and persists across reloads — use "Reset progress" in the sidebar to clear it.</p></blockquote>
 <h4>Phase 1 — [NAME]</h4>
 <ul>
 <li>[ ] Module 1.1 — [Title]</li>
@@ -484,6 +488,12 @@ grep -c 'data-href="#module'         <file>   # must equal the module count
 grep -c 'class="hero-mark"' <file>   # must return 1
 grep -c '<svg'              <file>   # must return >= 2 (sidebar hayah logo + the subject mark)
 grep -c '#075249'           <file>   # must return >= 1 (mark is teal-toned, not brand colors)
+
+# Shell interactivity chrome carried over intact from the template (not authored per-guide,
+# but worth a cheap sanity check that the cp+Edit process didn't clobber the shell)
+grep -c 'class="skip-link"' <file>   # must return 1
+grep -c 'id="navSearch"'    <file>   # must return 1
+grep -c 'lg-progress:'      <file>   # must return 1 (localStorage persistence key)
 ```
 
 ### 6.4 Summary Output to User

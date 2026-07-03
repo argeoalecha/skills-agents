@@ -30,6 +30,17 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+
+/* ── Skip link (WCAG 2.4.1 Bypass Blocks) ──────────────────
+   Sighted keyboard/screen-reader users can skip the sidebar nav
+   entirely instead of tabbing through every module link first. */
+.skip-link{
+  position:absolute;top:-3rem;left:0;z-index:100;
+  background:var(--teal-deep);color:#fff;padding:.6rem 1.1rem;
+  border-radius:0 0 8px 0;text-decoration:none;
+  font-family:var(--mono);font-size:.8rem;transition:top .2s;
+}
+.skip-link:focus{top:0}
 body{
   margin:0;background:var(--paper);color:var(--ink);
   font-family:var(--sans);font-size:16px;line-height:1.65;
@@ -254,10 +265,46 @@ td code{font-size:.78em;white-space:nowrap}
 }
 .module-index-table tr[data-href]:hover td:first-child{text-decoration-color:var(--teal)}
 
-/* ── Checklist enhancement ──────────────────────────────── */
-.content ul li input[type=checkbox]{
-  margin-right:.5rem;accent-color:var(--teal);width:15px;height:15px;
-  vertical-align:-2px;cursor:pointer;
+/* ── Checklist enhancement ──────────────────────────────── *
+ * Checkbox + text are wrapped in one <label class="task-label">
+ * by the JS below, so the whole line is the click target — not
+ * just the 16px box. Meets WCAG 2.2 SC 2.5.8 (24x24 target size)
+ * via the label's hit area rather than the visual checkbox size. */
+.content li label.task-label{
+  display:flex;align-items:flex-start;gap:.55rem;cursor:pointer;
+  padding:.2rem 0;margin:-.2rem 0;
+}
+.content li label.task-label input[type=checkbox]{
+  margin:.2rem 0 0;flex-shrink:0;accent-color:var(--teal);
+  width:16px;height:16px;cursor:pointer;
+}
+
+/* ── Placement quiz: live score badge ──────────────────────
+   Injected by JS after each quiz <ul> — no authoring required. */
+.quiz-score{
+  display:inline-block;font-family:var(--mono);font-size:.76rem;
+  color:var(--teal-deep);background:var(--teal-wash);
+  padding:.3rem .75rem;border-radius:99px;margin:.2rem 0 1rem;
+}
+
+/* ── Sidebar module search/filter ──────────────────────────── */
+.nav-search-wrap{padding:.75rem 1.1rem .25rem}
+.nav-search{
+  width:100%;padding:.45rem .7rem;border:1px solid var(--line);
+  border-radius:8px;font-family:var(--sans);font-size:.8rem;
+  background:var(--paper);color:var(--ink);
+}
+.nav-search:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+.nav-child.filtered-out,.nav-top.filtered-out,.nav-group.filtered-out{display:none}
+
+/* ── Print (offline / PDF study copy) ──────────────────────── */
+@media print{
+  .menu-btn,.scrim,.sidebar,.totop,.skip-link{display:none}
+  .shell{display:block}
+  .content{max-width:100%;padding:0;margin:0}
+  a{color:inherit;text-decoration:underline}
+  pre,blockquote,table{break-inside:avoid}
+  h2,h3{break-after:avoid}
 }
 
 /* ── Footer ─────────────────────────────────────────────── */
@@ -314,6 +361,7 @@ dl.glossary .avoid strong{color:var(--coral);font-weight:600}
 </style>
 </head>
 <body>
+<a href="#content" class="skip-link">Skip to content</a>
 <button class="menu-btn" id="menuBtn" aria-label="Toggle navigation">☰</button>
 <div class="scrim" id="scrim"></div>
 
@@ -336,6 +384,9 @@ dl.glossary .avoid strong{color:var(--coral);font-weight:600}
       <div class="progress-label"><span>Module progress</span><b id="progPct">0%</b></div>
       <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
       <button class="progress-reset" id="progReset">Reset progress</button>
+    </div>
+    <div class="nav-search-wrap">
+      <input type="search" id="navSearch" class="nav-search" placeholder="Filter modules…" aria-label="Filter navigation">
     </div>
     <nav id="nav">
 {{NAV_TREE}}
@@ -376,6 +427,8 @@ dl.glossary .avoid strong{color:var(--coral);font-weight:600}
   });
 
   // ── Convert markdown task-list "[ ]" text into checkboxes ─
+  // Checkbox + remaining text are wrapped in one <label> so the whole
+  // line is clickable (WCAG 2.5.8 target size), not just the 16px box.
   document.querySelectorAll(".content li").forEach(function(li){
     var first = li.childNodes[0];
     if(first && first.nodeType===3){
@@ -386,17 +439,41 @@ dl.glossary .avoid strong{color:var(--coral);font-weight:600}
         first.nodeValue = t.replace(/^\s*\[( |x|X)\]\s?/,"");
         var cb=document.createElement("input");
         cb.type="checkbox"; cb.checked=checked; cb.className="task-cb";
-        li.insertBefore(cb, li.firstChild);
+        var label=document.createElement("label");
+        label.className="task-label";
+        while(li.firstChild){ label.appendChild(li.firstChild); }
+        label.insertBefore(cb, label.firstChild);
+        li.appendChild(label);
       }
     }
   });
 
-  // ── Progress tracking (in-memory, session only) ──────────
+  // ── Progress tracking (persisted per-guide via localStorage) ──
+  // These are downloaded standalone files opened via file://, not sandboxed
+  // claude.ai artifacts — localStorage works and survives reloads/re-opens.
+  // Namespaced by document.title so multiple guides in the same browser
+  // don't collide (some browsers share a single origin across file:// URLs).
+  var LS_KEY = "lg-progress:" + (document.title || location.pathname);
+  function loadProgress(){
+    try{ return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); }
+    catch(e){ return {}; } // storage disabled/unavailable — degrade to session-only
+  }
+  function saveProgress(map){
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(map)); }catch(e){}
+  }
+
   // The sidebar meter reflects ONLY the Progress Tracker checklist (real module
   // completion), not the Placement Quiz self-assessment. Placement-quiz boxes
-  // stay interactive but are excluded from the count.
-  var STORE = {}; // in-memory only (artifacts cannot use localStorage)
+  // stay interactive (and persist) but are excluded from the meter count.
   var allCb = Array.prototype.slice.call(document.querySelectorAll(".task-cb"));
+  allCb.forEach(function(c,i){ c.dataset.lgIdx = i; }); // stable per-guide key
+  var savedMap = loadProgress();
+  allCb.forEach(function(c){
+    if(Object.prototype.hasOwnProperty.call(savedMap, c.dataset.lgIdx)){
+      c.checked = !!savedMap[c.dataset.lgIdx];
+    }
+  });
+
   var ptHeading = document.getElementById("progress-tracker");
   var countedCb = ptHeading
     ? allCb.filter(function(c){
@@ -412,14 +489,70 @@ dl.glossary .avoid strong{color:var(--coral);font-weight:600}
     document.getElementById("progPct").textContent = pct+"%";
   }
   allCb.forEach(function(c){
-    c.addEventListener("change",function(){ updateProgress(); });
+    c.addEventListener("change",function(){
+      var map = loadProgress();
+      map[c.dataset.lgIdx] = c.checked;
+      saveProgress(map);
+      updateProgress();
+    });
   });
   updateProgress();
 
   document.getElementById("progReset").addEventListener("click",function(){
-    countedCb.forEach(function(c){c.checked=false});
+    var map = loadProgress();
+    countedCb.forEach(function(c){ c.checked=false; map[c.dataset.lgIdx]=false; });
+    saveProgress(map);
     updateProgress();
   });
+
+  // ── Placement Quiz: live score badge per section ──────────
+  // Purely additive DOM scan — no special authoring markup required.
+  // Scans every sibling between #placement-quiz and the next <h2>,
+  // and drops a live "Your score: X / N" badge after each quiz <ul>.
+  var pq = document.getElementById("placement-quiz");
+  if(pq){
+    var sib = pq.nextElementSibling;
+    while(sib && sib.tagName !== "H2"){
+      if(sib.tagName === "UL"){
+        (function(ul){
+          var boxes = Array.prototype.slice.call(ul.querySelectorAll('input[type=checkbox]'));
+          if(!boxes.length) return;
+          var badge = document.createElement("p");
+          badge.className = "quiz-score";
+          ul.insertAdjacentElement("afterend", badge);
+          function refresh(){
+            var done = boxes.filter(function(b){return b.checked}).length;
+            badge.textContent = "Your score: " + done + " / " + boxes.length;
+          }
+          boxes.forEach(function(b){ b.addEventListener("change", refresh); });
+          refresh();
+        })(sib);
+      }
+      sib = sib.nextElementSibling;
+    }
+  }
+
+  // ── Sidebar module search/filter ──────────────────────────
+  var navSearch = document.getElementById("navSearch");
+  if(navSearch){
+    navSearch.addEventListener("input",function(){
+      var q = this.value.trim().toLowerCase();
+      document.querySelectorAll(".nav-group").forEach(function(g){
+        var top = g.querySelector(".nav-top");
+        var anyMatch = !q || (top && top.textContent.toLowerCase().indexOf(q)>-1);
+        g.querySelectorAll(".nav-child").forEach(function(c){
+          var match = !q || c.textContent.toLowerCase().indexOf(q)>-1;
+          c.classList.toggle("filtered-out", !match);
+          if(match) anyMatch = true;
+        });
+        g.classList.toggle("filtered-out", !anyMatch);
+      });
+      document.querySelectorAll("#nav > a.nav-top").forEach(function(a){
+        var match = !q || a.textContent.toLowerCase().indexOf(q)>-1;
+        a.classList.toggle("filtered-out", !match);
+      });
+    });
+  }
 
   // ── Scrollspy: highlight active nav item ─────────────────
   var navLinks = Array.prototype.slice.call(document.querySelectorAll("#nav a"));

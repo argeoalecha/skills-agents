@@ -80,6 +80,9 @@ cat package.json | grep -E '"name"|"version"|"scripts"' 2>/dev/null | head -10
 
 # Current branch
 git log --oneline -5
+
+# OKF knowledge bundle, if this project keeps one
+ls okf/index.md 2>/dev/null && echo "OKF bundle present — read okf/index.md for curated project context"
 ```
 
 ---
@@ -110,6 +113,7 @@ Checkpoint: <fresh/stale/reconstructed>
 - Uncommitted changes: <yes/no — list files if yes>
 - TypeScript errors: <none / N errors>
 - Tests: <passing / failing / unknown>
+- OKF knowledge bundle: <present at okf/ — read before continuing / none>
 
 ### Blockers or Known Issues
 <any blockers from checkpoint or visible in code>

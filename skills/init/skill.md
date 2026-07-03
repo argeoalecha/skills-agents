@@ -113,6 +113,7 @@ After `/prd-tdd-writer` returns, tell the user:
 1. Skeleton created and committed at the project folder.
 2. `/prd-tdd-writer` has run — PRD / TDD / TODO are written.
 3. Next: build from the TODO — `/company-site` for a marketing site, `/feature-dev` for an app, stepped through the TODO. Run `/audit` before the first production deploy.
+4. Optional, as the codebase grows: `/okf-knowledge` to build an agent-readable docs bundle (`okf/`) that `/feature-dev` and the local agents (full-stack-developer, database-architect, integration-test-engineer) read before touching code. Not needed for a fresh skeleton — worth it once there's real architecture to document.
 
 ---
 

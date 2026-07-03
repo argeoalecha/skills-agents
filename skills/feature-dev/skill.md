@@ -27,6 +27,7 @@ Before writing any code:
 
 **Read context first:**
 - Read the project-level `CLAUDE.md` for conventions, stack decisions, and patterns
+- If `CLAUDE.md` points at an OKF knowledge bundle (`okf/index.md`), read the relevant concepts — it's curated architecture/schema/API truth, higher-signal than re-deriving from source
 - Read `references/architecture-workflow.md` for workspace-wide patterns
 - If a `TODO.md` or `PRD.md` exists, read it to understand the feature's place in the roadmap
 

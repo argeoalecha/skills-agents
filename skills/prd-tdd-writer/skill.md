@@ -32,7 +32,7 @@ If ambiguous, ask in one sentence before proceeding.
 
 1. **Identify doc type**: PRD (what + why), TDD (how), or both.
 2. **Identify project type**: web app, AI/agent/automation, or data product. This determines which TDD template to use.
-3. **Extract context.** First, if `docs/concept.md` exists in the project folder (it will when reached via `/init`), read it — it is the seed idea and the primary input. Then supplement from the conversation:
+3. **Extract context.** First, if `docs/concept.md` exists in the project folder (it will when reached via `/init`), read it — it is the seed idea and the primary input. For an existing project being re-spec'd, also check for an OKF knowledge bundle (`okf/index.md`) — read it before drafting so the TDD doesn't contradict already-documented architecture/schema decisions. Then supplement from the conversation:
    - Problem / goal
    - Target users / personas
    - Core features (MVP vs. later)

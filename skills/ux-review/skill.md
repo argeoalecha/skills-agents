@@ -1,6 +1,6 @@
 ---
 name: ux-review
-description: Heuristic UX evaluation for web apps. Reviews React/Next.js components and live pages against Nielsen's 10 usability heuristics, conversion friction, mobile responsiveness, copy clarity, error handling, empty/loading/success states, dark patterns, and Philippines mobile-market considerations. Produces UX_REVIEW.md with severity-graded findings and appends remediation tasks to TODO.md. Does NOT replace real user research — heuristic review only. Use when the user says "review UX", "usability check", "friction audit", "UX review", "review the signup flow", "is this confusing", "review mobile UX", "conversion review", or as a follow-up after /audit at pre-launch (Stage B). Triggers on /ux-review, "audit UX", "heuristic review".
+description: Heuristic UX evaluation for web apps. Reviews React/Next.js components and live pages against Nielsen's 10 usability heuristics, conversion friction, mobile responsiveness, copy clarity, error handling, empty/loading/success states, dark patterns, and Philippines mobile-market considerations. On public marketing pages, also reviews the on-page SEO and marketing surface — semantic heading structure, per-route metadata quality, Open Graph/social cards, structured data (JSON-LD), image alt text, layout-shift-causing styling (Core Web Vitals: LCP/CLS/INP causes), descriptive link text, and above-the-fold value proposition/CTA. Produces UX_REVIEW.md with severity-graded findings and appends remediation tasks to TODO.md. Does NOT replace real user research — heuristic review only; measured SEO/perf numbers come from /web-perf-audit. Use when the user says "review UX", "usability check", "friction audit", "UX review", "review the signup flow", "is this confusing", "review mobile UX", "conversion review", "review the landing page SEO surface", or as a follow-up after /audit at pre-launch (Stage B). Triggers on /ux-review, "audit UX", "heuristic review".
 ---
 
 # UX Review — Heuristic Evaluation
@@ -17,9 +17,10 @@ This skill cannot run real user research, A/B tests, or quantitative usage analy
 Phase 0 — Pre-flight       (target: live URL, dev server, or code-only)
 Phase 1 — Scope & Mode     (full app / flow / page / mobile-only)
 Phase 2 — Code Review      (read components, pages, layouts, copy)
-Phase 3 — Live Walk        (optional — browser-based via agent-browser)
+Phase 3 — Live Walk        (optional — browser walk via Chrome tools or agent-browser)
 Phase 4 — Heuristic Pass   (Nielsen 10 + dark patterns)
 Phase 5 — Mobile & PH      (responsiveness, copy, payment patterns, connectivity)
+Phase 5.5 — SEO & Marketing Surface (public/indexable pages only)
 Phase 6 — TODO Writeback   (append findings to TODO.md)
 Phase 7 — Recommendations  (priorities + handoff to /feature-dev)
 ```
@@ -118,7 +119,7 @@ If a live URL or dev server is available, use the browser tools to walk the in-s
 6. Capture console errors / warnings
 ```
 
-Use `mcp__claude-in-chrome__navigate`, `mcp__claude-in-chrome__form_input`, `mcp__claude-in-chrome__read_page`, `mcp__claude-in-chrome__resize_window` to perform the walk. Save screenshots to `.uxreview/screenshots/` for the report.
+Use `mcp__claude-in-chrome__navigate`, `mcp__claude-in-chrome__form_input`, `mcp__claude-in-chrome__read_page`, `mcp__claude-in-chrome__resize_window` to perform the walk. If the Chrome extension isn't connected, fall back to the `/agent-browser` CLI skill. Save screenshots to `.uxreview/screenshots/` for the report.
 
 ---
 
@@ -200,6 +201,44 @@ If the page is deployed, run `/web-perf-audit` against the live URL and cite its
 
 ---
 
+## Phase 5.5 — SEO & Marketing Surface (public/indexable pages only)
+
+Runs only on pages meant to be indexed — landing, marketing, pricing, blog, docs. Skip logged-in app surfaces (those should be `noindex` — flag if they aren't).
+
+**Division of labor:** this phase reviews the *rendered markup and content* — things visible in code and on the page. `/web-perf-audit` *measures* the HTTP layer (TTFB, JS weight, header/OG/sitemap presence, caching). Cite its numbers; don't re-measure here.
+
+### Semantic structure (SEO + a11y in one)
+- Exactly one `<h1>` per page; `h2`/`h3` nest logically with no skipped levels
+- Landmarks used: `<header>`, `<nav>`, `<main>`, `<footer>` — not div soup
+- Lists are `<ul>`/`<ol>`, navigation links are real `<a href>` (crawlable), never `<div onClick>`
+
+### Metadata quality (per route, not just presence)
+- Unique `title` (~50–60 chars) and `meta description` (~150–160 chars) per route via the Next.js Metadata API — flag duplicated or template-default values
+- Canonical URL set; no accidental duplicate-content routes
+- Open Graph + Twitter card with a real 1200×630 image — the social share preview is a marketing surface, not a checkbox
+
+### Structured data
+- JSON-LD where content matches: `Organization` or `LocalBusiness` (PH businesses: include address/geo), `Product`, `FAQPage`, `BreadcrumbList`
+- Structured data must mirror visible page content — never mark up content that isn't on the page
+
+### Styling that costs rankings (Core Web Vitals causes)
+LCP, CLS, and INP are ranking signals. This phase flags the *markup/styling causes*; measurement belongs to `/web-perf-audit`:
+- Images: `next/image` with `width`/`height` or `fill` (unsized media = CLS), meaningful `alt` text (not filenames), modern formats
+- Fonts via `next/font` (self-hosted, `font-display: swap`) — no render-blocking font CSS, no layout jump on font load
+- Skeletons/placeholders match final content dimensions — a skeleton that shifts layout is worse than none
+- No late-injected banners/toasts that push content down after load
+- Heavy hydration making taps unresponsive (INP) — observable in the live walk as dead taps in the first seconds
+
+### Marketing & conversion surface (above the fold)
+- Value proposition answers *what it is, who it's for, why it matters* within ~5 seconds — headline states a benefit, not a slogan
+- One visually dominant primary CTA; secondary actions clearly subordinate
+- Social proof (logos, counts, testimonials) near the CTA, specific over generic
+- Link/button copy is descriptive and action-oriented — "Get the free audit" beats "Click here" for both users and crawlers
+- Headings front-load meaningful keywords *naturally* — flag keyword stuffing as a finding, same severity as vague copy
+- Internal links connect related pages (no orphan marketing pages); footer carries the crawlable sitemap of key routes
+
+---
+
 ## Phase 6 — TODO Writeback (Auto)
 
 Append to `TODO.md` as a new phase. Always runs.
@@ -222,6 +261,9 @@ Mode: <Full / Flow / Page / Mobile / Heuristic>
 ### Medium (confusing but recoverable)
 - [ ] [UX] Currency shown as $ on a PH-targeted page — use ₱
 - [ ] [UX] No loading state on /api/trips fetch — blank for ~2s
+- [ ] [SEO] Landing page has three h1 elements — keep one, demote the rest
+- [ ] [SEO] Hero image missing width/height — layout shift on load (CLS)
+- [ ] [MKT] Above-the-fold headline is a slogan, not a value proposition
 
 ### Low (polish)
 - [ ] [UX] Button copy "Click here" → use action-oriented label
@@ -232,7 +274,7 @@ Rules:
 - Insert as new top-level Phase numbered after the highest existing phase
 - Preserve existing TODO content unchanged
 - Do not duplicate items (same `[CATEGORY] description — location`)
-- Use `[DARK-PATTERN]`, `[MOBILE]`, `[A11Y-OVERLAP]`, `[COPY]`, `[UX]` prefixes for filtering
+- Use `[DARK-PATTERN]`, `[MOBILE]`, `[A11Y-OVERLAP]`, `[COPY]`, `[UX]`, `[SEO]`, `[MKT]` prefixes for filtering
 
 ---
 
@@ -243,7 +285,7 @@ After analysis, output:
 ```
 Highest-impact fix: <single concrete change>
 Why: <one sentence on why this is highest-leverage — usually conversion or task completion>
-Skill: /feature-dev <on the UX TODO> | /audit re-run after fixes
+Skill: /ui-builder (visual/theme/copy-only fixes) | /feature-dev (fixes needing data or logic) | /audit re-run after fixes
 
 Suggested follow-up:
 - Real user testing with 5 users for the in-scope flow (Claude cannot do this — schedule it)
@@ -304,6 +346,14 @@ Reviewer: Claude Code (/ux-review)
 - Payment options: PASS / FAIL
 - Connectivity resilience: PASS / FAIL
 
+## SEO & Marketing Surface (public pages only — omit for app-only scope)
+- Semantic structure (single h1, landmarks, crawlable links): PASS / FAIL
+- Metadata quality (unique title/description, canonical, OG image): PASS / FAIL
+- Structured data (JSON-LD present and matching content): PASS / FAIL / N-A
+- CWV causes in styling (unsized media, font swap, layout shift): PASS / FAIL
+- Above-the-fold value prop + primary CTA: PASS / FAIL
+- Measured layer: see /web-perf-audit report dated <date> (or "not yet run")
+
 ## Dark Patterns Detected
 - <pattern> at <location>
 
@@ -323,7 +373,10 @@ Appended N items to TODO.md under "Phase X: UX Remediation (YYYY-MM-DD)"
 ## Integration Points
 
 - **Triggered by `/audit`** — Recommended Follow-ups at Stage B (pre-launch) and Stage C → D (post-launch optimization)
-- **Feeds `/feature-dev`** — UX Remediation TODO items become feature-dev inputs
+- **Pairs with `/web-perf-audit`** — this skill reviews the rendered markup/content surface; that skill measures TTFB, JS weight, headers, and OG/canonical/sitemap presence on the live URL. Run both on marketing sites; cross-reference findings.
+- **After `/company-site`** — run on the shipped site before launch: Phase 5.5 is written for exactly that surface
+- **Fed by `/ui-builder`** — reviews surfaces `/ui-builder` produces; purely visual/theme-level findings (tokens, component states, layout, copy) route back to `/ui-builder` for the fix
+- **Feeds `/feature-dev`** — UX Remediation TODO items needing data or logic changes become feature-dev inputs
 - **Verification via `/e2e-test`** — after fixes, run e2e to confirm flows still work
 - **Re-run after fixes** — `/ux-review` in re-test mode marks resolved items with `~~strikethrough~~`
 
@@ -339,7 +392,7 @@ Appended N items to TODO.md under "Phase X: UX Remediation (YYYY-MM-DD)"
 - **PH-market checks always run** for projects with PH context (per CLAUDE.md or PRD)
 - **TODO writeback always runs** — same closure-loop as `/audit` and `/load-test`
 - **Live walk preferred when available** — code review misses real interaction issues
-- **Do not propose visual redesigns inline** — surface findings, let `/feature-dev` plan the fix
+- **Do not propose visual redesigns inline** — surface findings, let `/ui-builder` (visual/theme) or `/feature-dev` (data-wired) plan the fix
 
 ---
 
@@ -352,5 +405,7 @@ Appended N items to TODO.md under "Phase X: UX Remediation (YYYY-MM-DD)"
 - Conversion optimization with test data — needs analytics, not heuristics
 - Accessibility deep audit — basic a11y is in `/audit` Sub-Agent E; full WCAG audit is a separate engagement
 - Information architecture redesign — heuristic review can flag IA pain, not redesign sitemaps
+- Keyword research, content strategy, backlinks / off-page SEO — Phase 5.5 covers the on-page surface only
+- Measured performance / header / caching audit — that's `/web-perf-audit`; don't duplicate its curl checks here
 
 If those are needed, surface as separate follow-up tasks in the report.

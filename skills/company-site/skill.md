@@ -446,7 +446,7 @@ When splitting the single-file artifact into proper components:
 - [ ] Test Turnstile / honeypot blocks bots
 - [ ] Verify consent checkbox is required and stored (`consent_dpa` column)
 
-For deeper review run `/audit` (security + compliance gates) and `/ph-dpa-compliance` before deployment. After the first production deploy, run `/web-perf-audit` against the live URL — it verifies delivered headers, TTFB, CDN caching, and DNS-level issues (double-proxy) that no pre-deploy check can see.
+For deeper review run `/audit` (security + compliance gates) and `/ph-dpa-compliance` before deployment. Run `/ux-review` on the shipped pages — its SEO & Marketing Surface phase (headings, metadata quality, structured data, CLS-causing styling, above-the-fold value prop) is written for exactly this kind of site. After the first production deploy, run `/web-perf-audit` against the live URL — it verifies delivered headers, TTFB, CDN caching, and DNS-level issues (double-proxy) that no pre-deploy check can see.
 
 ---
 

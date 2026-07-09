@@ -13,6 +13,7 @@ Reads the project's PRD and TDD, cross-references the current codebase and any e
 
 | Skill / Agent | What It Does | When to Use |
 |---|---|---|
+| `/brainstorm-ideas` | Diverge/converge ideation; ranks options (ICE/RICE/2×2) | Before docs exist, or to re-rank backlog scope |
 | `product-planner` (built-in agent) | Creates a plan and PRD from a vague idea | Before docs exist |
 | `/prd-tdd-writer` | Writes or reviews formal PRD and TDD documents | To spec or critique |
 | **`/plan-todo`** | **Reads PRD + TDD → ordered, refreshable TODO list** | **Any stage of development** |

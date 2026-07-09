@@ -13,6 +13,7 @@ Select the method that best matches the decision context.
 | Product features, roadmap, stakeholder-facing decisions | **RICE Framework** |
 | High-stakes decisions with multiple must-have criteria | **Kepner-Tregoe Decision Analysis** |
 | Visual mapping of effort vs. impact, quick team alignment | **2×2 Prioritization Matrix** |
+| Root-cause hypothesis triage (which cause to investigate first) | **2×2 Matrix** — Likelihood × Ease of verification |
 
 ---
 
@@ -188,3 +189,4 @@ LOW   │  FILL-INS          │  THANKLESS TASKS │
 | Strategic fit | Time to value | Roadmap planning |
 | Confidence | Impact | Experiment prioritization |
 | Urgency | Importance | Task management (Eisenhower Matrix variant) |
+| Likelihood | Ease of verification | Root-cause hypothesis triage — test high-likelihood, cheap-to-verify causes first |

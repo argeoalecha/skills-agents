@@ -25,7 +25,7 @@ The current working directory is the pre-created project folder. Confirm it, the
 
 1. **Project name** = the folder's own name (kebab-case). Do not ask.
 2. **Concept doc** — look for a concept file in the folder: any `.md`, or a single source/code file the user dropped in as the seed idea. Common names: `concept.md`, `idea.md`, `README.md`, `notes.md`, or a lone `.txt`/`.py`/`.ts`/`.jsx`.
-   - **If a concept doc is found:** read it. That is the input — no interview.
+   - **If a concept doc is found:** read it. That is the input — no interview. (A `/brainstorm-ideas` Recommendation block saved as a file counts as a concept doc.)
    - **If none is found:** ask the user one question — "What's the concept? One or two lines is enough." — then write their answer to `docs/concept.md` yourself and proceed. This is the only prompt `/init` ever issues.
 
 Do not ask for project type, theme variant, or deploy target. Those are decided downstream.

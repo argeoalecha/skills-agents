@@ -2,6 +2,9 @@
 name: learning-guide
 description: >
   Generates a comprehensive, interactive HTML learning guide for any subject or topic.
+  Verifies currency via web search before writing: latest stable tool versions, superseded
+  tools/patterns replaced, current book editions, live resources and communities, current
+  certification names — the guide teaches today's releases, not the model's cutoff.
   Triggers on /learning-guide, "generate a learning guide for", "create a learning guide",
   "build a study guide for", "make a learning path for", "create a course outline for".
   Asks clarifying questions if subject, level, or audience is ambiguous.
@@ -67,6 +70,25 @@ Before writing any HTML, determine and record internally:
 - **Phase count**: 3 for linear subjects, 4–5 for multi-track subjects
 - **Module count**: 8–18 total (2–6 per phase)
 - **Benchmark example**: ONE realistic, domain-authentic running example used in ALL exercises and capstones — a **dataset** for technical subjects ("Superstore Sales") or a **scenario / case** for business subjects ("FitForge, a $3,000 fitness offer"). One running example, every exercise.
+
+---
+
+## Phase 3.5 — Currency Research (REQUIRED before content generation)
+
+Guide content must reflect the **latest releases and current practice**, not the model's knowledge cutoff. Before writing any module, run **3–6 batched WebSearch queries** (not one per module — batch by category) to verify:
+
+1. **Tool versions** — current stable major version of every tool in the canonical tool list ("<tool> latest stable version <current year>"). Teach the current version's idioms; name the version in module content where it changes what the learner types (e.g., "Next.js 15 App Router", "React 19 Actions", "Python 3.13").
+2. **Superseded tools & patterns** — is anything in the planned tool list deprecated or displaced as the default choice? ("is <tool> still recommended <current year>", "<tool> vs successor"). Replace deprecated tools in the plan; if the industry is mid-migration, teach the current default and add a one-line note on the transition — don't teach both in depth.
+3. **Books** — latest edition and year for each Resources book; drop anything whose content is version-bound and stale (a 2019 framework book teaches a dead API).
+4. **Certifications** — current official name, track, and whether it's still offered (cert programs rename and retire constantly).
+5. **Resources & communities** — confirm each recommended online resource and community is alive and active; prefer official docs, then maintained courses, then high-reputation communities.
+
+**Rules:**
+- Prefer official release notes / docs over blog posts for version facts.
+- Record findings in the internal plan; the guide's content must not contradict them.
+- Add the verification date to the footer (see 4.12): content is date-stamped, not timeless.
+- If WebSearch is unavailable in the session, say so to the user, generate from model knowledge, and put an explicit caveat in the footer: "Not verified against releases after <model cutoff>."
+- Fast-moving subjects (JS frameworks, AI/ML tooling, cloud) get the full treatment. Slow-moving subjects (algebra, negotiation, creative writing) may skip version checks but still verify books/resources/communities.
 
 ---
 
@@ -303,6 +325,8 @@ Note for self-paced guides: unlike a teacher-led glossary that grows as a learne
 <table><tr><th>Community</th><th>Platform</th><th>Best for</th></tr><!-- 4–6 high-reputation forums/Discords/subreddits, each annotated --></table>
 ```
 
+Every row in these tables must have passed the Phase 3.5 currency check: books carry edition + year in the Title cell (e.g., "Designing Data-Intensive Applications, 2nd ed. (2025)"), online resources are alive and current, and no table recommends a deprecated tool.
+
 The **Communities** group is the Wisdom layer — high-reputation forums, Discords, or subreddits where the learner tests skills against real practitioners. Annotate each with what it is best for. Resources sub-headings are not in the nav, so their ids can follow whichever heading text the mode uses; the `<h2 id="resources">` heading text changes to "Learning Resources &amp; Communities" when a Communities group is present.
 
 ### 4.11 Progress Tracker
@@ -335,8 +359,11 @@ Checked state now **persists automatically** via `localStorage`, namespaced per 
 
 ```html
 <p><em>Guide Version 1.0 — <Subject> Track: <Level></em><br>
-<em>Non-linear modular design · Placement quiz · [N] modules · ~[X] weeks part-time · hayah-ai</em></p>
+<em>Non-linear modular design · Placement quiz · [N] modules · ~[X] weeks part-time · hayah-ai</em><br>
+<em>Tool versions and resources verified as of <YYYY-MM-DD></em></p>
 ```
+
+(If Phase 3.5 could not run, the last line instead reads: `Not verified against releases after <model cutoff> — check current versions before relying on tool-specific content`.)
 
 ---
 
@@ -433,7 +460,7 @@ For languages not already in the JS map (py, js, ts, sql, dax, m, excel, bash, m
 /Volumes/1TB_SSD/projects-mvp-ext/learning-guides/<subject-slug>/<subject-slug>_learning_guide.html
 ```
 
-Create the directory with `mkdir -p` before writing. If a file already exists at that path, ask the user: "A guide already exists at `<path>`. Overwrite, or save as `-v2`?"
+Create the directory with `mkdir -p` before writing. If `/Volumes/1TB_SSD` is not mounted (`ls /Volumes/1TB_SSD` fails), tell the user and fall back to `~/projects-mvp/learning-guides/<subject-slug>/` — don't fail silently or write into a phantom path. If a file already exists at that path, ask the user: "A guide already exists at `<path>`. Overwrite, or save as `-v2`?"
 
 ### 6.2 Write Order
 
@@ -494,6 +521,9 @@ grep -c '#075249'           <file>   # must return >= 1 (mark is teal-toned, not
 grep -c 'class="skip-link"' <file>   # must return 1
 grep -c 'id="navSearch"'    <file>   # must return 1
 grep -c 'lg-progress:'      <file>   # must return 1 (localStorage persistence key)
+
+# Currency footer present (Phase 3.5 ran, or its absence is disclosed)
+grep -cE 'verified as of|Not verified against releases' <file>   # must return >= 1
 ```
 
 ### 6.4 Summary Output to User
@@ -537,3 +567,4 @@ Before calling Write, verify ALL of the following:
 15. Presentation mode is consistent (Phase 3): a business/non-technical guide uses `.artifact` cards (not dark code terminals) for scripts/frameworks/templates, says "scenario/case" not "dataset", and uses produce/draft/role-play exercise verbs — and vice-versa for technical
 16. If a Glossary (4.9.5) is present: it uses `<dl class="glossary">` with the `<dt>` / `<dd>` / `<dd class="avoid">` triplet per term, has a matching `glossary` nav entry, and definitions state what each term IS in 1–2 sentences
 17. Optional learning callouts are within budget (Phase 4.7): roughly 2–4 retrieval prompts and 1–2 misconception callouts across the WHOLE guide — not one per module. If a Communities group is present, the Resources `<h2>` and its nav label both read "… &amp; Communities"
+18. Phase 3.5 currency research ran (or its absence is disclosed in the footer): no deprecated tool is taught as the default, tool versions are named where they change what the learner types, books carry edition + year, and the footer has the verification date line

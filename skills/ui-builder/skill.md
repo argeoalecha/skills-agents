@@ -165,7 +165,7 @@ For symbols/icons: keep geometric. Lucide-style or single-stroke abstractions. A
 
 ## Phase 4 — Layout Selection
 
-Pick one or compose multiple. Each layout maps to assets in `/theme-hayahai`'s `ui_kits/` (when using Hayah-AI) or generic patterns.
+Pick one or compose multiple. When using Hayah-AI, each layout maps to real assets in `/theme-hayahai`: `auth-pages/` (6 auth variants), `assets/showcase.html` (component showcase), `hayahai-design/project/colors_and_type.css` (tokens), and `references/` (palette + typography). Otherwise use generic patterns.
 
 ### Route to `/company-site` first if the request is "full company website"
 
@@ -183,7 +183,7 @@ When routing to `/company-site`, hand over the Phase 0–3 decisions (theme vari
 
 Sections in order:
 1. Nav (logo + 3–5 links + CTA)
-2. Hero (headline ≤ 10 words, sub ≤ 25 words, primary CTA + secondary)
+2. Hero (headline ≤ 10 words as the page's only `<h1>`, sub ≤ 25 words, primary CTA + secondary)
 3. Logo strip / social proof (5–8 logos or testimonial snippet)
 4. Feature grid (3 or 6 features — never 4 or 5)
 5. Long-form feature (one feature, full image + copy)
@@ -278,7 +278,10 @@ If any of these are absent in the generated UI, flag it before declaring the bui
 - Files match the export name
 - Components colocated with their route (`app/(marketing)/landing/page.tsx`) or under `components/<feature>/` for shared
 - All copy in JSX; no hardcoded English strings if i18n is set up
-- Use `next/image` for images, never `<img>` in Next.js
+- Use `next/image` for images (with `width`/`height` or `fill` — unsized media causes CLS), never `<img>` in Next.js
+- Fonts via `next/font`, never render-blocking font `<link>` tags
+- Semantic landmarks (`<header>`, `<nav>`, `<main>`, `<footer>`), exactly one `<h1>` per page, headings nest without skipped levels
+- Shipped marketing pages get a per-route Metadata API entry (unique title/description, canonical, OG image) and JSON-LD where content matches — `/ux-review` Phase 5.5 grades exactly this; build it in rather than fixing it after review
 - Lucide icons via `lucide-react`, not emoji
 - All forms use React Hook Form + Zod (per CLAUDE.md)
 
@@ -287,7 +290,7 @@ If any of these are absent in the generated UI, flag it before declaring the bui
 - Don't add framer-motion, gsap, or animation libraries unless the user explicitly wants animation beyond hover transitions
 - Don't add backwards-compat stubs for unused variants
 - Don't generate placeholder content longer than what the user provided — keep slots short ("Replace with your headline")
-- Don't add SEO `<meta>` tags unless this is a marketing page being shipped (defer to its production work)
+- Don't add SEO `<meta>` tags to mockups and HTML artifacts — but production marketing pages DO get their Metadata API entry (see Production code rules); the exemption is for throwaway previews only
 
 ---
 
@@ -304,6 +307,9 @@ Before declaring done:
 - [ ] Iconography from Lucide only (no mixed icon families)
 - [ ] If HTML artifact: opens cleanly in a browser
 - [ ] If production code: TypeScript compiles, no ESLint errors
+- [ ] If production marketing page: one `<h1>`, semantic landmarks, Metadata API entry, sized images — pre-empts `/ux-review` Phase 5.5
+
+This checklist is a smoke check, not a review. For anything shipping, run `/ux-review` on the built surface.
 
 If the user wants to iterate: open the artifact or dev server, point them at specific sections to adjust, take guided edits.
 
@@ -344,7 +350,7 @@ brand/
 - **Hands off to `/auth-page-scaffold`** — when the user wants auth pages with verification tests, not just static UI
 - **Hands off to `frontend-design:frontend-design`** — for distinctive, high-craft frontend code beyond standard component patterns
 - **Hands off to `/feature-dev`** — when the UI build needs to be wired to data, auth, and tested
-- **Feeds `/ux-review`** — once UI is built, run heuristic review before publication
+- **Feeds `/ux-review`** — once UI is built, run heuristic review before publication; on marketing surfaces its Phase 5.5 also grades the SEO & marketing surface (headings, metadata, structured data, CLS causes, value prop). `/ux-review` findings tagged `[UX]`/`[SEO]`/`[MKT]` that are purely visual/theme-level route back here for the fix; findings needing data or logic go to `/feature-dev`.
 
 ---
 

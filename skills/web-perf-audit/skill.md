@@ -76,10 +76,12 @@ For SEA/Philippine mobile audiences (a common target market), translate JS weigh
 | robots.txt AI-crawler policy | Cloudflare's managed robots blocks ClaudeBot/GPTBot/Google-Extended by default — surface it as a deliberate decision, not a default: blocking removes the site from AI search surfaces (Perplexity, ChatGPT browsing, AI Overviews) |
 | HTML cache-control | Flag `max-age=0, must-revalidate` on SSG/static pages; recommend `s-maxage` + `stale-while-revalidate` |
 
+This checklist verifies **presence** at the HTTP layer. On-page SEO **quality** — unique per-route titles/descriptions, heading hierarchy, structured data (JSON-LD), alt text, CLS-causing markup, above-the-fold value proposition — is `/ux-review` Phase 5.5. Run both on marketing sites; don't duplicate its checks here.
+
 ## Tooling fallbacks
 
 - **PageSpeed Insights API** is frequently quota-exhausted from shared environments (HTTP 429 with `quota_limit_value: 0`). Don't retry — the curl methodology gives equivalent actionable data.
-- **web_fetch on the site** may 403 (bot blocking). Plain curl usually still works.
+- **web_fetch on the site** may 403 (bot blocking). Plain curl usually still works. If `audit.sh` itself gets 403s, re-run the failing curl with a browser User-Agent (`-A "Mozilla/5.0 ..."`) before concluding the site is down.
 - **Lighthouse/headless Chrome** is unavailable in most sandboxes; this skill exists because of that. If the user has a browser, point them to PageSpeed Insights web UI for lab CWV to complement the curl data — but never block the audit on it.
 
 ## Report format
@@ -105,6 +107,26 @@ Rules:
 - Every fix gets the exact snippet for the **detected host** — not generic advice and not the wrong platform's config.
 - Re-checks: always show before→after deltas, explicitly call out regressions and unfixed items ("flagged N times now").
 - One audit history exists as a worked example: `references/case-study.md` (hayah-ai.com, 3 audits, Netlify+Cloudflare double-proxy → fix → cold-edge discovery). Read it when auditing sites built by the same developer/process, or as a template for tracking audit history on any site.
+
+## TODO writeback (project repos only)
+
+When the audited site's repo is the working directory (or the user owns it), append fix-needed findings to `TODO.md` as a new phase — same closure loop as `/audit`, `/load-test`, and `/ux-review`:
+
+```markdown
+## Phase X: Perf Remediation (YYYY-MM-DD)
+Source: web-perf-audit — <url>
+- [ ] [PERF] <finding> — <host-specific fix, one line>
+- [ ] [SEC-HEADER] <missing header> — add via <platform config file>
+```
+
+Skip writeback when auditing an external site you don't control (client intake, competitor) — the report is the deliverable there.
+
+## Integration points
+
+- **Fed by `/company-site`, `/vercel-deploy`, `/netlify-deploy`** — run against the live URL after first production deploy
+- **Pairs with `/ux-review`** — this skill measures the HTTP layer; its Phase 5.5 reviews the rendered markup/content. Findings here that need code changes (bundle bloat, unsized images found in local build audit) route to `/feature-dev` or `/ui-builder`
+- **Pairs with `/load-test`** — this skill measures single-request delivery; `/load-test` measures behavior under concurrency. TTFB fine here but slow in production → load problem, not delivery problem
+- **Feeds `/web-research`** — prospect-site audits become sales evidence in client intake reports
 
 ## Reference files
 

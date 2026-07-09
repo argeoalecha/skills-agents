@@ -8,7 +8,8 @@
 5. [Sign Out Helper](#sign-out)
 6. [Next.js App Router + NextAuth.js](#nextjs-nextauth) — stub, extend before use
 7. [React + Vite + Supabase](#react-vite) — stub, extend before use
-8. [Shared Zod Schema](#shared-zod-schema)
+8. [Next.js App Router + Supabase + Hayah-AI Design System](#nextjs-hayahai)
+9. [Shared Zod Schema](#shared-zod-schema)
 
 ---
 
@@ -394,7 +395,9 @@ export default function ForgotPasswordPage() {
 
   async function onSubmit(data: FormData) {
     await supabase.auth.resetPasswordForEmail(data.email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      // Route through /auth/callback so the code is exchanged for a session
+      // server-side before landing on /reset-password — updateUser needs it.
+      redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
     })
     // Always show success to prevent email enumeration.
     setSubmitted(true)
@@ -570,7 +573,7 @@ Differences vs. the Next.js variant:
 
 ## Next.js App Router + Supabase + Hayah-AI Design System {#nextjs-hayahai}
 
-Use this template when the project uses the Hayah-AI design system (see [Hayah-AI Detection in SKILL.md](../SKILL.md)). It produces a split-screen layout (left: branded dark-teal panel, right: form on cream) matching the `auth-classic` reference variant in `theme-hayahai/auth-pages/`.
+Use this template when the project uses the Hayah-AI design system (see Step 2 — Detect Design System in `../skill.md`). It produces a split-screen layout (left: branded dark-teal panel, right: form on cream) matching the `auth-classic` reference variant in `theme-hayahai/auth-pages/`.
 
 Color tokens used (all via Tailwind arbitrary values):
 

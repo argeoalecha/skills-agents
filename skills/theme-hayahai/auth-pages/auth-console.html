@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="console">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in · Hayah Console</title>
+  <meta name="description" content="Sign in to your workspace — Hayah Console, the app-UI variant." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600&family=Space+Grotesk:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal-900: #0a3d3a;
+      --teal-950: #0F3836;
+      --teal-700: #1C5753;
+      --teal-600: #1E6E66;
+      --teal-500: #25A497;
+      --teal-400: #A1E4DB;
+      --teal-200: #e8f4f1;
+      --mint-whisper: #F3FFF9;
+      --muted: #7a9b96;
+      --coral-500: #ff6b47;
+      --cream: #faf7f5;
+      --white: #ffffff;
+      --danger: #d63c2f;
+      --danger-text: #a32a1f;
+      --danger-bg: #fdeeec;
+      --border: rgba(10, 61, 58, 0.15);
+      --border-subtle: rgba(161, 228, 219, 0.4);
+      --r-md: 8px;
+      --r-lg: 12px;
+    }
+
+    html { height: 100%; }
+
+    body {
+      min-height: 100%;
+      font-family: 'Geist', system-ui, sans-serif;
+      font-size: 14px;
+      background: var(--cream);
+      color: var(--teal-900);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    /* Console has no hero — the sign-in is a quiet card, app chrome rules apply */
+    .auth-wrap { width: 100%; max-width: 380px; }
+
+    .logo { display: flex; justify-content: center; margin-bottom: 28px; }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      padding: 28px;
+      box-shadow: 0 1px 2px rgba(10, 61, 58, 0.05); /* xs only — app UI doesn't float */
+    }
+
+    .card h1 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+
+    .card .sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+    /* ── Status banner (demo of the semantic danger set) ───────── */
+    .banner {
+      display: none; /* shown by JS on failed submit */
+      align-items: flex-start;
+      gap: 8px;
+      background: var(--danger-bg);
+      border: 1px solid rgba(214, 60, 47, 0.3);
+      border-radius: var(--r-md);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--danger-text);
+      margin-bottom: 16px;
+    }
+    .banner.show { display: flex; }
+    .banner .dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--danger); margin-top: 6px; }
+
+    /* ── Form ───────────────────────────────────────────────────── */
+    .field { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--teal-700);
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      font: inherit;
+      font-size: 13px;
+      color: var(--teal-900);
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 8px 12px;
+      transition: border-color 150ms, box-shadow 150ms;
+    }
+    input::placeholder { color: var(--muted); }
+    input:focus {
+      outline: none;
+      border-color: var(--teal-500);
+      box-shadow: 0 0 0 3px rgba(37, 164, 151, 0.15);
+    }
+    .field.error input {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(214, 60, 47, 0.12);
+    }
+    .field .error-msg {
+      display: none;
+      font-size: 12px;
+      color: var(--danger-text);
+      margin-top: 6px;
+    }
+    .field.error .error-msg { display: block; }
+
+    .row-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .check { display: flex; align-items: center; gap: 8px; color: var(--teal-700); }
+    .check input {
+      width: 16px; height: 16px;
+      accent-color: var(--teal-500);
+      box-shadow: none;
+    }
+
+    a { color: var(--teal-600); text-decoration: none; font-weight: 500; }
+    a:hover { color: var(--teal-900); }
+    a:focus-visible { outline: 2px solid var(--teal-500); outline-offset: 2px; border-radius: 2px; }
+
+    /* ── Primary button + arc loader (the signature device) ────── */
+    button.primary {
+      position: relative;
+      width: 100%;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--cream);
+      background: var(--teal-900);
+      border: none;
+      border-radius: var(--r-md);
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 150ms;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 38px;
+    }
+    button.primary:hover { background: var(--teal-700); }
+    button.primary:active { background: var(--teal-950); }
+    button.primary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--cream), 0 0 0 4px var(--teal-500); }
+    button.primary:disabled { cursor: default; }
+
+    /* Arc loader: the logo's quarter-arc sweeping closed, coral dot leading */
+    .arc-loader { display: none; width: 18px; height: 18px; }
+    button.primary.loading .arc-loader { display: block; animation: arc-spin 0.9s linear infinite; }
+    button.primary.loading .btn-label { opacity: 0.7; }
+    @keyframes arc-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      button.primary.loading .arc-loader { animation-duration: 2.5s; }
+    }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--muted); font-size: 12px;
+      margin: 20px 0;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border-subtle);
+    }
+
+    button.secondary {
+      width: 100%;
+      font: inherit; font-size: 13px; font-weight: 500;
+      color: var(--teal-900);
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 9px 15px;
+      cursor: pointer;
+      transition: background 150ms;
+    }
+    button.secondary:hover { background: var(--mint-whisper); }
+    button.secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--teal-500); }
+
+    .foot {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 20px;
+    }
+
+    /* ── System status line (dot = status vocabulary) ──────────── */
+    .status-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .status-line .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--teal-600);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @media (prefers-reduced-motion: reduce) { .status-line .dot { animation: none; } }
+  </style>
+</head>
+<body>
+  <main class="auth-wrap">
+    <div class="logo">
+      <!-- Compact logo — light background -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 68" width="148" height="29" role="img" aria-label="Hayah-AI">
+        <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#0a3d3a" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+        <text x="68" y="48" font-family="DM Serif Display, Georgia, serif" font-size="44" font-weight="400" fill="#0a3d3a" letter-spacing="-1.2">hayah<tspan fill="#7a9b96">-</tspan><tspan fill="#ff6b47" font-style="italic">ai</tspan></text>
+      </svg>
+    </div>
+
+    <div class="card">
+      <h1>Sign in</h1>
+      <p class="sub">Use your work email to continue.</p>
+
+      <div class="banner" id="banner" role="alert">
+        <span class="dot" aria-hidden="true"></span>
+        <span>That email and password don't match. Check both and try again.</span>
+      </div>
+
+      <form id="login-form" novalidate>
+        <div class="field" id="field-email">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@company.com" autocomplete="email" required />
+          <p class="error-msg">Enter a valid email address.</p>
+        </div>
+
+        <div class="field" id="field-password">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required minlength="8" />
+          <p class="error-msg">Enter your password.</p>
+        </div>
+
+        <div class="row-between">
+          <label class="check"><input type="checkbox" name="remember" /> Remember me</label>
+          <a href="#forgot">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="primary" id="submit-btn">
+          <!-- Arc loader: brand arc + coral dot, hidden until loading -->
+          <svg class="arc-loader" viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#A1E4DB" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="52" cy="12" r="6" fill="#ff6b47"/>
+          </svg>
+          <span class="btn-label">Sign in</span>
+        </button>
+      </form>
+
+      <div class="divider">or</div>
+
+      <button type="button" class="secondary">Continue with Google</button>
+
+      <p class="foot">No account? <a href="#signup">Create one</a></p>
+    </div>
+
+    <div class="status-line">
+      <span class="dot" aria-hidden="true"></span>
+      <span>All systems operational</span>
+    </div>
+  </main>
+
+  <script>
+    // Static demo — wire to Supabase Auth, NextAuth, or your provider.
+    // Demonstrates the Console patterns: field-level errors, danger banner,
+    // arc-sweep loading state on the primary button.
+    const form = document.getElementById('login-form');
+    const banner = document.getElementById('banner');
+    const btn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      banner.classList.remove('show');
+
+      const email = document.getElementById('email');
+      const password = document.getElementById('password');
+      const emailField = document.getElementById('field-email');
+      const passwordField = document.getElementById('field-password');
+
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value);
+      emailField.classList.toggle('error', !emailOk);
+      passwordField.classList.toggle('error', !password.value);
+      if (!emailOk || !password.value) return;
+
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      // Simulated auth round-trip — replace with your provider call
+      setTimeout(() => {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+        banner.classList.add('show'); // demo: show the failure path
+      }, 1200);
+    });
+  </script>
+</body>
+</html>

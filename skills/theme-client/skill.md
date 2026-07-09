@@ -1,6 +1,6 @@
 ---
 name: theme-client
-description: Client brand intake skill. Converts a client brand brief (logo + 1–3 colors + optional fonts + mood) into a complete, project-scoped theme spec (theme.json, tokens.css, tailwind.config.js, logo SVGs, BRAND.md) stored under `<project-root>/brand/`. The output plugs into /web-dev, /ui-builder, and /auth-page-scaffold the same way /theme-hayahai does — same shape, different palette. Use at the start of any client engagement where the project must follow the client's brand instead of Hayah-AI's. Triggers on /theme-client, "set up the brand for this client", "we're building a site for X, here's their logo", "import client brand", "configure brand for project".
+description: Client brand intake skill. Converts a client brand brief (logo + 1–3 colors + optional fonts + mood) into a complete, project-scoped theme spec (theme.json, tokens.css, tailwind.config.js, logo SVGs, BRAND.md) stored under `<project-root>/brand/`. The output plugs into /company-site, /ui-builder, and /auth-page-scaffold the same way /theme-hayahai does — same shape, different palette. Use at the start of any client engagement where the project must follow the client's brand instead of Hayah-AI's. Triggers on /theme-client, "set up the brand for this client", "we're building a site for X, here's their logo", "import client brand", "configure brand for project".
 user-invocable: true
 ---
 
@@ -33,7 +33,7 @@ Output is written to **`<project-root>/brand/`**, not into this skill folder.
 | **`/theme-client`** (this) | **Per-client brand intake.** Generates a project-scoped theme spec. |
 | `document-skills:theme-factory` | One-off generic artifacts (slides, demos, internal docs). **Not** for client deliverables. |
 | `/ui-builder` Phase 1 | Routes "External client" requests here instead of an ad-hoc "Custom" path. |
-| `/web-dev` Phase 0 | Reads `<project-root>/brand/theme.json` instead of a Hayah variant when the project is client work. |
+| `/company-site` Phase 0 | Reads `<project-root>/brand/theme.json` instead of a Hayah variant when the project is client work. |
 | `/auth-page-scaffold` | Reads the same brand spec when generating auth pages. |
 
 ---
@@ -196,7 +196,7 @@ Write all files into `<project-root>/brand/`. Read the templates at `assets/them
 }
 ```
 
-This is the **same shape** `/web-dev` reads from `hayah-*.json` — drop-in compatible.
+This is the **same shape** `/company-site` reads from `hayah-*.json` — drop-in compatible.
 
 ### Logo handling
 
@@ -273,7 +273,7 @@ module.exports = {
 
 After files are written:
 
-### For `/web-dev`
+### For `/company-site`
 
 The reference templates (`template-industrial.jsx`, `template-saas.jsx`, `template-local-business.jsx`) all read from a `SITE_CONFIG.theme` block. Replace that block by reading `<project-root>/brand/theme.json`:
 

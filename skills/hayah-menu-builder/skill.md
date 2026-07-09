@@ -70,13 +70,13 @@ Turn any recipe or menu item into a single self-contained, interactive HTML page
 | Cream | `#f5efe4` | page background |
 | Card | `#fbf8f1` | cards |
 
-Type stack: **Playfair Display** (display/headings), **Inter** (body/UI), **JetBrains Mono** (eyebrows, amounts, labels). The template loads them from Google Fonts with a system-serif/sans fallback so it still renders offline.
+Type stack: **Fraunces** (display/headings — Coral variant, warm + approachable), **Outfit** (body/UI), **JetBrains Mono** (eyebrows, amounts, labels), **DM Serif Display** (logo wordmark via SVG text). The template loads them from Google Fonts with system-serif/sans fallbacks so it still renders offline.
 
-Logo: the embedded inline SVG in the template is the canonical arc-logomark + "hayah-ai" wordmark with the `` tagline. Do not substitute a raster image.
+Logo: the embedded inline SVG in the template is the canonical theme-hayahai compact nav logo — arc-mark (stroke `#0a3d3a`, `stroke-width="8"`), coral dot (`#ff6b47`), DM Serif Display wordmark with muted `-` and italic coral `ai`, and `lifestyle cooking` tagline below. Do not substitute a raster image or simplify the SVG text node.
 
 ## Guardrails
 
 - **Don't redesign the template** per request — keep brand consistency across every menu generated. Adjust only data and (if truly needed) accent hue via the documented CSS variables.
 - **Don't invent quantities** from a photo alone; verify with a search.
 - One dish per file. For a multi-item menu, generate one card section per dish using the repeatable pattern, or produce separate files and ask the user which they prefer.
-- Respect the brand: lowercase `hayah-ai`, coral `ai`, tagline `is cooking`.
+- Respect the brand: lowercase `hayah-ai`, coral italic `ai`, muted `-`, tagline `lifestyle cooking`.

@@ -1,7 +1,13 @@
 {
   "name": "Hayah Coral",
   "id": "hayah-coral",
-  "version": "2.0",
+  "version": "2.1",
+  "role": "The reef itself — where the life is. Warmth, color, and human energy.",
+  "signature": {
+    "wonkWord": "Fraunces ships a WONK variation axis (quirky alternate letterforms). Exactly one hero emphasis word gets \"fontVariationSettings\": \"'opsz' 144, 'WONK' 1\" — consumer warmth on a one-word budget. Never on body text, never on more than one word per page.",
+    "arcShapes": "Solid quarter-circle shapes (the logo arc, filled) in soft peach #ffb5a0 or pearl #e8f4f1 as section ornaments and image masks. The photo-led variant gets geometry from the brand mark, not just temperature.",
+    "imageryWash": "Brand wash for photography: deepen shadows toward teal (multiply rgba(10,61,58,0.15)), add a +10% warm highlight overlay (screen rgba(255,143,115,0.1)). Keeps photos warm-toned and high-contrast per the system imagery rule while making them recognizably Hayah. Mask in --r-xl rounds or arc quarter-circles."
+  },
   "description": "Inverted palette. Coral takes the lead as the primary brand color — bold hero sections, warm surface treatments, and an approachable energy that converts. Deep teal becomes the anchor for text and CTAs. A warmer, more human feel. Best for consumer-facing products, marketplaces, wellness, and e-commerce landing pages.",
   "mood": "Warm, approachable, energetic, trustworthy",
   "inspiration": "Shopify, Airbnb, consumer SaaS with warm brand identity",
@@ -28,6 +34,7 @@
       "card": "#ffffff",
       "cardWarm": "#fff5f2",
       "panel": "#ffb5a0",
+      "panelNotes": "panel #ffb5a0 is for decorative arc shapes and ornament fills ONLY — never a full surface behind text (fails AA against every text color)",
       "panelSubtle": "rgba(255, 181, 160, 0.2)",
       "overlay": "rgba(255, 107, 71, 0.05)"
     },
@@ -93,6 +100,10 @@
         "font": "Outfit", "fontSize": "16px", "fontWeight": 500
       }
     },
+    "shadowWarm": {
+      "value": "0 4px 20px rgba(125, 45, 21, 0.08)",
+      "notes": "Override for cards on warm/peach surfaces — the global teal-tinted shadows go muddy over peach. Use shadowWarm wherever the surface behind the card is cardWarm or panelSubtle."
+    },
     "card": {
       "default": {
         "bg": "#ffffff",
@@ -137,8 +148,13 @@
     "input": {
       "bg": "#ffffff", "border": "1.5px solid rgba(255, 181, 160, 0.5)",
       "borderFocus": "1.5px solid #ff6b47",
+      "borderError": "1.5px solid #d63c2f", "errorText": "#a32a1f",
       "borderRadius": "12px", "padding": "14px 16px",
       "font": "Outfit", "fontSize": "16px", "color": "#0a3d3a"
+    },
+    "rating": {
+      "starFilled": "#ff6b47", "starEmpty": "rgba(255, 181, 160, 0.4)",
+      "notes": "Marketplace/hospitality reviews — coral stars, peach-tint empties"
     }
   },
   "landingPageSections": {

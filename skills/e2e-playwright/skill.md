@@ -197,6 +197,18 @@ expect(response.status()).toBe(200);
 
 **Critical mistake:** `expect(await locator.textContent()).toBe('x')` resolves once with no retry. Use `await expect(locator).toHaveText('x')` instead.
 
+**ARIA snapshots (Playwright 1.5x+)** — for asserting a whole subtree's accessible structure at once instead of chaining many `getByRole()` assertions:
+
+```typescript
+await expect(page.getByRole('navigation')).toMatchAriaSnapshot(`
+  - navigation:
+    - link "Canvas"
+    - link "Settings"
+`);
+```
+
+Use it for structural checks on a component tree (nav, a data table's header row); still prefer targeted `getByRole()` assertions for single-element behavior — an ARIA snapshot that's too broad becomes as brittle as a DOM snapshot.
+
 ---
 
 ## Authentication
@@ -370,7 +382,7 @@ test('375px viewport has no horizontal scroll', async ({ page }) => {
 | `fixtures-deep-dive.md` | Worker-scoped, auto, option, typed fixtures, mergeTests |
 | `mocking-deep-dive.md` | HAR recording, conditional mocking, contract validation |
 | `common-pitfalls.md` | 20+ pitfalls with BAD/GOOD code examples |
-| `nextjs-deep-dive.md` | App Router, middleware, server actions, ISR, NextAuth |
+| `nextjs-deep-dive.md` | App Router, middleware/proxy (Next.js 16 rename), server actions, ISR, Auth.js/Better Auth |
 | `flaky-tests-deep-dive.md` | 4-category taxonomy, fix patterns, quarantine, prevention |
 | `debugging-deep-dive.md` | Systematic workflow, VS Code integration, anti-patterns |
 | `visual-regression-deep-dive.md` | `toHaveScreenshot()`, baselines, thresholds, masking |

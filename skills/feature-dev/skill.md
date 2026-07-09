@@ -27,6 +27,7 @@ Before writing any code:
 
 **Read context first:**
 - Read the project-level `CLAUDE.md` for conventions, stack decisions, and patterns
+- If `CLAUDE.md` points at an OKF knowledge bundle (`okf/index.md`), read the relevant concepts — it's curated architecture/schema/API truth, higher-signal than re-deriving from source
 - Read `references/architecture-workflow.md` for workspace-wide patterns
 - If a `TODO.md` or `PRD.md` exists, read it to understand the feature's place in the roadmap
 
@@ -45,6 +46,8 @@ Before writing any code:
 
 For complex features where scope needs formal alignment, use `/prd-tdd-writer` to produce a spec before proceeding.
 
+If the approach itself is genuinely open-ended — multiple viable architectures or product directions with no clear winner — run `/brainstorm-ideas` first and carry its Recommendation (top pick, constraints, rationale) into this phase as settled input.
+
 ---
 
 ## Phase 2 — Architecture Design
@@ -61,6 +64,9 @@ Produce an Architecture Decision Record (ADR) using `assets/adr-template.md` for
 - New tables? Use `/db-migrate` skill
 - New columns? Add migration with rollback SQL
 - RLS policies? Define them before implementing routes
+
+**Auth:**
+- Feature needs login/signup/reset pages or route protection? Use `/auth-page-scaffold` skill — don't hand-roll auth pages
 
 **API:**
 - New endpoints? Use `/api-new` skill

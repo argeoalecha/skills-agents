@@ -22,7 +22,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24   # current Active LTS — matches Next.js 16's 20+ floor and ESLint 10's ^20.19||^22.13||>=24 floor
           cache: 'npm'
 
       - name: Install dependencies
@@ -84,7 +84,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
       - run: npm ci
       - name: Cache Playwright browsers
@@ -119,7 +119,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
       - run: npm ci
 
@@ -176,7 +176,7 @@ stages:
 
 playwright:
   stage: test
-  image: mcr.microsoft.com/playwright:v1.50.0-noble
+  image: mcr.microsoft.com/playwright:v1.61.0-noble
   script:
     - npm ci
     - npx playwright test
@@ -192,6 +192,8 @@ playwright:
 ```
 
 **Docker image advantage:** `mcr.microsoft.com/playwright` includes browsers + system deps. No separate install step. Consistent font rendering across all runs.
+
+**Critical:** the image tag's version MUST match the `@playwright/test` version pinned in `package.json` exactly (e.g. `v1.61.0-noble` ↔ `"@playwright/test": "1.61.0"`). A mismatch throws browser protocol/executable errors that look like environment issues but are actually a version skew. Bump both together on every Playwright upgrade — never just one.
 
 ## Sharding Strategy
 
@@ -326,14 +328,14 @@ Use with caution — only for trusted contributors. Always review the diff in th
 docker run --rm \
   -v $(pwd):/work \
   -w /work \
-  mcr.microsoft.com/playwright:v1.50.0-noble \
+  mcr.microsoft.com/playwright:v1.61.0-noble \
   npx playwright test
 
 # Generate baselines in Docker (for CI consistency)
 docker run --rm \
   -v $(pwd):/work \
   -w /work \
-  mcr.microsoft.com/playwright:v1.50.0-noble \
+  mcr.microsoft.com/playwright:v1.61.0-noble \
   npx playwright test --update-snapshots
 ```
 
@@ -437,7 +439,7 @@ services:
       retries: 5
 
   e2e:
-    image: mcr.microsoft.com/playwright:v1.50.0-noble
+    image: mcr.microsoft.com/playwright:v1.61.0-noble
     depends_on:
       - app
     working_dir: /work

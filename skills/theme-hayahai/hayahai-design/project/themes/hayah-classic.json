@@ -1,10 +1,16 @@
 {
   "name": "Hayah Classic",
   "id": "hayah-classic",
-  "version": "2.0",
+  "version": "2.1",
   "description": "Refined foundation theme. Elegant serif display headers meet a clean humanist sans-serif body. Cream and pearl backgrounds with deep teal navigation and coral CTAs. Best for SaaS landing pages, professional services, and product marketing sites.",
   "mood": "Sophisticated, trustworthy, premium",
+  "role": "Calm shallows — the brand at rest. Clear water over sand: cream, pearl, deep teal.",
   "inspiration": "Editorial SaaS — think Linear, Notion, Vercel landing pages",
+  "signature": {
+    "italicEcho": "Exactly one italic DM Serif Display word per hero headline — the emphasis word, optionally coral #ff6b47. Echoes the wordmark's italic coral 'ai'. Never more than one italic word per display line.",
+    "arcOrnament": "Hero background ornament is the logo arc, not a gradient: the quarter-arc path (stroke #A1E4DB at 10% opacity, stroke-width scaled to ~80px) cropped at the hero's top-right or left edge, dot omitted. One arc per page maximum.",
+    "serifQuotes": "Testimonials open with an oversized DM Serif Display quotation mark — 120px, #A1E4DB at 20% opacity, positioned behind or above the quote text."
+  },
   "colors": {
     "brand": {
       "primary": "#0a3d3a",
@@ -62,6 +68,7 @@
       "bodySm": { "size": "14px", "lineHeight": "1.6", "weight": 400, "font": "Plus Jakarta Sans" },
       "caption": { "size": "12px", "lineHeight": "1.5", "weight": 500, "letterSpacing": "0.02em", "font": "Plus Jakarta Sans" },
       "label": { "size": "13px", "lineHeight": "1.4", "weight": 600, "letterSpacing": "0.06em", "font": "Plus Jakarta Sans", "textTransform": "uppercase" },
+      "metric": { "size": "56px", "lineHeight": "1.0", "weight": 400, "letterSpacing": "-0.02em", "font": "DM Serif Display", "notes": "Stat numbers in the serif are a Classic-only signature — Bento owns the grotesk metric voice" },
       "code": { "size": "14px", "lineHeight": "1.5", "weight": 400, "font": "JetBrains Mono" }
     }
   },
@@ -110,6 +117,7 @@
     "hero": {
       "bg": "#faf7f5",
       "accentBg": "linear-gradient(135deg, #F3FFF9 0%, #e8f4f1 100%)",
+      "arcOrnament": "see signature.arcOrnament — preferred over accentBg when the hero has no product screenshot",
       "eyebrowColor": "#1E6E66",
       "headlineColor": "#0a3d3a",
       "bodyColor": "#1C5753"
@@ -121,6 +129,7 @@
     },
     "input": {
       "bg": "#ffffff", "border": "1.5px solid #A1E4DB", "borderFocus": "1.5px solid #25A497",
+      "borderError": "1.5px solid #d63c2f", "errorText": "#a32a1f",
       "borderRadius": "10px", "padding": "14px 16px",
       "font": "Plus Jakarta Sans", "fontSize": "15px", "color": "#0a3d3a"
     }

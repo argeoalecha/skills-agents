@@ -1,10 +1,10 @@
 ---
-name: web-dev
-description: Full modern website generator. Phase A — produces a single-file React artifact (preview-ready, Hayah-AI themed) from a SITE_CONFIG interview. Phase B — explodes the artifact into a full Next.js 15 App Router + TypeScript + Tailwind CSS + Supabase project scaffold. Use when the user says "build a website", "create a landing page", "scaffold a company site", "web-dev", or invokes /web-dev. Not for individual UI components or dashboards — use /ui-builder for those.
+name: company-site
+description: Builds a company's public-facing marketing website — B2B agency/consulting, SaaS product landing, or local-business site — and ships it as a deployable Next.js project with lead-capture forms. Phase A produces a single-file React artifact (instant preview, Hayah-AI themed) from a SITE_CONFIG interview. Phase B explodes it into a full Next.js 15 App Router + TypeScript + Tailwind CSS + Supabase scaffold with contact/careers/newsletter forms, RLS, and security headers. Use when the user says "build a website", "company site", "marketing site", "create a landing page", "scaffold a company site", or invokes /company-site. NOT the logged-in app or dashboard (use /feature-dev), NOT individual UI components or mockups (use /ui-builder), NOT auth flows (use /auth-page-scaffold).
 user-invocable: true
 ---
 
-# Web-Dev — Modern Website Generator
+# /company-site — Company Website Builder
 
 Two-phase workflow:
 - **Phase A** — Interview → single-file React artifact (instant preview, Hayah themed)
@@ -14,7 +14,7 @@ Two-phase workflow:
 
 ## Skill Root
 
-All paths relative to: `~/.claude/skills/web-dev/`
+All paths relative to: `~/.claude/skills/company-site/`
 
 | Path | What it is |
 |---|---|
@@ -35,18 +35,18 @@ Client brand intake lives in `~/.claude/skills/theme-client/` — call it at pro
 
 ## Relationship with `/ui-builder`
 
-`/ui-builder` is the **branding + UI orchestration** entry point. `/web-dev` is the **full-stack company website pipeline**. They are composable, not redundant:
+`/ui-builder` is the **branding + UI orchestration** entry point. `/company-site` is the **full-stack company website pipeline**. They are composable, not redundant:
 
 | Need | Skill |
 |---|---|
-| Logo composition, tagline rubric (3 options + rationale), sub-brand mode, canonical Hayah-AI SVG | `/ui-builder` (Phase 3) — called from `/web-dev` Phase 0 |
+| Logo composition, tagline rubric (3 options + rationale), sub-brand mode, canonical Hayah-AI SVG | `/ui-builder` (Phase 3) — called from `/company-site` Phase 0 |
 | Landing-page **mockup** (HTML artifact, no DB, no forms wired) | `/ui-builder` (Phase 4 Landing layout) |
 | Dashboard / app shell / auth pages / isolated component | `/ui-builder` (stays there) |
-| **Full deployable company website** — artifact + Next.js scaffold + Supabase + RLS + security checklist | `/web-dev` (this skill) |
-| Dedicated `/login` route with verification tests | `/auth-page-scaffold` (not the admin modal in `/web-dev` templates) |
+| **Full deployable company website** — artifact + Next.js scaffold + Supabase + RLS + security checklist | `/company-site` (this skill) |
+| Dedicated `/login` route with verification tests | `/auth-page-scaffold` (not the admin modal in `/company-site` templates) |
 | **Client brand intake** (logo + 1–3 colors → theme.json + tokens.css + Tailwind config + BRAND.md) | `/theme-client` — called once at the start of any client project |
 
-**Rule:** when `/web-dev` Phase 0 reaches the Brand/Tagline fields, **invoke `/ui-builder` Phase 3** for the rubric and 3-option output instead of just asking for a string. Save the chosen tagline back into SITE_CONFIG.
+**Rule:** when `/company-site` Phase 0 reaches the Brand/Tagline fields, **invoke `/ui-builder` Phase 3** for the rubric and 3-option output instead of just asking for a string. Save the chosen tagline back into SITE_CONFIG.
 
 ---
 
@@ -117,10 +117,10 @@ Ask first: **whose brand is this?**
 | Mode | When | What to do |
 |---|---|---|
 | **Hayah-AI portfolio** | Project belongs to your own product suite (TripIntell, Hayah-AI SEO, levelup-crm, etc.) | Pick a Hayah variant (table below). Read the variant JSON from `/theme-hayahai`. |
-| **Client brand** | Building for a paying client (the bulk of `/web-dev` work) | Check for `<project-root>/brand/theme.json`. If absent, invoke **`/theme-client`** first to generate it. Then read it. |
+| **Client brand** | Building for a paying client (the bulk of `/company-site` work) | Check for `<project-root>/brand/theme.json`. If absent, invoke **`/theme-client`** first to generate it. Then read it. |
 | **Generic / unbranded** | Quick prototype, demo, internal tool | Pick a Hayah variant as a starting point — note it's placeholder branding. |
 
-**For Hayah-AI portfolio projects, present the five variants:**
+**For Hayah-AI portfolio projects, present the five marketing variants** (the sixth, hayah-console, is for logged-in app surfaces — admin panels and dashboards built after the site, not for the site itself):
 
 | Variant | Mood | Best for |
 |---|---|---|
@@ -225,9 +225,9 @@ Always include the mock client (identical to the industrial template pattern):
 
 After delivering the artifact, always offer:
 
-> "Want me to scaffold this into a full Next.js 15 project? Run `/web-dev scaffold` to explode it into proper files."
+> "Want me to scaffold this into a full Next.js 15 project? Run `/company-site scaffold` to explode it into proper files."
 
-The user triggers Phase B by saying "scaffold", "yes scaffold", or `/web-dev scaffold`.
+The user triggers Phase B by saying "scaffold", "yes scaffold", or `/company-site scaffold`.
 
 ---
 
@@ -446,7 +446,7 @@ When splitting the single-file artifact into proper components:
 - [ ] Test Turnstile / honeypot blocks bots
 - [ ] Verify consent checkbox is required and stored (`consent_dpa` column)
 
-For deeper review run `/audit` (security + compliance gates) and `/ph-dpa-compliance` before deployment. After the first production deploy, run `/web-perf-audit` against the live URL — it verifies delivered headers, TTFB, CDN caching, and DNS-level issues (double-proxy) that no pre-deploy check can see.
+For deeper review run `/audit` (security + compliance gates) and `/ph-dpa-compliance` before deployment. Run `/ux-review` on the shipped pages — its SEO & Marketing Surface phase (headings, metadata quality, structured data, CLS-causing styling, above-the-fold value prop) is written for exactly this kind of site. After the first production deploy, run `/web-perf-audit` against the live URL — it verifies delivered headers, TTFB, CDN caching, and DNS-level issues (double-proxy) that no pre-deploy check can see.
 
 ---
 

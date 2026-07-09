@@ -52,9 +52,11 @@ for h in content-security-policy strict-transport-security x-frame-options x-con
 done
 
 echo ""
-echo "=== 4. Redirects ==="
-curl -sIL --max-time 10 -w "  www → status %{http_code}, final: %{url_effective}\n" "https://www.$HOST" -o /dev/null 2>/dev/null || echo "  www → FAILED (DNS gap?)"
-curl -sI  --max-time 10 -w "  http → status %{http_code}\n" "http://$HOST" -o /dev/null
+echo "=== 4. Redirects (www ↔ apex, http → https) ==="
+APEX=${HOST#www.}
+curl -sIL --max-time 10 -w "  www  → status %{http_code}, final: %{url_effective}\n" "https://www.$APEX" -o /dev/null 2>/dev/null || echo "  www  → FAILED (DNS gap?)"
+curl -sIL --max-time 10 -w "  apex → status %{http_code}, final: %{url_effective}\n" "https://$APEX" -o /dev/null 2>/dev/null || echo "  apex → FAILED (DNS gap?)"
+curl -sI  --max-time 10 -w "  http → status %{http_code}\n" "http://$APEX" -o /dev/null
 
 echo ""
 echo "=== 5. HTML payload ==="

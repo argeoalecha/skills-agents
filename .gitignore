@@ -1,4 +1,6 @@
-# Track only skills/ and agents/ — everything else is personal config or ephemeral
+# Track only skills/ — everything else is personal config, ephemeral, or
+# potentially confidential (agents/ intentionally excluded since 2026-07-03 —
+# stays local-only, was scrubbed from GitHub history)
 
 # Ignore everything by default
 *
@@ -7,5 +9,3 @@
 !.gitignore
 !skills/
 !skills/**
-!agents/
-!agents/**

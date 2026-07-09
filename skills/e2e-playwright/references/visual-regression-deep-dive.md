@@ -186,7 +186,7 @@ tests/e2e/homepage.spec.ts-snapshots/
 Generate Linux baselines in Docker:
 
 ```bash
-docker run --rm -v $(pwd):/work -w /work mcr.microsoft.com/playwright:v1.50.0-noble \
+docker run --rm -v $(pwd):/work -w /work mcr.microsoft.com/playwright:v1.61.0-noble \
   npx playwright test --update-snapshots
 ```
 
@@ -196,7 +196,7 @@ Run ALL visual regression tests in Docker, locally and in CI:
 
 ```bash
 # Local
-docker run --rm -v $(pwd):/work -w /work mcr.microsoft.com/playwright:v1.50.0-noble \
+docker run --rm -v $(pwd):/work -w /work mcr.microsoft.com/playwright:v1.61.0-noble \
   npx playwright test tests/e2e/visual/
 
 # CI — already Linux, just match the image version

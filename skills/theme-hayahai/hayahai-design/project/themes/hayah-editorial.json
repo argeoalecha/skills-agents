@@ -1,7 +1,13 @@
 {
   "name": "Hayah Editorial",
   "id": "hayah-editorial",
-  "version": "2.0",
+  "version": "2.1",
+  "role": "The field journal — observations recorded with authority. Apparatus, not decoration.",
+  "signature": {
+    "marginalia": "True editorial apparatus, used only when content is genuinely referential: section numbers set in the margin (Clash Display 14px, #7a9b96), footnote-style asides in JetBrains Mono 12px below a 1px hairline, source citations under figures. Structure must encode something real — no decorative numbering.",
+    "markerUnderline": "The hero accent word gets a print-marker underline instead of a color swap: text-decoration: underline 6px #ff6b47; text-underline-offset: 8px; text-decoration-skip-ink: none.",
+    "dropCap": "Long-form articles open with a Clash Display drop cap: float left, 3 lines tall, weight 600, #0F3836. One per article, first paragraph only."
+  },
   "description": "Text-forward, brutally confident editorial design. Oversized display type dominates the hierarchy. Generous white space with strategic teal blocks and coral highlights. Minimal decoration — the typography IS the design. Best for thought leadership platforms, premium product launches, B2B SaaS hero sections, and high-conversion landing pages.",
   "mood": "Bold, authoritative, confident, contemporary",
   "inspiration": "Pitch.com, Raycast, Resend.com — editorial meets modern SaaS",
@@ -129,10 +135,22 @@
       "bg": "#ffffff",
       "topRule": "4px solid #0F3836",
       "headlineColor": "#0F3836",
-      "accentWord": "#ff6b47",
+      "accentWord": "see signature.markerUnderline — 6px coral underline, not a color swap",
       "bodyColor": "#1C5753",
       "layout": "left-aligned, full-width headline spanning 2 columns",
       "padding": "160px 0 120px"
+    },
+    "figure": {
+      "image": "full column width, 0px radius",
+      "rule": "1px solid #0F3836 below image",
+      "caption": { "font": "Satoshi", "size": "12px", "weight": 500, "color": "#7a9b96", "padding": "8px 0 0" },
+      "source": { "font": "JetBrains Mono", "size": "11px", "color": "#7a9b96", "prefix": "Source: " },
+      "notes": "An editorial theme with no figure spec is a newspaper with no photos"
+    },
+    "grid": {
+      "columns": 12,
+      "gutter": "24px",
+      "columnRules": "optional 1px solid #e8f4f1 between columns for the broadsheet feel — use on index/archive pages, not articles"
     },
     "badge": {
       "default": { "bg": "transparent", "text": "#0F3836", "border": "1.5px solid #0F3836", "borderRadius": "0px" },
@@ -142,6 +160,7 @@
     "input": {
       "bg": "#ffffff", "border": "2px solid #0F3836",
       "borderFocus": "2px solid #ff6b47",
+      "borderError": "2px solid #d63c2f", "errorText": "#a32a1f",
       "borderRadius": "0px", "padding": "14px 16px",
       "font": "Satoshi", "fontSize": "16px", "color": "#0F3836"
     },

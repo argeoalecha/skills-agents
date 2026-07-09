@@ -1,25 +1,29 @@
 ---
 name: theme-hayahai
-description: Hayah-AI design system — five branded theme variants sharing one ocean-teal + coral palette. Use for landing pages, dashboards, SaaS, auth pages, presentations, or any branded UI. Variants — hayah-classic (refined SaaS, DM Serif), hayah-midnight (dark AI/fintech, Syne), hayah-coral (warm consumer/marketplace, Fraunces), hayah-editorial (bold B2B text-led, Clash Display), hayah-bento (modern grid AI, Space Grotesk). Outputs: HTML artifacts, production CSS/React, or Tailwind token configs.
+description: Hayah-AI design system — six branded theme variants sharing one ocean-teal + coral palette. Use for landing pages, dashboards, SaaS, auth pages, presentations, or any branded UI. Variants — hayah-classic (refined SaaS, DM Serif), hayah-midnight (dark AI/fintech, Syne), hayah-coral (warm consumer/marketplace, Fraunces), hayah-editorial (bold B2B text-led, Clash Display), hayah-bento (modern grid AI, Space Grotesk), hayah-console (dense app UI — CRM/dashboard/admin, status colors + data-viz + tables). Outputs: HTML artifacts, production CSS/React, or Tailwind token configs.
 user-invocable: true
 ---
 
 # Hayah-AI Theme System
 
-Five themes, one core palette (deep teal `#0a3d3a`, aqua `#25A497`, coral `#ff6b47`, cream `#faf7f5`). Switch via `<html data-theme="classic|coral|editorial|bento|midnight">`.
+Six themes, one core palette (deep teal `#0a3d3a`, aqua `#25A497`, coral `#ff6b47`, cream `#faf7f5`). Switch via `<html data-theme="classic|coral|editorial|bento|midnight|console">`.
 
-This is the **asset and rules layer** — tokens, JSONs, logo SVG, ui_kits, auth-page templates, voice / animation / typography rules. It is the **single source of truth** for the Hayah-AI brand. Orchestration belongs in `/ui-builder`; full-stack site delivery belongs in `/web-dev`.
+**The story:** "hayah" means *life*, and the palette is a coral reef — deep ocean teal, living coral, aqua shallows, cream sand. Each variant is a view of the same reef (roles in each JSON's `role` field).
+
+**The signature device:** the logo's arc + coral dot work beyond the logo — arc as hero/section ornament (mint, 8–12% opacity, replaces generic gradient washes), dot as status/list marker, arc sweep as the system's circular progress/loader. Each variant JSON carries its own `signature` block — read it before generating.
+
+This is the **asset and rules layer** — tokens, JSONs, logo SVG, ui_kits, auth-page templates, voice / animation / typography rules. It is the **single source of truth** for the Hayah-AI brand. Orchestration belongs in `/ui-builder`; full-stack site delivery belongs in `/company-site`.
 
 ---
 
-## Relationship with `/ui-builder`, `/web-dev`, and `/theme-client`
+## Relationship with `/ui-builder`, `/company-site`, and `/theme-client`
 
 | If the user wants… | Skill that owns it |
 |---|---|
 | Palette, type scale, theme JSON, logo SVG, auth-page HTML, atomic component patterns — **Hayah-AI portfolio** | **`/theme-hayahai`** (this skill) — read the asset directly |
 | Same shape, but **for a paying client** (not Hayah-AI) | **`/theme-client`** — the parallel intake skill. Generates `<project-root>/brand/theme.json` from a client brief, drop-in compatible with everything that reads Hayah variants. |
 | Pick a theme variant, compose a logo + tagline, choose a layout, build a dashboard / app shell / single component | `/ui-builder` (calls into this skill for assets) |
-| Build a deployable company website (artifact → Next.js + Supabase + RLS + DPA + security) | `/web-dev` (calls into this skill for theme JSON + logo SVG) |
+| Build a deployable company website (artifact → Next.js + Supabase + RLS + DPA + security) | `/company-site` (calls into this skill for theme JSON + logo SVG) |
 | `/login` route with verification tests | `/auth-page-scaffold` (uses `auth-pages/` here as a starting template) |
 
 **Asset granularity reference:**
@@ -29,9 +33,9 @@ This is the **asset and rules layer** — tokens, JSONs, logo SVG, ui_kits, auth
 | `hayahai-design/project/ui_kits/landing/{Nav,Hero,Features,Sections}.jsx` | **Atomic** branded patterns. Use when composing a custom one-off page. |
 | `hayahai-design/project/ui_kits/app/{Shell,Screens,Icon}.jsx` | App-shell atomic patterns. Use when building dashboards / app chrome. |
 | `auth-pages/auth-{variant}.html` | Static auth-page starting points. Copy + wire to your auth provider. |
-| `~/.claude/skills/web-dev/references/template-*.jsx` | **Composed full-site templates** (industrial / SaaS / local business). Pre-wired with Supabase + DPA + 9 sections per vertical. Owned by `/web-dev`. |
+| `~/.claude/skills/company-site/references/template-*.jsx` | **Composed full-site templates** (industrial / SaaS / local business). Pre-wired with Supabase + DPA + 9 sections per vertical. Owned by `/company-site`. |
 
-**Variant decision table:** the one in the **Theme Variants** section below is **canonical**. `/ui-builder` Phase 2 and `/web-dev` Phase 0 reference it — do not maintain parallel "best for" wording elsewhere.
+**Variant decision table:** the one in the **Theme Variants** section below is **canonical**. `/ui-builder` Phase 2 and `/company-site` Phase 0 reference it — do not maintain parallel "best for" wording elsewhere.
 
 ---
 
@@ -64,13 +68,13 @@ If the request goes beyond raw assets, route to the right orchestration skill be
 | Signal | Route |
 |---|---|
 | "Build a UI", "design a page", "compose a logo + tagline", "what theme should I use", "design the dashboard" | **`/ui-builder`** owns the orchestration. Hand over. |
-| "Build a website", "scaffold a company site", "I need a landing + contact form + database" | **`/web-dev`** owns the artifact → Next.js + Supabase pipeline. Hand over. |
+| "Build a website", "scaffold a company site", "I need a landing + contact form + database" | **`/company-site`** owns the artifact → Next.js + Supabase pipeline. Hand over. |
 | "I just need the palette / fonts / logo SVG / a theme JSON / an auth page template" | **Stay here** — read the asset and return it. |
 
 ### If staying — ask the three-question interview
 
 1. **What asset?** Palette · Type scale · Theme JSON · Logo SVG · Auth page · UI kit pattern · Tailwind config
-2. **Which theme variant?** Classic · Coral · Editorial · Bento · Midnight (or "recommend one")
+2. **Which theme variant?** Classic · Coral · Editorial · Bento · Midnight · Console (or "recommend one" — app screens always get Console)
 3. **Output target?** HTML artifact · Production CSS / React / Vue · Tailwind config · Raw values
 
 Then:
@@ -83,7 +87,7 @@ Then:
 
 ## Theme Variants
 
-> **Canonical "Best For" table.** `/ui-builder` Phase 2 and `/web-dev` Phase 0 defer to the wording below. If you need to change a variant's positioning, change it here — do not edit the parallel tables in the sibling skills.
+> **Canonical "Best For" table.** `/ui-builder` Phase 2 and `/company-site` Phase 0 defer to the wording below. If you need to change a variant's positioning, change it here — do not edit the parallel tables in the sibling skills.
 
 | Variant | JSON | Best For | Display Font | Body Font | Mood |
 |---|---|---|---|---|---|
@@ -92,10 +96,13 @@ Then:
 | **Coral** | `hayah-coral.json` | Marketplaces, consumer apps, wellness, hospitality, travel, local service businesses | Fraunces | Outfit | Warm, approachable |
 | **Editorial** | `hayah-editorial.json` | B2B thought leadership, premium launches. Sharp 0px corners — most distinctive. | Clash Display | Satoshi | Bold, authoritative |
 | **Bento** | `hayah-bento.json` | AI / tech SaaS with multi-feature surface (3+ featured capabilities), developer tools | Space Grotesk | Geist | Innovative, dynamic |
+| **Console** | `hayah-console.json` | **App/product UI** — CRM, dashboards, admin panels, client portals, internal tools. The only variant with semantic status colors, data-viz palette, table + shell tokens, 4px grid. | none — Geist 600 titles (Space Grotesk metrics only) | Geist | Precise, calm, legible |
 
-Mood → variant mapping for ambiguous requests: Sophisticated → Classic · Powerful → Midnight · Warm → Coral · Authoritative → Editorial · Innovative → Bento.
+Mood → variant mapping for ambiguous requests: Sophisticated → Classic · Powerful → Midnight · Warm → Coral · Authoritative → Editorial · Innovative → Bento · **App screen (any mood) → Console**.
 
-Each JSON contains: `colors`, `typography` (with `googleFontsUrl` and full scale), `components`, `landingPageSections`, `spacing`. Bento JSONs additionally contain `bentoGrid.cards` with layout types (`hero-large`, `feature`, `metric`, `highlight`, `glass`).
+**Marketing page vs. product screen is the first routing question.** Landing/marketing → pick by mood. Logged-in app surface → Console, regardless of mood.
+
+Each JSON contains: `colors`, `typography` (with `googleFontsUrl` and full scale), `components`, `landingPageSections`, `spacing`, and a `signature` block (the variant's ownable moves — read it before generating). Bento JSONs additionally contain `bentoGrid.cards` with layout types (`hero-large`, `feature`, `metric`, `highlight`, `glass`, `demo`, `integration`, `comparison`). Console additionally contains `colors.status` (semantic triplets), `colors.dataViz`, `components.table`, and `components.shell`.
 
 ---
 
@@ -106,11 +113,16 @@ Each JSON contains: `colors`, `typography` (with `googleFontsUrl` and full scale
 **Accents** — Aqua `#25A497` · Ocean `#1E6E66` · Mint `#A1E4DB` · Sage `#7a9b96`
 **Backgrounds** — Cream `#faf7f5` · Pearl `#e8f4f1` · Mint Whisper `#F3FFF9`
 
+**Semantic status** (Console-first; any variant rendering app states uses these) — success `#1E6E66` · info `#25A497` · warning `#c77b1e` · danger `#d63c2f` · neutral `#7a9b96` · live = coral dot `#ff6b47` with pulse. Full text/bg/border triplets in `hayah-console.json` `colors.status`. Status is never color alone — always dot + label.
+
+**Data-viz** (charts anywhere in the suite) — categorical order fixed: `#25A497 #ff6b47 #1E6E66 #ffb5a0 #7a9b96 #A1E4DB`. Sequential and diverging ramps in `hayah-console.json` `colors.dataViz`.
+
 **Rules:**
 - Light themes: page bg cream `#faf7f5`. Editorial uses pure white. Midnight uses `#0F3836`. **Never pure white** elsewhere.
 - Text on light: `#0a3d3a` (not black). Text on dark: `#faf7f5` (not white).
 - Coral and aqua never share the same hierarchy weight — one leads, the other supports.
 - CTAs always get a colored shadow (`--shadow-coral` or `--shadow-teal`). Cards use neutral shadows only.
+- Danger is red-shifted coral, never the CTA coral itself — `#d63c2f` vs `#ff6b47`. The pure coral dot is reserved for live states (it is the logo dot).
 
 Full guidelines and contrast ratios: `references/color-palette.md`.
 
@@ -125,6 +137,7 @@ Full guidelines and contrast ratios: `references/color-palette.md`.
 | Coral | Fraunces | Outfit | JetBrains Mono |
 | Editorial | Clash Display (Fontshare) | Satoshi (Fontshare) | JetBrains Mono |
 | Bento | Space Grotesk | Geist | JetBrains Mono |
+| Console | none — Geist 600 titles; Space Grotesk for metrics only | Geist | JetBrains Mono |
 
 **Rules:**
 - Display goes big — hero up to 96px (Editorial). Always pair with negative letter-spacing `-0.025em` to `-0.045em`.
@@ -223,7 +236,7 @@ Soft, teal-tinted — never harsh black:
 - Color: `currentColor` default. Aqua `#25A497` for primary action icons. Coral `#ff6b47` only for warnings/CTAs.
 - **Never mix stroke weights. Never use emoji in product UI or marketing copy.**
 
-**Single-file artifact carve-out.** When generating a Phase A single-file React artifact (e.g. `/web-dev` Phase A, Claude artifact viewer, anything that can't `import { ... } from "lucide-react"`), use geometric Unicode glyphs as a pragmatic stand-in: `◈ ◉ ◐ ◑ ◒ ◓ ⬡ ⬢ ⌬ ✦ ✧ ◎`. These match the geometric Lucide aesthetic without the import. **Phase B / production code must replace these with `lucide-react`.** Document the swap as a Phase B step.
+**Single-file artifact carve-out.** When generating a Phase A single-file React artifact (e.g. `/company-site` Phase A, Claude artifact viewer, anything that can't `import { ... } from "lucide-react"`), use geometric Unicode glyphs as a pragmatic stand-in: `◈ ◉ ◐ ◑ ◒ ◓ ⬡ ⬢ ⌬ ✦ ✧ ◎`. These match the geometric Lucide aesthetic without the import. **Phase B / production code must replace these with `lucide-react`.** Document the swap as a Phase B step.
 
 ---
 
@@ -313,7 +326,8 @@ Pre-built login/sign-up pages at `auth-pages/` (relative to skill root). All for
 | `auth-coral.html` | Coral | Full layout with feature highlights |
 | `auth-editorial.html` | Editorial | Bold newspaper grid |
 | `auth-bento.html` | Bento | Bento grid left + auth card right |
-| `index.html` | Gallery | Links to all 5 auth pages |
+| `auth-console.html` | Console | Quiet centered card — field errors, danger banner, arc-sweep loading button |
+| `index.html` | Gallery | Links to all 6 auth pages |
 
 ---
 

@@ -61,8 +61,9 @@ test -f package.json                                   # Manifest present
 ls package-lock.json pnpm-lock.yaml yarn.lock bun.lockb 2>/dev/null | head -1  # Any lockfile present
 git grep -l "^<<<<<<< " -- ':!*.md' 2>/dev/null        # Merge conflict markers (excludes docs)
 
-# Migrations
-ls supabase/migrations/ 2>/dev/null | sort | tail -5   # Check for un-applied migrations
+# Migrations (file listing only — applied state needs `supabase migration list`
+# or the Supabase MCP list_migrations tool; verify recent ones are applied to prod)
+ls supabase/migrations/ 2>/dev/null | sort | tail -5
 ```
 
 **Block conditions:**
@@ -84,13 +85,13 @@ Run sequentially. Any failure halts the audit.
 npx tsc --noEmit
 
 # 2. Lint
-npx eslint . --max-warnings 0   # add --ext .ts,.tsx only on legacy ESLint 8 .eslintrc projects (flag removed in ESLint 9 flat config)
+npx eslint . --max-warnings 0   # ESLint 10 (Feb 2026) removed legacy .eslintrc entirely — flat eslint.config.js is mandatory, not just default. --ext is a v8-only flag; a lingering .eslintrc.* file on a project this old means it hasn't been migrated. ESLint 10 also raises the Node floor to ^20.19 || ^22.13 || >=24 — verify CI runner matches.
 
 # 3. Tests
 npx vitest run        # or: npm test / npx jest
 
 # 4. Production build
-npm run build         # catches what tsc misses (env access, RSC boundaries, route conflicts)
+npm run build         # catches what tsc misses (env access, RSC boundaries, route conflicts). Next.js 16: Turbopack is the default bundler (custom webpack config needs review), Node.js 20+ is required, and middleware.ts is deprecated in favor of proxy.ts.
 
 # 5. Bundle size sanity (if applicable)
 # Vite/Next.js: apply the budgets and analysis workflow from
@@ -112,7 +113,7 @@ After Phase 1 passes, spawn 5 sub-agents in parallel using `Agent` with `subagen
 ### Sub-Agent A: Security
 
 **Web App + AI/Agent (always check):**
-- Hardcoded secrets, API keys, credentials, tokens (search for `sk_live_`, `pk_`, `Bearer `, `password =`, `apiKey =`)
+- Hardcoded secrets, API keys, credentials, tokens (search for `sk_live_`, `sk-ant-`, `pk_`, `Bearer `, `password =`, `apiKey =`, and `eyJ` — JWT-shaped strings, which is what a leaked Supabase `service_role` key looks like)
 - Hardcoded production URLs that should be env vars
 - Exposed service role keys or admin keys in client-side code
 - Environment variable leakage in client bundle (`NEXT_PUBLIC_*` exposing secrets)
@@ -154,6 +155,7 @@ After Phase 1 passes, spawn 5 sub-agents in parallel using `Agent` with `subagen
 - Bad-output recovery (retry with stricter prompt, default value, or escalation)
 - Tool call failure recovery (retry, skip, abort)
 - Max iteration / max token guard on agent loops
+- Pinned model IDs that are deprecated or retired (check against the current Claude model list — model retirement breaks production silently at the API boundary)
 
 ### Sub-Agent C: Performance
 
@@ -165,7 +167,7 @@ After Phase 1 passes, spawn 5 sub-agents in parallel using `Agent` with `subagen
 **Web App-specific:**
 - Missing pagination on list endpoints
 - Large bundle size, unoptimized imports
-- Missing `React.memo`, `useMemo`, `useCallback` on expensive computations
+- Missing `React.memo`, `useMemo`, `useCallback` on expensive computations — unless `reactCompiler: true` is set in `next.config` (Next.js 16, React Compiler stable but opt-in): if enabled, missing manual memoization is not a finding (compiler inserts it); if not enabled, this remains a real gap
 - Missing caching on expensive routes (`fetch` `cache: 'force-cache'` or Next.js `revalidate`)
 - Unoptimized images (missing `next/image`, large uncompressed files)
 
@@ -189,6 +191,7 @@ After Phase 1 passes, spawn 5 sub-agents in parallel using `Agent` with `subagen
 - Full IP addresses stored in logs or analytics tables
 - Unencrypted PII in DB columns that should use hashing
 - Missing Data Processing Agreement when third-party processors are used
+- **If the project scrapes or ingests data from public sources (e.g. Google Maps, Facebook, Instagram profiles):** check against NPC Advisory 2026-01 (Data Scraping Guidelines, issued 2026-04-13) — public availability of data is not a blanket lawful basis; the scraper must establish its own lawful basis for processing, must be able to inform data subjects their data was scraped, and must not bypass platform ToS/technical safeguards to collect it. Flag any scraping pipeline with no documented lawful basis or notice mechanism.
 
 ### Sub-Agent E: Quality + Accessibility
 
@@ -207,11 +210,14 @@ After Phase 1 passes, spawn 5 sub-agents in parallel using `Agent` with `subagen
 - Missing ARIA labels on icon-only buttons
 - Missing `alt` attributes on images
 - Form inputs without associated `<label>` or `aria-label`
-- Color contrast violations (WCAG AA: 4.5:1 normal, 3:1 large)
+- Color contrast violations (WCAG AA: 4.5:1 normal, 3:1 large — unchanged from 2.1 to 2.2)
 - Missing focus states on interactive elements
 - Non-semantic markup (`<div onClick>` instead of `<button>`)
 - Missing skip-to-content link on long pages
 - No focus management on route changes / modal opens
+- **WCAG 2.2 additions (current AA baseline, superset of 2.1):** touch/click targets smaller than 24×24px with no adequate spacing (2.5.8 Target Size Minimum); focused elements fully or partially hidden by sticky headers/footers/cookie banners (2.4.11 Focus Not Obscured); drag-only interactions with no single-pointer alternative (2.5.7 Dragging Movements); authentication flows that require a cognitive test (puzzle CAPTCHA, memorized password only) with no alternative like paste/password-manager support or email link (3.3.8 Accessible Authentication)
+
+**Boundary:** Sub-Agent E covers code-level WCAG only. Flow-level UX, conversion friction, dark patterns, and the on-page SEO/marketing surface (headings, metadata, structured data, value prop) belong to `/ux-review` — recommended in follow-ups, not duplicated here.
 
 ---
 
@@ -227,7 +233,7 @@ Each item is a checkbox: PASS / FAIL / N/A. Fail blocks deployment.
 - [ ] Production env vars set in deployment platform (Vercel/Netlify dashboard)
 
 ### Monitoring & Observability
-- [ ] Error monitoring configured (Sentry client + server, or equivalent)
+- [ ] Error monitoring configured (Sentry client + server, or equivalent). Current Sentry Next.js SDK expects `instrumentation-client.ts` (browser), `sentry.server.config.ts` (Node runtime), `sentry.edge.config.ts` (edge runtime), and a root `instrumentation.ts` that imports both and exports `onRequestError` — flag projects still using the older single `sentry.client.config.ts` pattern without `instrumentation.ts`
 - [ ] `/api/health` (or platform health check) endpoint exists and returns 200
 - [ ] Structured logging in place for API routes (request id, user id, duration)
 - [ ] **AI/Agent**: token usage logging, cost tracking, error rate monitoring
@@ -238,7 +244,7 @@ Each item is a checkbox: PASS / FAIL / N/A. Fail blocks deployment.
 - [ ] **AI/Agent**: per-user rate limit on agent runs, max-cost guardrail
 
 ### Security Headers
-- [ ] CSP configured (`next.config.js` `headers()` or middleware)
+- [ ] CSP configured (`next.config.js` `headers()` or proxy). Next.js 16 renamed `middleware.ts`/`middleware` → `proxy.ts`/`proxy` (codemod: `npx @next/codemod@canary middleware-to-proxy .`); a project on Next 16 still shipping `middleware.ts` is running deprecated, possibly-unstable behavior — flag it. Note: `proxy` only runs on the Node.js runtime now (edge runtime is no longer supported there), which affects any auth/CSP logic that assumed edge.
 - [ ] HSTS enabled
 - [ ] X-Frame-Options or frame-ancestors set
 - [ ] X-Content-Type-Options: nosniff
@@ -248,7 +254,7 @@ Each item is a checkbox: PASS / FAIL / N/A. Fail blocks deployment.
 ### Data Integrity & Disaster Recovery
 - [ ] All Supabase migrations have reversal SQL (or documented rollback plan)
 - [ ] Foreign keys with appropriate `ON DELETE` behavior (CASCADE vs. RESTRICT vs. SET NULL — intentional)
-- [ ] Backup schedule confirmed for production DB (Supabase: PITR enabled on Pro plan)
+- [ ] Backup schedule confirmed for production DB (Supabase: PITR available as an add-on on Pro/Team/Enterprise — not Free — and requires at least a Small compute add-on to function correctly; enabling PITR replaces daily backups rather than supplementing them, so confirm this tradeoff was intentional, not accidental)
 - [ ] Soft-delete columns indexed where queried
 
 ### CI/CD
@@ -324,7 +330,7 @@ The user may accept specific High findings to proceed. Each accepted risk must b
 ```markdown
 ## Sign-off
 
-**Verdict: GO / NO-GO**
+**Verdict: GO / GO with risks accepted / NO-GO**
 
 ### Blockers (must resolve before deploy)
 - <Critical or required-pass items still open>
@@ -366,7 +372,8 @@ If signals are ambiguous, ask the user to confirm stage in one short question be
 ### Follow-up library (output relevant ones for current + next stage)
 
 **Stage A → B (before launch)**
-- `/ux-review` — heuristic review of signup → first-value flow
+- `/ux-review` — heuristic review of signup → first-value flow; on marketing pages its Phase 5.5 also covers the on-page SEO surface
+- `/e2e-test` — browser-driven validation of every user journey with DB verification
 - `/load-test` — initial capacity check at projected launch traffic
 - `/legal-docs` — generate template ToS, Privacy Policy, Refund Policy
 - `/ph-dpa-compliance` — if Philippines-targeted and not yet implemented
@@ -464,7 +471,7 @@ Appended N items to TODO.md under "Phase X: Audit Remediation (YYYY-MM-DD)"
 ## Summary
 Critical: N | High: N | Medium: N | Low: N
 Readiness: M/N gates passing
-Verdict: GO / NO-GO
+Verdict: GO / GO with risks accepted / NO-GO
 
 ## Sign-off
 <sign-off block from Phase 5>

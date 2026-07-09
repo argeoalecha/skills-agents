@@ -33,6 +33,7 @@ grep -r "supabase\|nextauth\|clerk\|auth0" package.json
 | Next.js App Router | Supabase | `references/auth-patterns.md` → Next.js App Router + Supabase (full) |
 | Next.js App Router | NextAuth | `references/auth-patterns.md` → NextAuth stub (extend before use) |
 | React + Vite | Supabase | `references/auth-patterns.md` → Vite stub (extend before use) |
+| Any | Clerk / Auth0 | Not scaffolded — tell the user and point to the provider's prebuilt components; don't improvise |
 
 Only the Next.js + Supabase path is fully scaffolded end-to-end. The other two are starting points that need filling in.
 
@@ -67,6 +68,8 @@ Determine which pages to generate:
 
 **Always scaffolded together for a working Next.js + Supabase auth flow:**
 
+(If Step 2 selected the Hayah-AI variant, take the login/signup page bodies from the "Hayah-AI Design System" section of `references/auth-patterns.md` instead — all other files below are shared across variants.)
+
 | File | From section in `references/auth-patterns.md` | Required? |
 |---|---|---|
 | `app/(auth)/login/page.tsx` | Next.js App Router + Supabase | Yes |
@@ -93,6 +96,8 @@ When copying from `references/auth-patterns.md`, adapt:
 2. Replace `/dashboard` redirect with the project's actual post-login route.
 3. Confirm the `createClient` import path matches the project's Supabase setup.
 4. Confirm the middleware `PUBLIC_PATHS` list matches what the project actually exposes publicly.
+5. When both login and signup are scaffolded, import the schemas from `lib/validations/auth.ts` (Shared Zod Schema section) instead of leaving them defined inline in each page — the reference page bodies define them inline for standalone use.
+6. If the project is on Zod 4, replace `z.string().email(...)` with `z.email(...)` in all schemas.
 
 ---
 
@@ -152,6 +157,7 @@ Auth pages scaffolded. Still required before going live:
 
 [ ] Database: create `profiles` table (or equivalent) with a trigger to insert
     a row on `auth.users` INSERT. Add RLS policies — owner read/write only.
+    Use /db-migrate for this.
 
 [ ] Rate limiting: protect /login, /signup, /forgot-password, and the
     /auth/callback route at the edge (middleware, Upstash, or platform).
@@ -180,6 +186,19 @@ Auth pages scaffolded. Still required before going live:
 ```
 
 Tailor the list to what was actually scaffolded (skip items that already existed).
+
+---
+
+## Downstream Handoffs
+
+After the report, offer the matching next step — don't auto-run it:
+
+| Need | Hand off to |
+|---|---|
+| `profiles` table, trigger, RLS policies | `/db-migrate` |
+| Playwright E2E coverage of the auth flow (beyond the unit tests here), or flaky auth tests | `/e2e-playwright` |
+| `/terms` and `/privacy` pages | `/legal-docs` + `/ph-dpa-compliance` |
+| Pre-production security/readiness gate | `/audit` |
 
 ---
 

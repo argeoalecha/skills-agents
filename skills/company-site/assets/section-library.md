@@ -1,6 +1,6 @@
 # Section Library
 
-All sections available in the web-dev skill. Default set is included unless the user opts out.
+All sections available in the company-site skill. Default set is included unless the user opts out.
 
 ## Core sections (always included)
 

@@ -1,6 +1,6 @@
 ---
 name: ui-builder
-description: Orchestration skill for building branded UIs. Routes between /theme-hayahai (Hayah-AI brand family — 5 variants), document-skills:theme-factory (10 generic presets, one-off artifacts), and custom themes. Covers theme selector clarification, logo + tagline composition (Hayah-AI sub-brand or external), layout selection (landing, dashboard, auth, marketing, app shell), component patterns, iconography, spacing, motion, imagery direction, and copy voice. Outputs HTML artifacts, production React/Next.js code, or Tailwind configs. Use when the user says "build a UI", "design a page", "create a landing page", "build the dashboard", "design system for", "brand this", "compose a logo", "what theme should I use", "pick a theme", "wireframe", "UI for the X feature". Triggers on /ui-builder, "ui builder", "design the UI".
+description: Orchestration skill for building branded UIs. Routes between /theme-hayahai (Hayah-AI brand family — 6 variants), document-skills:theme-factory (10 generic presets, one-off artifacts), and custom themes. Covers theme selector clarification, logo + tagline composition (Hayah-AI sub-brand or external), layout selection (landing, dashboard, auth, marketing, app shell), component patterns, iconography, spacing, motion, imagery direction, and copy voice. Outputs HTML artifacts, production React/Next.js code, or Tailwind configs. Use when the user says "build a UI", "design a page", "create a landing page", "build the dashboard", "design system for", "brand this", "compose a logo", "what theme should I use", "pick a theme", "wireframe", "UI for the X feature". Triggers on /ui-builder, "ui builder", "design the UI".
 ---
 
 # UI Builder — Branded UI Orchestration
@@ -58,8 +58,8 @@ These five answers determine every downstream choice.
 
 **Theme system one-liners:**
 
-- **`/theme-hayahai`** — opinionated, brand-locked, 5 variants of one palette (teal + coral). For any product in your portfolio.
-- **`/theme-client`** — parameterised intake. Takes a client brand brief (logo + 1–3 colors + optional fonts + mood), auto-fills the rest, writes `theme.json`, `tokens.css`, `tailwind.config.js`, `logo.svg`, `BRAND.md` to `<project-root>/brand/`. Drop-in compatible with `/web-dev` templates and `/auth-page-scaffold`. **The default for any paying client engagement.**
+- **`/theme-hayahai`** — opinionated, brand-locked, 6 variants of one palette (teal + coral). For any product in your portfolio. Marketing surfaces pick by mood (Classic/Midnight/Coral/Editorial/Bento); **logged-in app surfaces (dashboards, CRM, admin) always use hayah-console** — the dense app-UI variant with status colors, data-viz, and table tokens.
+- **`/theme-client`** — parameterised intake. Takes a client brand brief (logo + 1–3 colors + optional fonts + mood), auto-fills the rest, writes `theme.json`, `tokens.css`, `tailwind.config.js`, `logo.svg`, `BRAND.md` to `<project-root>/brand/`. Drop-in compatible with `/company-site` templates and `/auth-page-scaffold`. **The default for any paying client engagement.**
 - **`document-skills:theme-factory`** — 10 generic presets for slides, docs, one-off artifacts. Not for client deliverables.
 
 After selection, state the choice + why in one sentence.
@@ -165,25 +165,25 @@ For symbols/icons: keep geometric. Lucide-style or single-stroke abstractions. A
 
 ## Phase 4 — Layout Selection
 
-Pick one or compose multiple. Each layout maps to assets in `/theme-hayahai`'s `ui_kits/` (when using Hayah-AI) or generic patterns.
+Pick one or compose multiple. When using Hayah-AI, each layout maps to real assets in `/theme-hayahai`: `auth-pages/` (6 auth variants), `assets/showcase.html` (component showcase), `hayahai-design/project/colors_and_type.css` (tokens), and `references/` (palette + typography). Otherwise use generic patterns.
 
-### Route to `/web-dev` first if the request is "full company website"
+### Route to `/company-site` first if the request is "full company website"
 
 Before picking a Phase 4 layout, check whether the user actually wants a **deployable company website** (artifact + Next.js scaffold + Supabase + RLS + security gates) rather than a mockup.
 
 | Signal | Route |
 |---|---|
-| "Build a website for client X" / "Scaffold a company site" / "I need a landing + contact form + database" | **Stop. Route to `/web-dev`.** It owns the artifact-then-Next.js-scaffold pipeline with Supabase, RLS, rate limiting, DPA consent, and 3 production-grade reference templates (industrial, SaaS, local business). |
+| "Build a website for client X" / "Scaffold a company site" / "I need a landing + contact form + database" | **Stop. Route to `/company-site`.** It owns the artifact-then-Next.js-scaffold pipeline with Supabase, RLS, rate limiting, DPA consent, and 3 production-grade reference templates (industrial, SaaS, local business). |
 | "Design / mock up a landing page" / "Show me how the hero would look" / "Wireframe the landing" | **Stay in `/ui-builder`** — produce an HTML artifact mockup, no DB wiring. |
-| "Design the dashboard / app shell / auth screen / single component" | **Stay in `/ui-builder`** — `/web-dev` does not cover these. |
+| "Design the dashboard / app shell / auth screen / single component" | **Stay in `/ui-builder`** — `/company-site` does not cover these. |
 
-When routing to `/web-dev`, hand over the Phase 0–3 decisions (theme variant, logo composition, tagline) so `/web-dev` doesn't re-ask.
+When routing to `/company-site`, hand over the Phase 0–3 decisions (theme variant, logo composition, tagline) so `/company-site` doesn't re-ask.
 
 ### Landing page
 
 Sections in order:
 1. Nav (logo + 3–5 links + CTA)
-2. Hero (headline ≤ 10 words, sub ≤ 25 words, primary CTA + secondary)
+2. Hero (headline ≤ 10 words as the page's only `<h1>`, sub ≤ 25 words, primary CTA + secondary)
 3. Logo strip / social proof (5–8 logos or testimonial snippet)
 4. Feature grid (3 or 6 features — never 4 or 5)
 5. Long-form feature (one feature, full image + copy)
@@ -278,7 +278,10 @@ If any of these are absent in the generated UI, flag it before declaring the bui
 - Files match the export name
 - Components colocated with their route (`app/(marketing)/landing/page.tsx`) or under `components/<feature>/` for shared
 - All copy in JSX; no hardcoded English strings if i18n is set up
-- Use `next/image` for images, never `<img>` in Next.js
+- Use `next/image` for images (with `width`/`height` or `fill` — unsized media causes CLS), never `<img>` in Next.js
+- Fonts via `next/font`, never render-blocking font `<link>` tags
+- Semantic landmarks (`<header>`, `<nav>`, `<main>`, `<footer>`), exactly one `<h1>` per page, headings nest without skipped levels
+- Shipped marketing pages get a per-route Metadata API entry (unique title/description, canonical, OG image) and JSON-LD where content matches — `/ux-review` Phase 5.5 grades exactly this; build it in rather than fixing it after review
 - Lucide icons via `lucide-react`, not emoji
 - All forms use React Hook Form + Zod (per CLAUDE.md)
 
@@ -287,7 +290,7 @@ If any of these are absent in the generated UI, flag it before declaring the bui
 - Don't add framer-motion, gsap, or animation libraries unless the user explicitly wants animation beyond hover transitions
 - Don't add backwards-compat stubs for unused variants
 - Don't generate placeholder content longer than what the user provided — keep slots short ("Replace with your headline")
-- Don't add SEO `<meta>` tags unless this is a marketing page being shipped (defer to its production work)
+- Don't add SEO `<meta>` tags to mockups and HTML artifacts — but production marketing pages DO get their Metadata API entry (see Production code rules); the exemption is for throwaway previews only
 
 ---
 
@@ -304,6 +307,9 @@ Before declaring done:
 - [ ] Iconography from Lucide only (no mixed icon families)
 - [ ] If HTML artifact: opens cleanly in a browser
 - [ ] If production code: TypeScript compiles, no ESLint errors
+- [ ] If production marketing page: one `<h1>`, semantic landmarks, Metadata API entry, sized images — pre-empts `/ux-review` Phase 5.5
+
+This checklist is a smoke check, not a review. For anything shipping, run `/ux-review` on the built surface.
 
 If the user wants to iterate: open the artifact or dev server, point them at specific sections to adjust, take guided edits.
 
@@ -339,12 +345,12 @@ brand/
 
 - **Hands off to `/theme-hayahai`** — for canonical Hayah-AI brand assets, palette, typography, component patterns
 - **Hands off to `/theme-client`** — at the start of any client engagement to generate `<project-root>/brand/theme.json` + `logo.svg` + `tailwind.config.js` + `BRAND.md`. Then `/ui-builder` reads `brand/theme.json` for all subsequent decisions.
-- **Hands off to `/web-dev`** — when the user wants a **deployable company website** (artifact → Next.js scaffold → Supabase + RLS + DPA + security gates). `/web-dev` owns the full pipeline and the 3 reference templates (industrial, SaaS, local business). It calls back into `/ui-builder` Phase 3 for tagline composition.
+- **Hands off to `/company-site`** — when the user wants a **deployable company website** (artifact → Next.js scaffold → Supabase + RLS + DPA + security gates). `/company-site` owns the full pipeline and the 3 reference templates (industrial, SaaS, local business). It calls back into `/ui-builder` Phase 3 for tagline composition.
 - **Hands off to `document-skills:theme-factory`** — for one-off generic artifacts, slide decks
 - **Hands off to `/auth-page-scaffold`** — when the user wants auth pages with verification tests, not just static UI
 - **Hands off to `frontend-design:frontend-design`** — for distinctive, high-craft frontend code beyond standard component patterns
 - **Hands off to `/feature-dev`** — when the UI build needs to be wired to data, auth, and tested
-- **Feeds `/ux-review`** — once UI is built, run heuristic review before publication
+- **Feeds `/ux-review`** — once UI is built, run heuristic review before publication; on marketing surfaces its Phase 5.5 also grades the SEO & marketing surface (headings, metadata, structured data, CLS causes, value prop). `/ux-review` findings tagged `[UX]`/`[SEO]`/`[MKT]` that are purely visual/theme-level route back here for the fix; findings needing data or logic go to `/feature-dev`.
 
 ---
 
@@ -384,7 +390,7 @@ brand/
 
 ## Out of Scope
 
-- **Deployable company websites with Supabase + RLS + security checklist** — use `/web-dev`. UI-builder produces mockups; `/web-dev` ships production sites.
+- **Deployable company websites with Supabase + RLS + security checklist** — use `/company-site`. UI-builder produces mockups; `/company-site` ships production sites.
 - Slide deck / presentation composition — use `document-skills:theme-factory` or `document-skills:pptx`
 - Static print design (posters, flyers) — use `document-skills:canvas-design`
 - Algorithmic / generative art — use `document-skills:algorithmic-art`

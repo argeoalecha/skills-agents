@@ -1,10 +1,16 @@
 {
   "name": "Hayah Midnight",
   "id": "hayah-midnight",
-  "version": "2.0",
+  "version": "2.1",
   "description": "Dark-first design. Deep teal and dark forest backgrounds command authority while vibrant coral cuts through with confidence. Glassmorphism cards, subtle glow effects, and an energy that suits AI products, fintech, and tech platforms. Best for dark-mode landing pages and dashboards.",
   "mood": "Powerful, modern, cutting-edge",
+  "role": "Bioluminescent depth — the ocean at night. Light comes from living things, not the sky.",
   "inspiration": "Linear, Vercel, Stripe — dark mode landing pages with depth and polish",
+  "signature": {
+    "bioluminescence": "Glow is anchored to content, never ambient: the logo's coral dot glows (--glow-coral), interactive elements glow on focus/hover (--glow-teal), live-status indicators pulse. No free-floating top-of-page radial washes — if a glow has no source element, cut it.",
+    "noise": "2.5% opacity monochrome noise overlay on any surface using a radial or linear gradient — kills banding, adds the system's only texture. SVG feTurbulence or a tiled 128px PNG. Dark surfaces only, never on light themes.",
+    "elevationLadder": "Dark depth comes from lightness, not shadows: page #0F3836 → raised #15423e → overlay #1C5753. Borders brighten one step with elevation (0.08 → 0.15 → 0.25 mint alpha)."
+  },
   "colors": {
     "brand": {
       "primary": "#25A497",
@@ -25,11 +31,14 @@
     "surface": {
       "page": "#0F3836",
       "pageAlt": "#0a3d3a",
+      "raised": "#15423e",
+      "overlayStep": "#1C5753",
       "card": "rgba(28, 87, 83, 0.5)",
       "cardSolid": "#1C5753",
       "panel": "rgba(37, 164, 151, 0.08)",
       "overlay": "rgba(15, 56, 54, 0.8)",
-      "glass": "rgba(28, 87, 83, 0.35)"
+      "glass": "rgba(28, 87, 83, 0.35)",
+      "elevationNotes": "page → raised → overlayStep is the 3-step elevation ladder; shadows are invisible on dark, lightness carries depth"
     },
     "text": {
       "primary": "#faf7f5",
@@ -122,11 +131,13 @@
       "backdropFilter": "blur(20px)"
     },
     "hero": {
-      "bg": "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(37, 164, 151, 0.25) 0%, transparent 70%), #0F3836",
+      "bg": "#0F3836",
+      "glowSource": "Anchor the hero glow to a content element per signature.bioluminescence — the logo dot, a product screenshot edge, or the primary CTA. Legacy ambient wash (radial-gradient ellipse at top) only when no anchor element exists.",
       "eyebrowColor": "#25A497",
       "headlineColor": "#faf7f5",
       "bodyColor": "#A1E4DB",
-      "gridOverlay": "rgba(255, 255, 255, 0.02)"
+      "gridOverlay": "rgba(255, 255, 255, 0.02)",
+      "noiseOverlay": "see signature.noise — apply over any gradient surface"
     },
     "badge": {
       "default": { "bg": "rgba(161, 228, 219, 0.1)", "text": "#A1E4DB", "border": "1px solid rgba(161, 228, 219, 0.25)" },
@@ -136,9 +147,17 @@
     "input": {
       "bg": "rgba(28, 87, 83, 0.4)", "border": "1px solid rgba(161, 228, 219, 0.2)",
       "borderFocus": "1px solid #25A497",
+      "borderError": "1px solid #ff7a5c", "errorText": "#ffa48d",
       "borderRadius": "10px", "padding": "14px 16px",
       "font": "Geist", "fontSize": "15px", "color": "#faf7f5",
       "placeholder": "#7a9b96"
+    },
+    "codeChip": {
+      "bg": "rgba(37, 164, 151, 0.12)", "text": "#A1E4DB",
+      "border": "1px solid rgba(37, 164, 151, 0.25)",
+      "borderRadius": "6px", "padding": "2px 8px",
+      "font": "JetBrains Mono", "fontSize": "13px",
+      "notes": "Inline code on dark — the dev-tool audience reads code on every page"
     }
   },
   "landingPageSections": {

@@ -8,7 +8,7 @@ user-invocable: true
 
 Deep, focused, structured intel on **one target URL** — for new client intake, prospect qualification, or proposal preparation. Not bulk scraping (see `/leads-scraper` for that). Not SEO pipeline (see `/seo-leads-gen` for that). One target, full picture, written report.
 
-**Default framing:** client intake / pre-sales. The output is shaped to feed `/theme-client`, `/proposal-comm`, `/proposal-tech`, and `/web-dev` — but does not auto-invoke them. You decide the next step.
+**Default framing:** client intake / pre-sales. The output is shaped to feed `/theme-client`, `/proposal-comm`, `/proposal-tech`, and `/company-site` — but does not auto-invoke them. You decide the next step.
 
 ---
 
@@ -35,7 +35,7 @@ All paths relative to: `~/.claude/skills/web-research/`
 | `/agent-browser` | **Browser automation primitive.** This skill uses it for JS-heavy pages and social profiles. |
 | `/theme-client` | **Consumer** of `/web-research` output (brand colors, logo URL, fonts hint). Not auto-invoked — agent can copy fields manually. |
 | `/proposal-comm` / `/proposal-tech` | **Consumer** of company profile, contact, location, industry. Not auto-invoked. |
-| `/web-dev` | **Consumer** of tech stack, existing pages, content, contact for rebuild scoping. Not auto-invoked. |
+| `/company-site` | **Consumer** of tech stack, existing pages, content, contact for rebuild scoping. Not auto-invoked. |
 
 ---
 

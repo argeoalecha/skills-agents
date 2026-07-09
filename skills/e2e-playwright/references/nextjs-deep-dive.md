@@ -95,10 +95,12 @@ test('suspense boundary shows fallback then resolves', async ({ page }) => {
 
 ---
 
-## Middleware Testing
+## Middleware / Proxy Testing
+
+Next.js 16 renamed the `middleware.ts` convention to `proxy.ts` (function `middleware` → `proxy`; same `matcher` config, unchanged behavior otherwise, but it now runs on the Node.js runtime only — edge is no longer supported there). These tests exercise the same redirect/header/rewrite behavior regardless of which file convention the app under test uses — nothing below is Playwright-version-specific.
 
 ```typescript
-test.describe('middleware', () => {
+test.describe('proxy (formerly middleware)', () => {
   test('unauthenticated user redirected to login', async ({ page }) => {
     await page.context().clearCookies();
     await page.goto('/dashboard');
@@ -398,7 +400,9 @@ test.describe('hydration', () => {
 
 ---
 
-## Authentication with NextAuth.js
+## Authentication with NextAuth.js / Auth.js
+
+Note on the library itself (not the test patterns): Auth.js (formerly NextAuth.js) v5 is now maintenance-mode only (security patches, no new features) since its main contributor departed; Better Auth is the now-commonly-recommended choice for **new** Next.js projects, with Auth.js staying the reasonable choice only when migrating an existing app that already uses it. The storageState/CSRF test patterns below work unchanged either way — they exercise the resulting session cookie, not the library internals — but if scaffolding a brand-new project's auth from scratch, confirm with the user which library the TDD actually specifies before assuming NextAuth/Auth.js endpoints (`/api/auth/*`).
 
 ```typescript
 // playwright.config.ts -- auth projects

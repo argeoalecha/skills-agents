@@ -9,6 +9,14 @@ A skill for producing and reviewing lean, professional PRDs and TDDs for web app
 
 ---
 
+## Upstream: invoked by /init
+
+`/brainstorm-ideas` is another upstream: when a brainstorm ends with a build-worthy top pick, its Recommendation block (problem statement, constraints, top pick + rationale) is the seed input for the PRD — treat it like a mini concept doc and don't re-ask questions it already answers.
+
+`/init` is the project bootstrapper and auto-runs this skill at the end of its chain. When invoked that way (or any time the cwd is a freshly-bootstrapped project), **a concept doc exists at `docs/concept.md`** — read it first (see Write Mode step 3). The skeleton's `CLAUDE.md` will say `Stack: TBD — decided in the TDD`; this skill's TDD is where stack, theme variant, and deploy target actually get pinned down. Treat that as a responsibility: the rest of the pipeline (`/company-site`, `/feature-dev`) reads the TDD to author framework files, so the TDD must state the chosen stack, the Hayah theme variant, and the deploy target explicitly.
+
+---
+
 ## Mode Detection
 
 Determine mode from the user's intent:
@@ -26,7 +34,7 @@ If ambiguous, ask in one sentence before proceeding.
 
 1. **Identify doc type**: PRD (what + why), TDD (how), or both.
 2. **Identify project type**: web app, AI/agent/automation, or data product. This determines which TDD template to use.
-3. **Extract context** from the conversation:
+3. **Extract context.** First, if `docs/concept.md` exists in the project folder (it will when reached via `/init`), read it — it is the seed idea and the primary input. For an existing project being re-spec'd, also check for an OKF knowledge bundle (`okf/index.md`) — read it before drafting so the TDD doesn't contradict already-documented architecture/schema decisions. Then supplement from the conversation:
    - Problem / goal
    - Target users / personas
    - Core features (MVP vs. later)
@@ -208,11 +216,12 @@ Output format: same structure as PRD review, adapted to TDD dimensions.
 ### Tech Stack
 | Layer | Technology | Why |
 |---|---|---|
-| Frontend | <e.g. Next.js 15 App Router + TypeScript> | <reason> |
-| Styling | <e.g. Tailwind CSS + shadcn/ui> | <reason> |
+| Frontend | <e.g. Next.js 16 App Router + TypeScript> | <reason — Next 16: Turbopack is the default bundler, Node.js 20+ required, `middleware.ts` deprecated in favor of `proxy.ts`> |
+| Styling | <e.g. Tailwind CSS v4 + shadcn/ui> | <reason — Tailwind v4 is CSS-first (`@theme` in globals.css); `tailwind.config.js` is optional, not required by default> |
+| Theme | <Hayah variant: classic / midnight / coral / editorial / bento / console> | <fit for audience/mood — drives /company-site + /ui-builder> |
 | Backend | <e.g. Next.js API Routes / Express> | <reason> |
 | Database | <e.g. Supabase PostgreSQL> | <reason> |
-| Auth | <e.g. Supabase Auth> | <reason> |
+| Auth | <e.g. Supabase Auth via `@supabase/ssr`> | <reason — `@supabase/auth-helpers-nextjs` is deprecated; `@supabase/ssr`'s `createBrowserClient`/`createServerClient` is the current path> |
 | Deployment | <e.g. Vercel> | <reason> |
 
 ## 3. Database Schema
@@ -289,7 +298,7 @@ lib/validations/
 | <decision> | <choice> | <why> | <what was given up> |
 
 ## 7. Security Considerations
-- Auth: <how auth is enforced at the route level>
+- Auth: <how auth is enforced at the route level — if via `proxy.ts` (Next.js 16's renamed `middleware.ts`), note that it runs on the Node.js runtime only; edge is no longer supported there>
 - RLS: <which tables have RLS and the policy logic>
 - Input validation: Zod schemas on all API inputs
 - Security headers: CSP allowlist derived from the third-party origins THIS design uses (Supabase, Turnstile, analytics — list them), plus HSTS, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy. Planned here = ships in `next.config.ts` headers() from day one, not flagged 3 audits in a row.
@@ -304,12 +313,13 @@ lib/validations/
 | / | Static | marketing |
 | /dashboard | Dynamic | per-user data |
 
-Anything `ƒ (Dynamic)` needs a stated reason (`cookies()`, auth, personalization). Middleware `matcher` scoped so it never force-dynamics static routes or assets.
+Anything `ƒ (Dynamic)` needs a stated reason (`cookies()`, auth, personalization). `proxy.ts` (Next.js 16's renamed `middleware.ts`) `matcher` scoped so it never force-dynamics static routes or assets.
 
 ### Budgets (enforced later by /web-perf-audit — set targets now)
 - Total JS <300KB raw, largest chunk <150KB, First Load JS <200KB/route
 - Fonts: ≤2 typefaces × ≤2 weights via `next/font` latin subset, <60KB total
 - TTFB: <200ms warm, no cold sample >600ms
+- Memoization: state whether `reactCompiler: true` (Next.js 16, React Compiler — stable but opt-in) is enabled; if not, expensive components still need manual `React.memo`/`useMemo`/`useCallback`
 
 ### CDN & data caching
 - Hashed assets: `immutable, max-age=31536000`
@@ -322,14 +332,14 @@ Anything `ƒ (Dynamic)` needs a stated reason (`cookies()`, auth, personalizatio
 - Unit tests: <what is unit tested, e.g. validation logic, utilities>
 - Integration tests: <e.g. API routes against real DB>
 - E2E tests: <critical user journeys — Playwright>. Every Must-Have (MVP) user story gets at least one feature-tier test (completes a real workflow — smoke tests don't count toward coverage)
-- Accessibility: keyboard navigation, labels/alt text, WCAG AA contrast — planned per component, not retrofitted after /audit flags it
+- Accessibility: keyboard navigation, labels/alt text, WCAG 2.2 AA contrast (4.5:1 normal / 3:1 large — unchanged from 2.1) plus 2.2's newer criteria where relevant (24×24px min target size, focus not obscured by sticky headers) — planned per component, not retrofitted after /audit flags it
 
 ## 10. Deployment & Operations
 - Environment: Vercel (preview + production)
 - Domain & DNS: <registrar, DNS provider, apex + www both resolving to one canonical>. If DNS is on Cloudflare with a Vercel/Netlify host: records gray-clouded (DNS-only) — orange-cloud creates a double-proxy (observed 3+ seconds added TTFB)
 - Migrations: `supabase db push` before app deploy; rollback plan (reversal SQL or documented restore path) per migration
-- Monitoring: Sentry (client + server), `/api/health` endpoint, structured logging (request id, user id, duration)
-- Backups: <Supabase PITR / schedule, restore tested when>
+- Monitoring: Sentry (`instrumentation-client.ts` + `sentry.server.config.ts`/`sentry.edge.config.ts` + root `instrumentation.ts` exporting `onRequestError` — current Next.js SDK layout), `/api/health` endpoint, structured logging (request id, user id, duration)
+- Backups: <Supabase PITR (Pro/Team/Enterprise add-on, requires ≥Small compute add-on, replaces daily backups rather than supplementing them) / schedule, restore tested when>
 - CI: typecheck + lint + tests + build on every PR; branch protection on main
 - Required env vars: `<VAR_NAME>`, `<VAR_NAME>` — placeholders in `.env.example`, set per environment in platform dashboard
 
@@ -365,7 +375,7 @@ Anything `ƒ (Dynamic)` needs a stated reason (`cookies()`, auth, personalizatio
 ## 3. Model Configuration
 | Parameter | Value | Rationale |
 |---|---|---|
-| Model | claude-sonnet-4-6 | <reason — or justify if using Opus/Haiku> |
+| Model | claude-sonnet-5 | <reason — or justify using claude-opus-4-8 (harder reasoning), claude-haiku-4-5 (high-volume/low-latency), or claude-fable-5> |
 | Max tokens | <value> | <expected output size> |
 | Temperature | <value> | <deterministic vs. creative> |
 | Caching | <yes/no — which prompt parts> | <cost/latency reason> |

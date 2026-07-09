@@ -61,8 +61,9 @@ test -f package.json                                   # Manifest present
 ls package-lock.json pnpm-lock.yaml yarn.lock bun.lockb 2>/dev/null | head -1  # Any lockfile present
 git grep -l "^<<<<<<< " -- ':!*.md' 2>/dev/null        # Merge conflict markers (excludes docs)
 
-# Migrations
-ls supabase/migrations/ 2>/dev/null | sort | tail -5   # Check for un-applied migrations
+# Migrations (file listing only — applied state needs `supabase migration list`
+# or the Supabase MCP list_migrations tool; verify recent ones are applied to prod)
+ls supabase/migrations/ 2>/dev/null | sort | tail -5
 ```
 
 **Block conditions:**
@@ -112,7 +113,7 @@ After Phase 1 passes, spawn 5 sub-agents in parallel using `Agent` with `subagen
 ### Sub-Agent A: Security
 
 **Web App + AI/Agent (always check):**
-- Hardcoded secrets, API keys, credentials, tokens (search for `sk_live_`, `pk_`, `Bearer `, `password =`, `apiKey =`)
+- Hardcoded secrets, API keys, credentials, tokens (search for `sk_live_`, `sk-ant-`, `pk_`, `Bearer `, `password =`, `apiKey =`, and `eyJ` — JWT-shaped strings, which is what a leaked Supabase `service_role` key looks like)
 - Hardcoded production URLs that should be env vars
 - Exposed service role keys or admin keys in client-side code
 - Environment variable leakage in client bundle (`NEXT_PUBLIC_*` exposing secrets)
@@ -154,6 +155,7 @@ After Phase 1 passes, spawn 5 sub-agents in parallel using `Agent` with `subagen
 - Bad-output recovery (retry with stricter prompt, default value, or escalation)
 - Tool call failure recovery (retry, skip, abort)
 - Max iteration / max token guard on agent loops
+- Pinned model IDs that are deprecated or retired (check against the current Claude model list — model retirement breaks production silently at the API boundary)
 
 ### Sub-Agent C: Performance
 
@@ -214,6 +216,8 @@ After Phase 1 passes, spawn 5 sub-agents in parallel using `Agent` with `subagen
 - Missing skip-to-content link on long pages
 - No focus management on route changes / modal opens
 - **WCAG 2.2 additions (current AA baseline, superset of 2.1):** touch/click targets smaller than 24×24px with no adequate spacing (2.5.8 Target Size Minimum); focused elements fully or partially hidden by sticky headers/footers/cookie banners (2.4.11 Focus Not Obscured); drag-only interactions with no single-pointer alternative (2.5.7 Dragging Movements); authentication flows that require a cognitive test (puzzle CAPTCHA, memorized password only) with no alternative like paste/password-manager support or email link (3.3.8 Accessible Authentication)
+
+**Boundary:** Sub-Agent E covers code-level WCAG only. Flow-level UX, conversion friction, dark patterns, and the on-page SEO/marketing surface (headings, metadata, structured data, value prop) belong to `/ux-review` — recommended in follow-ups, not duplicated here.
 
 ---
 
@@ -326,7 +330,7 @@ The user may accept specific High findings to proceed. Each accepted risk must b
 ```markdown
 ## Sign-off
 
-**Verdict: GO / NO-GO**
+**Verdict: GO / GO with risks accepted / NO-GO**
 
 ### Blockers (must resolve before deploy)
 - <Critical or required-pass items still open>
@@ -368,7 +372,8 @@ If signals are ambiguous, ask the user to confirm stage in one short question be
 ### Follow-up library (output relevant ones for current + next stage)
 
 **Stage A → B (before launch)**
-- `/ux-review` — heuristic review of signup → first-value flow
+- `/ux-review` — heuristic review of signup → first-value flow; on marketing pages its Phase 5.5 also covers the on-page SEO surface
+- `/e2e-test` — browser-driven validation of every user journey with DB verification
 - `/load-test` — initial capacity check at projected launch traffic
 - `/legal-docs` — generate template ToS, Privacy Policy, Refund Policy
 - `/ph-dpa-compliance` — if Philippines-targeted and not yet implemented
@@ -466,7 +471,7 @@ Appended N items to TODO.md under "Phase X: Audit Remediation (YYYY-MM-DD)"
 ## Summary
 Critical: N | High: N | Medium: N | Low: N
 Readiness: M/N gates passing
-Verdict: GO / NO-GO
+Verdict: GO / GO with risks accepted / NO-GO
 
 ## Sign-off
 <sign-off block from Phase 5>

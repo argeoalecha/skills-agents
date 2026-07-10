@@ -1,6 +1,6 @@
 ---
 name: db-migrate
-description: Safe database migration workflow for Supabase PostgreSQL databases. Use this skill when creating, reviewing, or applying database migrations. Triggers on requests like "create a migration", "add a table", "modify the database schema", "migrate the database", or any database structure changes. Combines multiple specialized agents (database-architect, security-code-reviewer, Explore) to ensure migrations are safe, secure, and follow established patterns.
+description: Safe database migration workflow for Supabase PostgreSQL databases. Use this skill when creating, reviewing, or applying database migrations. Triggers on requests like "create a migration", "add a table", "modify the database schema", "migrate the database", or any database structure changes. Combines specialized agents (database-architect, Explore) with a dedicated security review pass to ensure migrations are safe, secure, and follow established patterns.
 ---
 
 # Database Migration Workflow
@@ -136,7 +136,7 @@ Every migration must include a rollback comment at the bottom:
 
 ## Step 4 — Security Review
 
-Spawn a **security-code-reviewer** sub-agent to check the migration SQL for:
+Spawn a **general-purpose** sub-agent to security-review the migration SQL for:
 - Missing `ENABLE ROW LEVEL SECURITY` on any new table
 - RLS policies that might allow cross-tenant data access
 - Missing `auth.uid()` checks in policies

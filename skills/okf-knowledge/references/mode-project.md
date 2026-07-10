@@ -129,4 +129,4 @@ curl -X POST /search -d '{"query":"...","top_k":5}'
 
 - Mirror the code's mental model in the directory layout, not the file system literally.
 - Link aggressively: a module → the tables it reads, the endpoints it serves, the runbooks that operate it. The link graph is the value.
-- Point `CLAUDE.md` / `AGENTS.md` at `okf/index.md` and instruct the agent to read relevant concepts before code tasks — this is workflow step 7 in `skill.md`, not optional polish. A bundle that isn't linked from `CLAUDE.md` is invisible to every agent that reads that file at task start (`/feature-dev`, `full-stack-developer`, `database-architect`, `integration-test-engineer` all do).
+- Point `CLAUDE.md` / `AGENTS.md` at `okf/index.md` and instruct the agent to read relevant concepts before code tasks — this is workflow step 7 in `skill.md`, not optional polish. A bundle that isn't linked from `CLAUDE.md` is invisible to every agent that reads that file at task start (`/feature-dev`, `database-architect`, `integration-test-engineer` all do).

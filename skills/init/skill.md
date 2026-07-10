@@ -1,6 +1,6 @@
 ---
 name: init
-description: Bootstrap a new Hayah-AI project from a concept. Reads the concept doc in the pre-created project folder, writes the universal skeleton (CLAUDE.md, .gitignore, docs/concept.md), git-inits, then auto-runs /prd-tdd-writer to produce the PRD/TDD/TODO. Stack, theme, and deploy target are decided in the TDD — not here. Use when the user says "init", "bootstrap this project", "start a new project", "scaffold a new project", or invokes /init.
+description: Bootstrap a new Hayah-AI project from a concept. Reads the concept doc in the pre-created project folder, writes the universal skeleton (CLAUDE.md, .gitignore, docs/concept.md), git-inits, then auto-runs /prd-tdd-writer (PRD/TDD) followed by /plan-todo (TODO.md). Stack, theme, and deploy target are decided in the TDD — not here. Use when the user says "init", "bootstrap this project", "start a new project", "scaffold a new project", or invokes /init.
 user-invocable: true
 ---
 
@@ -12,7 +12,7 @@ Entry point of the project pipeline. Turns a concept doc sitting in a freshly-cr
 concept doc in folder
    │
    ▼
-/init  ── skeleton + git ──►  (auto, no stop)  ──►  /prd-tdd-writer  ──►  PRD / TDD / TODO
+/init  ── skeleton + git ──►  (auto, no stop)  ──►  /prd-tdd-writer  ── PRD / TDD ──►  /plan-todo  ──►  TODO.md
 ```
 
 `/init` does **not** choose a stack, write framework files, pick a theme, or configure a deploy target. The TDD decides the stack; framework files come later from `/company-site` (marketing site) or `/feature-dev` (app), driven by the TODO. Keep this skill thin — its only job is skeleton + handoff.
@@ -105,15 +105,17 @@ Do not add a remote and do not push. The user adds the remote when ready.
 
 ---
 
-## Phase 4 — Hand off to /prd-tdd-writer
+## Phase 4 — Hand off to /prd-tdd-writer, then /plan-todo
 
 Immediately invoke the `prd-tdd-writer` skill via the Skill tool — **do not stop, do not wait for confirmation.** Pass the concept along (point it at `docs/concept.md`). The TDD it produces is where stack, theme, and deploy target get decided.
 
-After `/prd-tdd-writer` returns, tell the user:
+After `/prd-tdd-writer` returns, invoke the `plan-todo` skill (same rule — no stop) to generate `TODO.md` from the fresh PRD/TDD. `/prd-tdd-writer` does not write the TODO itself.
+
+Then tell the user:
 1. Skeleton created and committed at the project folder.
-2. `/prd-tdd-writer` has run — PRD / TDD / TODO are written.
+2. `/prd-tdd-writer` and `/plan-todo` have run — PRD / TDD / TODO.md are written.
 3. Next: build from the TODO — `/company-site` for a marketing site, `/feature-dev` for an app, stepped through the TODO. Run `/audit` before the first production deploy.
-4. Optional, as the codebase grows: `/okf-knowledge` to build an agent-readable docs bundle (`okf/`) that `/feature-dev` and the local agents (full-stack-developer, database-architect, integration-test-engineer) read before touching code. Not needed for a fresh skeleton — worth it once there's real architecture to document.
+4. Optional, as the codebase grows: `/okf-knowledge` to build an agent-readable docs bundle (`okf/`) that `/feature-dev` and the local agents (database-architect, integration-test-engineer) read before touching code. Not needed for a fresh skeleton — worth it once there's real architecture to document.
 
 ---
 
@@ -123,4 +125,4 @@ After `/prd-tdd-writer` returns, tell the user:
 - Never write framework files (`package.json`, `next.config`, `tailwind.config`, `vite.config`, etc.). `/company-site` and `/feature-dev` are the only authors of those.
 - The only prompt allowed is the single concept question in Phase 0, and only when no concept doc exists.
 - Always create `CLAUDE.md` and always `git init` — non-negotiable regardless of project size.
-- Always auto-run `/prd-tdd-writer` at the end — `/init` never terminates the chain on its own.
+- Always auto-run `/prd-tdd-writer` then `/plan-todo` at the end — `/init` never terminates the chain on its own, and the TODO comes from `/plan-todo`, not `/prd-tdd-writer`.

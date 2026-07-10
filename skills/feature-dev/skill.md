@@ -132,10 +132,11 @@ After implementation is complete, run `/simplify` to catch reuse opportunities, 
 
 ## Phase 4 — Testing
 
-**Unit/component tests (Vitest + RTL):**
-- Test each new API route handler
+**Unit/component tests (Vitest + RTL) — follow the `/unit-test` skill:**
+- Test new `lib/`/`services/` logic and Zod schemas
 - Test form validation logic
 - Test component rendering for key states: loading, error, empty, populated
+- `/unit-test` owns the mocking patterns (Supabase client, Claude API, fake timers) and the boundary of what belongs to the integration layer instead
 
 **Integration tests:**
 - Test the full request → database → response cycle for critical paths
@@ -161,7 +162,7 @@ pnpm test                     # Vitest unit tests
 npx playwright test           # Playwright E2E suite
 ```
 
-Reference: `references/testing-strategy.md`, `/e2e-playwright` skill
+Reference: `references/testing-strategy.md`, `/unit-test` skill, `/e2e-playwright` skill
 
 ---
 
@@ -200,6 +201,7 @@ For a deeper review, use the `/security-review` skill or `/code-review:code-revi
 - If a significant architectural decision was made, save the ADR to `docs/decisions/`
 - Update `CLAUDE.md` (project-level) if the feature establishes a new pattern other features should follow
 - Update API docs if the project has an OpenAPI spec
+- Mark this feature's tasks `[x]` in `TODO.md`; if the roadmap has drifted from the codebase, offer `/plan-todo` to refresh it
 
 Use `assets/pr-template.md` when creating a PR.
 

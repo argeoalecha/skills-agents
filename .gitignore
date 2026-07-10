@@ -9,3 +9,8 @@
 !.gitignore
 !skills/
 !skills/**
+
+# Local-only exceptions inside skills/ (must come after the re-include)
+skills/SESSION_CHECKPOINT.md
+skills/.vscode/
+.DS_Store

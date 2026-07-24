@@ -1,19 +1,15 @@
 ---
 name: brainstorm-ideas
 description: >
-  Structured ideation and solution generation for business or technical problems,
-  grounded in proven methodologies from McKinsey, IDEO, de Bono, Christensen, and others.
-  Use this skill whenever the user is stuck, exploring options, or needs to generate
-  and evaluate ideas — including architecture decisions, go-to-market strategy, product
-  features, debugging approaches, pricing models, root cause analysis, or any open-ended
+  Structured ideation for business or technical problems, grounded in methodologies from
+  McKinsey, IDEO, de Bono, and Christensen. Use whenever the user is stuck, exploring
+  options, or needs to generate and evaluate ideas — architecture decisions, GTM strategy,
+  product features, debugging approaches, pricing, root cause analysis, or any open-ended
   problem. Trigger on: "brainstorm", "ideate", "what are my options", "how should I
-  approach", "I'm stuck on", "what's the best way to", "give me ideas for", "help me
-  think through", "what would you recommend", "how do I solve", "explore options".
-  Also trigger proactively when the user describes a problem without a clear solution path,
-  even if they don't explicitly ask for brainstorming. Do NOT trigger for questions with a
-  known conventional answer, single-file coding decisions, or routine debugging — trigger
-  only when the problem is genuinely open-ended, strategic, or the user explicitly asks
-  to brainstorm.
+  approach", "I'm stuck on", "what's the best way to", "give me ideas for", "help me think
+  through", "explore options". Also trigger proactively when the user describes a problem
+  without a clear solution path, even unasked. Do NOT trigger for questions with a known
+  conventional answer, single-file coding decisions, or routine debugging.
 ---
 
 # Brainstorm Skill
@@ -69,12 +65,18 @@ Load the appropriate reference files and apply the methodology steps as document
 
 ```
 Business strategy / GTM       → JTBD + Porter's Five Forces → ICE Scoring
-Product / feature decision    → Double Diamond + Value Proposition Canvas → RICE
+New product / venture go/no-go→ JTBD + Value Proposition Canvas → DFV gate, then RICE
+Product / feature decision    → Double Diamond + Value Proposition Canvas → Kano (classify) → RICE
+Fixed-deadline release scope  → Value Proposition Canvas → MoSCoW
 Technical architecture        → First Principles + Constraint Analysis → 2×2 Matrix
 Root cause / debugging        → 5 Whys + MECE Issue Tree → 2×2 Matrix (Likelihood × Ease of verification)
 Creative / open-ended stuck   → Six Thinking Hats + SCAMPER → 2×2 Matrix
-Prioritization only           → Kepner-Tregoe Decision Analysis
+Prioritization only           → Kepner-Tregoe (solo, multi-criteria) / WSJF (portfolio, cross-team)
 ```
+
+For decisions that span stages or audiences, **layer** convergence methods rather than
+picking one (e.g., Kano to classify → RICE to score → MoSCoW to bound scope → WSJF to
+sequence). See the layering note in `references/convergence.md`.
 
 ---
 
@@ -90,6 +92,14 @@ Group them by lens — not all lenses apply every time, use judgment:
 - **First Principles** — strips assumptions, rebuilds from atomic truths
 
 Prefer **quality and diversity** over quantity. Avoid listing variations of the same idea.
+
+**Hold divergence open before converging.** Recent work on AI-assisted ideation (CHI 2025;
+"Timing Matters," arXiv 2025) finds that surfacing one concrete answer too early causes
+fixation — it anchors the space and quietly narrows the options that follow, for both the
+model and the user. So during this phase, genuinely spread across the lenses before ranking,
+and when the user is the one thinking, favor offering *angles and prompts* ("what would the
+first-principles version look like?") over handing them a single finished answer. Converge in
+Step 5, not here.
 
 ---
 
@@ -194,4 +204,4 @@ Offer the handoff; don't auto-run it.
 | `references/ideation.md` | SCAMPER, Six Hats, TRIZ, Lateral Thinking | Creative / open-ended problems |
 | `references/business.md` | JTBD, Value Proposition Canvas, Porter's Five Forces, Double Diamond | Business, GTM, product problems |
 | `references/technical.md` | First Principles, Constraint Analysis, TRIZ (technical) | Architecture, stack, debugging |
-| `references/convergence.md` | ICE, RICE, Kepner-Tregoe, 2×2 Matrix | Convergence phase — always load at least one |
+| `references/convergence.md` | ICE, RICE, Kepner-Tregoe, 2×2 Matrix, Kano, MoSCoW, WSJF, DFV | Convergence phase — always load at least one |

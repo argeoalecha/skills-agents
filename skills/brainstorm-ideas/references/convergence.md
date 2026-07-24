@@ -14,6 +14,14 @@ Select the method that best matches the decision context.
 | High-stakes decisions with multiple must-have criteria | **Kepner-Tregoe Decision Analysis** |
 | Visual mapping of effort vs. impact, quick team alignment | **2×2 Prioritization Matrix** |
 | Root-cause hypothesis triage (which cause to investigate first) | **2×2 Matrix** — Likelihood × Ease of verification |
+| Distinguishing table-stakes from delighters; new-product/UX opportunities | **Kano Model** |
+| Fixed-deadline release scope; fast stakeholder alignment on in/out | **MoSCoW** |
+| Portfolio-level sequencing across teams; many competing time-critical items | **WSJF** |
+| Early concept screening on desirability, feasibility, and viability together | **DFV (IDEO)** |
+
+### On layering, not just picking
+
+Modern practice (2025) treats these as a stack, not a single choice — prioritization is less about the score and more about a consistent, defensible decision. A common layering: **WSJF** for cross-team sequencing → **RICE** for backlog management → **MoSCoW** for release/sprint scope → **ICE** for experiment triage. Or upstream-to-downstream: **Kano** to identify high-excitement features → **RICE** to score them → **MoSCoW** to bound scope → **WSJF** to order execution. Use one method when the decision is contained; layer when the decision spans stages or audiences.
 
 ---
 
@@ -190,3 +198,115 @@ LOW   │  FILL-INS          │  THANKLESS TASKS │
 | Confidence | Impact | Experiment prioritization |
 | Urgency | Importance | Task management (Eisenhower Matrix variant) |
 | Likelihood | Ease of verification | Root-cause hypothesis triage — test high-likelihood, cheap-to-verify causes first |
+
+---
+
+## 5. Kano Model
+**Source:** Noriaki Kano, Tokyo University of Science — "Attractive Quality and Must-Be Quality" (1984), *Journal of the Japanese Society for Quality Control*
+**Answers:** Which features are table-stakes, which drive satisfaction linearly, and which delight — so we don't over-invest in the wrong tier?
+**Best for:** New-product and UX decisions; distinguishing must-haves from differentiators; feeding a customer-centric lens into RICE/MoSCoW backlog work
+
+### Core Concept
+Not all features affect satisfaction the same way. Kano classifies each feature by how customer satisfaction responds to its presence or absence:
+
+| Category | Behavior | Investment implication |
+|---|---|---|
+| **Must-be (Basic)** | Absence causes strong dissatisfaction; presence is merely expected | Non-negotiable floor — fund enough to not fail, no more |
+| **Performance (Linear)** | Satisfaction scales with how much you deliver | Invest proportionally to competitive position |
+| **Attractive (Delighter)** | Absence is fine; presence delights disproportionately | Cheap delighters are the best ROI; a few can differentiate |
+| **Indifferent** | Customers don't care either way | Cut — pure waste |
+| **Reverse** | Presence actively dissatisfies some segments | Make optional or remove |
+
+### Application
+1. List candidate features
+2. For each, ask the Kano question pair: "How do you feel if this feature is present?" and "How do you feel if it is absent?" (functional + dysfunctional)
+3. Classify each feature into a category from the answer combination
+4. Fund all Must-bes first, invest in Performance features by competitive need, sprinkle a few cheap Attractive features, cut Indifferent ones
+5. Re-run periodically — delighters decay into expectations over time (today's delighter is tomorrow's must-be)
+
+### Limitation
+Requires real customer input to classify honestly; internal guesses drift toward wishful "everything is a delighter." Pair with RICE to size the winners.
+
+---
+
+## 6. MoSCoW
+**Source:** Dai Clegg, Oracle (1994); formalized in the DSDM Agile framework
+**Answers:** Given a fixed deadline or budget, what is in and what is out — and can we align stakeholders fast?
+**Best for:** Scoping a fixed-deadline release; sprint/scope negotiation; situations where the constraint is time, not idea quality
+
+### The Four Buckets
+
+| Bucket | Meaning | Rule of thumb |
+|---|---|---|
+| **Must have** | Non-negotiable for this release; without it, the release fails or has no value | Keep Musts ≤ ~60% of effort — if everything is a Must, nothing is |
+| **Should have** | Important but not vital; painful to omit but the release survives | Next in line if capacity allows |
+| **Could have** | Desirable, low impact if dropped; the first things cut under pressure | Deliver only with spare capacity |
+| **Won't have (this time)** | Explicitly out of scope now — recorded, not forgotten | Prevents scope creep by naming the "no" |
+
+### Application
+1. Fix the timebox or budget first — MoSCoW only works against a hard constraint
+2. Sort every item into one bucket with stakeholders in the room
+3. Enforce the effort cap on Musts so there's slack for risk
+4. Make "Won't have this time" explicit — the recorded no is what keeps scope honest
+5. Revisit each release; buckets are per-timebox, not permanent labels
+
+### Limitation
+MoSCoW decides in/out, not order or ROI — it's weak on trade-offs between two Musts. Layer WSJF or RICE for sequencing within the Must/Should tiers.
+
+---
+
+## 7. WSJF (Weighted Shortest Job First)
+**Source:** Don Reinertsen, *The Principles of Product Development Flow* (2009); adopted as the prioritization core of SAFe (Scaled Agile Framework)
+**Answers:** In what order do we sequence a backlog to maximize economic value delivered per unit of time?
+**Best for:** Portfolio- and program-level sequencing; large teams with many competing, time-sensitive items; when 50+ stakeholders need one defensible ordering
+
+### Formula
+```
+WSJF = Cost of Delay / Job Size (Duration)
+
+Cost of Delay = User/Business Value + Time Criticality + Risk Reduction/Opportunity Enablement
+```
+
+### Scoring Dimensions
+
+| Component | Question | Scale |
+|---|---|---|
+| **User/Business Value** | How much value if delivered? | Relative, e.g. Fibonacci 1–2–3–5–8–13 |
+| **Time Criticality** | Does value decay if delayed? Deadlines, competitive windows? | Same relative scale |
+| **Risk Reduction / Opportunity Enablement** | Does it de-risk or unlock future work? | Same relative scale |
+| **Job Size** | Relative effort/duration to deliver | Same relative scale |
+
+### Application
+1. Score the three Cost-of-Delay components for each item on a shared relative scale (estimate as a team to calibrate)
+2. Sum them for total Cost of Delay
+3. Estimate Job Size on the same scale
+4. Compute WSJF = Cost of Delay / Job Size; sequence descending
+5. The math favors short, high-value, time-critical jobs — deliberately biasing toward fast economic wins first
+
+### Limitation
+Relative estimates invite gaming when incentives differ across teams; the calibration conversation matters more than the number. Overkill for a small solo backlog — use ICE there.
+
+---
+
+## 8. DFV — Desirability, Feasibility, Viability
+**Source:** IDEO / Tim Brown, human-centered design; popularized via *Change by Design* (2009). The three-lens screen dates to IDEO practice in the early 2000s.
+**Answers:** Before we commit, does this idea clear all three innovation lenses — do people want it, can we build it, and does the business work?
+**Best for:** Early concept screening; go/no-go on a new product or venture; catching ideas that are strong on one lens but fatal on another
+
+### The Three Lenses
+
+| Lens | Question | Fatal-flaw signal |
+|---|---|---|
+| **Desirability** | Do real users want this? Does it solve a job they care about? | "We'd love it" but no evidence anyone else does |
+| **Feasibility** | Can we actually build and operate it with what we have (tech, team, ops)? | Depends on capability or infrastructure we don't have |
+| **Viability** | Does the business model work — sustainable revenue, cost, margin? | Users want it but won't pay enough to sustain it |
+
+### Application
+1. Score each lens 1–10 (or simple pass/concern/fail) for every candidate concept
+2. Treat a very low score on **any** lens as a red flag, not something averaging can wash out — DFV is about the weakest link, not the sum
+3. Sweet-spot innovation sits where all three overlap; ideas strong on two lenses but weak on the third are the ones to reshape, not fund as-is
+4. Use as an upstream gate before RICE/WSJF sizing — no point scoring reach on something that fails viability
+5. For each weak lens, generate a targeted fix (cheaper build for feasibility, new revenue model for viability) rather than killing outright
+
+### Relationship to ICE/RICE
+DFV screens *whether* an idea is worth pursuing across three qualitative dimensions; ICE/RICE rank *how much* among ideas already deemed worth pursuing. Run DFV first as a gate, then score survivors.

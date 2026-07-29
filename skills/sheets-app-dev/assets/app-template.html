@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="console">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>App Console</title>
+<!--
+  Zero-build standalone wrapper — the sheets-app-dev pattern's default deploy
+  artifact. CDN React + in-browser Babel; no Node/npm. Styled 1:1 against the
+  hayah-console theme (theme-hayahai: hayahai-design/project/themes/hayah-console.json).
+  Wired for assets/Code.gs.template (getAll -> { catalog, records }; addRecord;
+  setRecordStatus). Replace the Records tab with your entities.
+
+  Console component vocabulary shipped below (swap in what your app uses):
+    - buttons: primary / secondary / ghost / cta / destructive
+    - badges:  success / info / warning / danger / neutral / live (coral pulse dot)
+    - cards:   default / metric (label -> value -> delta) / panel (pearl help block)
+    - loading: arc-sweep spinner (page/inline) AND skeleton blocks (shimmer)
+    - tables:  44px rows, sticky pearl header; .dense drops rows to 36px
+-->
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<!-- lucide-react's UMD reads window.react (lowercase); React's UMD only sets window.React -->
+<script>window.react = window.React; window['react-dom'] = window.ReactDOM;</script>
+<script src="https://unpkg.com/lucide-react@0.263.1/dist/umd/lucide-react.js"></script>
+<!-- Add Recharts here if charting: https://unpkg.com/recharts@2/umd/Recharts.js
+     Chart series use the fixed categorical order:
+     #25A497 #ff6b47 #1E6E66 #ffb5a0 #7a9b96 #A1E4DB -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  /* hayah-console tokens — mirrors hayah-console.json (colors / spacing / radii) */
+  :root {
+    --page: #faf7f5; --card: #ffffff; --panel: #e8f4f1;
+    --sidebar: #0F3836; --row-hover: #F3FFF9; --row-selected: rgba(37, 164, 151, 0.08);
+    --text-1: #0a3d3a; --text-2: #1C5753; --muted: #7a9b96;
+    --on-dark: #faf7f5; --on-dark-muted: #A1E4DB;
+    --accent: #25A497; --accent-hover: #1E6E66; --cta: #ff6b47; --cta-hover: #e55a38;
+    --border: rgba(161, 228, 219, 0.4); --divider: rgba(10, 61, 58, 0.08);
+    --hairline: rgba(10, 61, 58, 0.06);
+    --danger: #d63c2f; --danger-text: #a32a1f;
+    /* radii — 4px grid per Console spec */
+    --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-full: 9999px;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: "Geist", system-ui, sans-serif; font-size: 14px;
+    color: var(--text-1); background: var(--page);
+    font-variant-numeric: tabular-nums;
+  }
+  button, input, select { font: inherit; }
+  ::selection { background: rgba(37, 164, 151, 0.15); }
+  :focus-visible { outline: none; box-shadow: 0 0 0 2px var(--page), 0 0 0 4px var(--accent); }
+
+  .shell { display: flex; min-height: 100vh; }
+
+  /* sidebar */
+  .sidebar {
+    width: 240px; flex-shrink: 0; background: var(--sidebar);
+    color: var(--on-dark-muted); padding: 16px 12px;
+  }
+  .side-brand { padding: 8px 12px 20px; color: var(--on-dark); font-weight: 600; }
+  .side-label {
+    padding: 0 12px; margin: 24px 0 8px; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted);
+  }
+  .side-item {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 8px 12px; border-radius: var(--r-md); border: 0; background: transparent;
+    color: inherit; font-size: 13px; font-weight: 500; cursor: pointer; text-align: left;
+  }
+  .side-item:hover { background: rgba(161, 228, 219, 0.08); }
+  .side-item.active {
+    background: rgba(37, 164, 151, 0.18); color: var(--on-dark);
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+
+  /* chrome */
+  .topbar {
+    height: 56px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; background: var(--page); border-bottom: 1px solid var(--divider);
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .content { flex: 1; min-width: 0; }
+  .main { padding: 24px 32px; }
+  .page-title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+  .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
+
+  /* cards */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 20px;
+    box-shadow: 0 1px 2px rgba(10, 61, 58, 0.05);
+  }
+  .card.metric { padding: 16px 20px; }
+  /* panel — pearl inline help / summaries / calc explanations; no border, no shadow */
+  .card.panel { background: var(--panel); border: 0; box-shadow: none; padding: 16px 20px; }
+  .metric-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--text-2);
+  }
+  .metric-value {
+    font-family: "Space Grotesk", sans-serif; font-size: 32px;
+    font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; margin-top: 6px;
+  }
+  /* delta line — status-colored, ▲/▼; only render with a real comparison */
+  .metric-delta { font-size: 12px; margin-top: 6px; font-weight: 500; }
+  .metric-delta.up { color: var(--accent-hover); }
+  .metric-delta.down { color: var(--danger-text); }
+  .metric-sub { font-size: 12px; margin-top: 6px; color: var(--muted); }
+
+  /* tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: var(--panel); color: var(--text-2); text-align: left;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+    text-transform: uppercase; height: 40px; padding: 0 16px;
+    position: sticky; top: 0;
+  }
+  tbody td { height: 44px; padding: 0 16px; border-bottom: 1px solid var(--hairline); }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr.selected { background: var(--row-selected); box-shadow: inset 2px 0 0 var(--accent); }
+  td.num, th.num { text-align: right; }
+  .mono { font-family: "JetBrains Mono", monospace; font-size: 13px; }
+  /* dense mode — Console rowHeightDense: 36px */
+  table.dense thead th { height: 32px; }
+  table.dense tbody td { height: 36px; }
+
+  /* badges — always dot + label, never color alone */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: var(--r-full); font-size: 12px; font-weight: 500;
+  }
+  .badge .dot { width: 6px; height: 6px; border-radius: var(--r-full); }
+  .badge.success { color: #1E6E66; background: #d4f4f1; border: 1px solid rgba(30,110,102,0.3); }
+  .badge.success .dot { background: #1E6E66; }
+  .badge.info { color: #1E6E66; background: rgba(37,164,151,0.1); border: 1px solid rgba(37,164,151,0.3); }
+  .badge.info .dot { background: #25A497; }
+  .badge.warning { color: #8a5512; background: #fdf3e3; border: 1px solid rgba(199,123,30,0.35); }
+  .badge.warning .dot { background: #c77b1e; }
+  .badge.danger { color: #a32a1f; background: #fdeeec; border: 1px solid rgba(214,60,47,0.3); }
+  .badge.danger .dot { background: #d63c2f; }
+  .badge.neutral { color: #5f7a76; background: #eef2f1; border: 1px solid rgba(122,155,150,0.3); }
+  .badge.neutral .dot { background: #7a9b96; }
+  /* live — coral dot (the logo dot), pulses; reserved for in-progress states */
+  .badge.live { color: #1E6E66; background: rgba(37,164,151,0.1); border: 1px solid rgba(37,164,151,0.4); }
+  .badge.live .dot { background: var(--cta); animation: pulse-dot 2s ease-in-out infinite; }
+  @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  /* buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: var(--r-md); border: 0;
+    background: var(--text-1); color: var(--on-dark);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: background 150ms cubic-bezier(0.4,0,0.2,1);
+  }
+  .btn:hover { background: var(--text-2); }
+  .btn.secondary {
+    background: var(--card); color: var(--text-1);
+    border: 1px solid rgba(10, 61, 58, 0.15); padding: 7px 15px;
+  }
+  .btn.secondary:hover { background: var(--row-hover); }
+  .btn.ghost { background: transparent; color: var(--text-2); padding: 7px 12px; }
+  .btn.ghost:hover { background: rgba(37, 164, 151, 0.08); }
+  .btn.ghost.on { background: rgba(37, 164, 151, 0.18); color: var(--text-1); }
+  /* cta — coral, at most one per screen (upgrade/publish moments) */
+  .btn.cta { background: var(--cta); color: #fff; font-weight: 600; box-shadow: 0 2px 8px rgba(255,107,71,0.3); }
+  .btn.cta:hover { background: var(--cta-hover); }
+  /* destructive — outlined; the confirm step may fill #d63c2f */
+  .btn.destructive {
+    background: var(--card); color: var(--danger-text);
+    border: 1px solid rgba(214,60,47,0.3); padding: 7px 15px;
+  }
+  .btn.destructive:hover { background: #fdeeec; }
+
+  /* fields */
+  .field label { display: block; font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; padding: 8px 12px; border-radius: var(--r-md);
+    border: 1px solid rgba(10, 61, 58, 0.15); background: var(--card);
+    font-size: 13px; color: var(--text-1);
+  }
+  .field input:focus, .field select:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37, 164, 151, 0.15);
+  }
+
+  /* toast — dark pill, bottom-right, leading status dot */
+  .toast {
+    position: fixed; right: 24px; bottom: 24px; z-index: 50;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--sidebar); color: var(--on-dark);
+    border-radius: var(--r-lg); padding: 12px 16px; font-size: 13px;
+    animation: slide-in 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes slide-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* arc-sweep loader — the logo arc, per the Console signature. Never a generic spinner. */
+  .arc { animation: arc-spin 1s linear infinite; }
+  @keyframes arc-spin { to { transform: rotate(360deg); } }
+
+  /* skeleton — pearl blocks, 1.5s shimmer, matching final layout */
+  .skel { background: var(--panel); border-radius: var(--r-md); position: relative; overflow: hidden; }
+  .skel::after {
+    content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer { to { transform: translateX(100%); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .arc, .toast, .badge.live .dot, .skel::after { animation: none; }
+  }
+
+  /* mobile: collapsible-drawer sidebar behaviour left to your app; tables scroll */
+  @media (max-width: 720px) {
+    .sidebar { display: none; }
+    .main, .topbar { padding-left: 16px; padding-right: 16px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useCallback } = React;
+
+// ---------------------------------------------------------------------------
+// Config — update in BOTH this file and the .jsx source if you keep a pair.
+// ---------------------------------------------------------------------------
+const APPS_SCRIPT_URL = ""; // paste the deployed /exec URL
+const isConfigured = APPS_SCRIPT_URL.startsWith("https://script.google.com/");
+// Must match the API_TOKEN Script Property on the backend, if set. Blank = auth off.
+const API_TOKEN = "";
+
+// POST uses Content-Type: text/plain on purpose — Apps Script Web Apps can't
+// answer a CORS preflight; text/plain keeps it a "simple request".
+async function apiGet(action, params = {}) {
+  const qs = new URLSearchParams({ action, token: API_TOKEN, ...params }).toString();
+  const res = await fetch(`${APPS_SCRIPT_URL}?${qs}`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+async function apiPost(action, payload = {}) {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action, token: API_TOKEN, ...payload }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
+// ---------------------------------------------------------------------------
+// System states
+// ---------------------------------------------------------------------------
+function ArcSpinner({ size = 32 }) {
+  return (
+    <svg className="arc" width={size} height={size} viewBox="0 0 64 64" role="status" aria-label="Loading">
+      <path d="M 12 52 A 28 28 0 0 1 52 12" fill="none" stroke="#25A497" strokeWidth="8" strokeLinecap="round" />
+      <circle cx="52" cy="12" r="6" fill="#ff6b47" />
+    </svg>
+  );
+}
+
+// Skeleton primitives — pearl shimmer blocks that mirror the final layout.
+function Skel({ w = "100%", h = 14, r = 8, style }) {
+  return <div className="skel" style={{ width: w, height: h, borderRadius: r, ...style }} />;
+}
+function SkeletonMetrics() {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }}>
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="card metric">
+          <Skel w={90} h={11} />
+          <Skel w={64} h={30} style={{ marginTop: 10 }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+function SkeletonTable({ rows = 6 }) {
+  return (
+    <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+      <div style={{ display: "flex", gap: 24, padding: "12px 16px", background: "var(--panel)" }}>
+        {[80, 160, 90, 100].map((w, i) => <Skel key={i} w={w} h={11} />)}
+      </div>
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} style={{ display: "flex", gap: 24, alignItems: "center", padding: "0 16px", height: 44, borderBottom: "1px solid var(--hairline)" }}>
+          {[80, 160, 90, 100].map((w, j) => <Skel key={j} w={w} h={13} />)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SetupScreen() {
+  return (
+    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
+      <div className="card" style={{ maxWidth: 480 }}>
+        <div className="page-title">Connect the backend</div>
+        <p style={{ marginTop: 8, color: "var(--text-2)", lineHeight: 1.55 }}>
+          Deploy Code.gs as a Web App, then paste the <span className="mono">/exec</span> URL
+          into <span className="mono">APPS_SCRIPT_URL</span> at the top of this file.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ErrorScreen({ message, onRetry }) {
+  return (
+    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
+      <div className="card" style={{ maxWidth: 480 }}>
+        <div className="page-title">Couldn't load data</div>
+        <p style={{ margin: "8px 0 16px", color: "var(--danger-text)" }}>{message}</p>
+        <button className="btn" onClick={onRetry}>Retry</button>
+      </div>
+    </div>
+  );
+}
+
+function Toast({ toast }) {
+  if (!toast) return null;
+  const dot = { success: "#1E6E66", danger: "#d63c2f", warning: "#c77b1e" }[toast.kind] || "#25A497";
+  return (
+    <div className="toast" role="status">
+      <span style={{ width: 6, height: 6, borderRadius: 9999, background: dot }} />
+      {toast.message}
+    </div>
+  );
+}
+
+const STATUS_BADGE = { active: "success", archived: "neutral" };
+function StatusBadge({ status }) {
+  return (
+    <span className={"badge " + (STATUS_BADGE[status] || "neutral")}>
+      <span className="dot" />{status}
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// App
+// ---------------------------------------------------------------------------
+const TABS = [
+  { id: "dashboard", label: "Dashboard" },
+  { id: "records", label: "Records" },
+];
+
+function App() {
+  const [catalog, setCatalog] = useState([]);
+  const [records, setRecords] = useState([]);
+  const [tab, setTab] = useState("dashboard");
+  const [loading, setLoading] = useState(true); // first paint, no data yet
+  const [busy, setBusy] = useState(false);       // background refresh/write
+  const [dense, setDense] = useState(false);
+  const [error, setError] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const notify = useCallback((message, kind = "success") => {
+    setToast({ message, kind });
+    if (kind !== "danger") setTimeout(() => setToast(null), 4000);
+  }, []);
+
+  // background=true → keep the shell visible, show the live "Syncing" badge
+  // instead of the full skeleton (used by Refresh and post-write re-fetches).
+  const loadAll = useCallback(async ({ background = false } = {}) => {
+    try {
+      if (background) setBusy(true); else setError(null);
+      const data = await apiGet("getAll");
+      setCatalog(data.catalog || []);
+      setRecords(data.records || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+      setBusy(false);
+    }
+  }, []);
+
+  useEffect(() => { if (isConfigured) loadAll(); }, [loadAll]);
+
+  // Derived views stay client-side (useMemo) — never stored in the Sheet.
+  const activeCount = useMemo(() => records.filter((r) => r.status === "active").length, [records]);
+  const activePct = records.length ? Math.round((activeCount / records.length) * 100) : 0;
+
+  async function handleArchive(id) {
+    try {
+      await apiPost("setRecordStatus", { id, status: "archived" });
+      notify("Record archived");
+      await loadAll({ background: true }); // full re-fetch after every successful write
+    } catch (err) {
+      notify(err.message, "danger");
+    }
+  }
+
+  if (!isConfigured) return <SetupScreen />;
+  if (error && records.length === 0) return <ErrorScreen message={error} onRetry={loadAll} />;
+
+  return (
+    <div className="shell">
+      <nav className="sidebar">
+        <div className="side-brand">App Console</div>
+        <div className="side-label">Workspace</div>
+        {TABS.map((t) => (
+          <button key={t.id} className={"side-item" + (tab === t.id ? " active" : "")}
+                  onClick={() => setTab(t.id)}>
+            {t.label}
+          </button>
+        ))}
+      </nav>
+
+      <div className="content">
+        <header className="topbar">
+          <div className="topbar-left">
+            <div className="page-title">{TABS.find((t) => t.id === tab).label}</div>
+            {busy && (
+              <span className="badge live"><span className="dot" />Syncing</span>
+            )}
+          </div>
+          <button className="btn secondary" onClick={() => loadAll({ background: true })} disabled={busy}>
+            {busy ? <ArcSpinner size={16} /> : "Refresh"}
+          </button>
+        </header>
+
+        <main className="main">
+          {tab === "dashboard" && (
+            loading ? <SkeletonMetrics /> : (
+              <React.Fragment>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }}>
+                  <div className="card metric">
+                    <div className="metric-label">Active records</div>
+                    <div className="metric-value">{activeCount}</div>
+                    {records.length > 0 && (
+                      <div className="metric-sub">{activePct}% of {records.length} total</div>
+                    )}
+                  </div>
+                  <div className="card metric">
+                    <div className="metric-label">Catalog entries</div>
+                    <div className="metric-value">{catalog.length}</div>
+                  </div>
+                </div>
+                <div className="card panel" style={{ marginTop: 16 }}>
+                  Counts refresh on every load. Derived views (active %, rollups) are computed
+                  in the browser with <span className="mono">useMemo</span> — never stored in the Sheet,
+                  so a hand-edited row can't leave a stale total behind.
+                </div>
+              </React.Fragment>
+            )
+          )}
+
+          {tab === "records" && (
+            loading ? <SkeletonTable /> : (
+              <React.Fragment>
+                <div className="toolbar">
+                  <div className="metric-sub">{records.length} record{records.length === 1 ? "" : "s"}</div>
+                  <button className={"btn ghost" + (dense ? " on" : "")}
+                          onClick={() => setDense((d) => !d)}
+                          aria-pressed={dense}>
+                    Dense rows
+                  </button>
+                </div>
+                <div className="card" style={{ padding: 0, overflowX: "auto" }}>
+                  {records.length === 0 ? (
+                    <div style={{ padding: 48, textAlign: "center", color: "var(--muted)" }}>
+                      No records yet — add the first one from your form.
+                    </div>
+                  ) : (
+                    <table className={dense ? "dense" : ""}>
+                      <thead>
+                        <tr>
+                          <th>ID</th><th>Name</th><th>Status</th><th>Date</th><th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {records.map((r) => (
+                          <tr key={r.id}>
+                            <td className="mono">{r.id}</td>
+                            <td>{r.name}</td>
+                            <td><StatusBadge status={r.status} /></td>
+                            <td>{r.date}</td>
+                            <td className="num">
+                              {r.status === "active" && (
+                                <button className="btn secondary" onClick={() => handleArchive(r.id)}>
+                                  Archive
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </React.Fragment>
+            )
+          )}
+        </main>
+      </div>
+
+      <Toast toast={toast} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

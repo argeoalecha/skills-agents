@@ -1,0 +1,242 @@
+/**
+ * <APP NAME> — Apps Script backend
+ * Generic scaffold for the Sheets-backed app pattern. Derived from the proven
+ * implementation at ~/projects-mvp/isp-billing/sheets-version/Code.gs — see
+ * that file for production examples of bulk generation, credit ledgers,
+ * payment idempotency, and id migrations.
+ *
+ * Bind this script to the Google Sheet (Extensions > Apps Script from inside
+ * the sheet), then deploy as a Web App. Every code change afterwards needs
+ * Deploy > Manage deployments > Edit > New version.
+ *
+ * Expected tabs and headers (row 1, exact spelling, case-sensitive) — replace
+ * with your schema and KEEP THIS COMMENT CURRENT, it is the backend's schema
+ * doc:
+ *
+ *   Catalog: id | name | price
+ *   Records: id | catalogId | name | status | date | note
+ *
+ * Optional shared-secret auth: set a Script Property named API_TOKEN to
+ * require every request to pass a matching `token`. Unset = auth disabled
+ * (safe default — can't lock you out before setup).
+ */
+
+const VALID_STATUSES = ["active", "archived"];
+
+function doGet(e) {
+  if (!checkAuth(e.parameter.token)) return respond({ error: "Unauthorized" });
+
+  const action = e.parameter.action;
+  const ss = SpreadsheetApp.getActive();
+
+  if (action === "getAll") {
+    return respond({
+      catalog: sheetToObjects(ss.getSheetByName("Catalog")),
+      records: sheetToObjects(ss.getSheetByName("Records")),
+    });
+  }
+  return respond({ error: "Unknown action: " + action });
+}
+
+function doPost(e) {
+  let body;
+  try {
+    body = JSON.parse(e.postData.contents);
+  } catch (err) {
+    return respond({ error: "Invalid request body" });
+  }
+
+  if (!checkAuth(body.token)) return respond({ error: "Unauthorized" });
+
+  const ss = SpreadsheetApp.getActive();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000); // serialize writes so concurrent requests don't race on appendRow
+
+  try {
+    switch (body.action) {
+      case "addRecord":
+        return respond(addRecord(ss, body));
+      case "updateRecord":
+        return respond(updateRecord(ss, body));
+      case "setRecordStatus":
+        return respond(setRecordStatus(ss, body));
+      default:
+        return respond({ error: "Unknown action: " + body.action });
+    }
+  } catch (err) {
+    return respond({ error: err.message });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// ---------- auth ----------
+
+function checkAuth(token) {
+  const required = PropertiesService.getScriptProperties().getProperty("API_TOKEN");
+  if (!required) return true; // not configured — auth disabled
+  return token === required;
+}
+
+// ---------- action handlers ----------
+// Handlers return plain objects ({ ok: true, ... } or { error: string });
+// only respond() touches ContentService.
+
+function addRecord(ss, body) {
+  const name = String(body.name || "").trim();
+  if (!name) return { error: "name is required" };
+  if (body.date && !isValidDateStr(body.date)) {
+    return { error: "date must be in YYYY-MM-DD format" };
+  }
+
+  // FK check — Sheets enforces nothing, this scan is the referential integrity.
+  const catalog = sheetToObjects(ss.getSheetByName("Catalog"));
+  if (!catalog.some(function (c) { return c.id === body.catalogId; })) {
+    return { error: "catalogId '" + body.catalogId + "' does not match any row in Catalog" };
+  }
+
+  const sheet = ss.getSheetByName("Records");
+  const id = "R" + new Date().getTime();
+  sheet.appendRow([
+    id,
+    body.catalogId,
+    name,
+    "active",
+    body.date || todayStr(),
+    String(body.note || "").trim(),
+  ].map(sanitizeCell));
+  return { ok: true, id: id };
+}
+
+function updateRecord(ss, body) {
+  if (!body.id) return { error: "id is required" };
+  const name = String(body.name || "").trim();
+  if (!name) return { error: "name is required" };
+
+  const catalog = sheetToObjects(ss.getSheetByName("Catalog"));
+  if (!catalog.some(function (c) { return c.id === body.catalogId; })) {
+    return { error: "catalogId '" + body.catalogId + "' does not match any row in Catalog" };
+  }
+
+  const updates = {
+    catalogId: body.catalogId,
+    name: name,
+    note: String(body.note || "").trim(),
+  };
+
+  const sheet = ss.getSheetByName("Records");
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0];
+  const idCol = headers.indexOf("id");
+  for (let r = 1; r < values.length; r++) {
+    if (values[r][idCol] === body.id) {
+      Object.keys(updates).forEach(function (field) {
+        const col = headers.indexOf(field);
+        if (col !== -1) sheet.getRange(r + 1, col + 1).setValue(sanitizeCell(updates[field]));
+      });
+      return { ok: true };
+    }
+  }
+  return { error: "No record found with id " + body.id };
+}
+
+function setRecordStatus(ss, body) {
+  if (!body.id) return { error: "id is required" };
+  if (VALID_STATUSES.indexOf(body.status) === -1) {
+    return { error: "status must be one of: " + VALID_STATUSES.join(", ") };
+  }
+  const sheet = ss.getSheetByName("Records");
+  const found = setFieldByMatch(sheet, "id", body.id, "status", body.status);
+  if (!found) return { error: "No record found with id " + body.id };
+  return { ok: true };
+}
+
+/*
+ * Patterns to add when the domain needs them (full working versions in the
+ * ISP billing reference implementation):
+ *
+ * - Idempotent bulk generation: build a skip-list keyed from existing rows
+ *   (e.g. customerId|YYYY-MM) before appending; a re-run for the same period
+ *   creates 0 rows. See generateInvoices.
+ * - Client-id write idempotency: accept an optional regex-validated client id;
+ *   if already present in the tab, return { ok: true, duplicate: true } —
+ *   Apps Script executes a POST even when the client loses the response.
+ *   See recordPayment.
+ * - Editor-runnable migration: zero-arg wrapper calling the action with
+ *   SpreadsheetApp.getActive() + Logger.log, re-deriving targets each run so
+ *   repeats are no-ops. See migrateInvoiceIds / runMigrateInvoiceIds.
+ * - Guarded delete: refuse to delete a row other tabs reference.
+ *   See deleteInvoice.
+ */
+
+// ---------- helpers ----------
+
+function sheetToObjects(sheet) {
+  if (!sheet) return [];
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return [];
+  const headers = values[0];
+  return values.slice(1)
+    .filter(function (row) { return row[0] !== "" && row[0] !== null; })
+    .map(function (row) {
+      const obj = {};
+      headers.forEach(function (h, i) {
+        let v = row[i];
+        if (v instanceof Date) {
+          // Sheets auto-coerces date-looking strings into Dates on read-back —
+          // normalize to the string form the API contract promises.
+          v = Utilities.formatDate(v, Session.getScriptTimeZone(), "yyyy-MM-dd");
+        }
+        obj[h] = v;
+      });
+      return obj;
+    });
+}
+
+function setFieldByMatch(sheet, idField, idValue, fieldName, fieldValue) {
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0];
+  const idCol = headers.indexOf(idField);
+  const fieldCol = headers.indexOf(fieldName);
+  if (fieldCol === -1) return false; // column header missing from the sheet
+  for (let r = 1; r < values.length; r++) {
+    if (values[r][idCol] === idValue) {
+      sheet.getRange(r + 1, fieldCol + 1).setValue(fieldValue);
+      return true;
+    }
+  }
+  return false;
+}
+
+function todayStr() {
+  return formatDateStr(new Date());
+}
+
+function formatDateStr(d) {
+  return Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd");
+}
+
+function isValidDateStr(s) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(s || ""));
+}
+
+// Parses a "YYYY-MM-DD" string into a local-timezone Date at midnight.
+// Deliberately avoids `new Date(str)`, which parses as UTC and can shift
+// the calendar day in a non-UTC timezone.
+function parseDateStr(s) {
+  const parts = String(s).split("-").map(Number);
+  return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+// Sheets treats a leading = + - @ as a formula (or arithmetic coercion) even
+// when written via appendRow/setValue — a name like "=IMPORTXML(...)" would
+// execute, and a contact like "+639..." would fail to parse as a formula.
+// Prefixing Sheets' literal-text marker stores the raw text; the apostrophe
+// is not part of the stored value and does not appear on readback.
+function sanitizeCell(v) {
+  return typeof v === "string" && /^[=+\-@]/.test(v) ? "'" + v : v;
+}
+
+function respond(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}

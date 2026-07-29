@@ -45,6 +45,7 @@ Client brand intake lives in `~/.claude/skills/theme-client/` — call it at pro
 | **Full deployable company website** — artifact + Next.js scaffold + Supabase + RLS + security checklist | `/company-site` (this skill) |
 | Dedicated `/login` route with verification tests | `/auth-page-scaffold` (not the admin modal in `/company-site` templates) |
 | **Client brand intake** (logo + 1–3 colors → theme.json + tokens.css + Tailwind config + BRAND.md) | `/theme-client` — called once at the start of any client project |
+| **Replacing an existing live site** (baseline audit, SEO/redirect continuity, before/after verification) | `/web-rebuild` — orchestrates the full pipeline and calls this skill for the build |
 
 **Rule:** when `/company-site` Phase 0 reaches the Brand/Tagline fields, **invoke `/ui-builder` Phase 3** for the rubric and 3-option output instead of just asking for a string. Save the chosen tagline back into SITE_CONFIG.
 

@@ -43,7 +43,7 @@ If ambiguous, ask in one sentence before proceeding.
    - Philippines market relevance (Y/N)
 4. **Fill gaps** — ask only what is missing, in a single block before drafting. Max 3 questions. Never ask follow-ups mid-draft.
 5. **Draft document** using the matching template below.
-6. **Offer follow-up**: companion doc (PRD → TDD or vice versa), task breakdown (`/plan-todo`), or save as `.md` file using Write tool at `~/projects-mvp/<project-name>/docs/`.
+6. **Offer follow-up**: companion doc (PRD → TDD or vice versa), task breakdown (`/plan-todo` — this skill does not write TODO.md itself; when invoked from `/init`, that chain auto-runs `/plan-todo` next), or save as `.md` file using Write tool at `~/projects-mvp/<project-name>/docs/`.
 
 ---
 

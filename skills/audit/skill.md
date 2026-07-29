@@ -276,7 +276,7 @@ Each item is a checkbox: PASS / FAIL / N/A. Fail blocks deployment.
 
 ## Phase 4 — TODO Writeback (Auto)
 
-After Phase 2 and Phase 3 complete, append findings to the project's `TODO.md` as a new phase. **This always runs — do not ask first.** If `TODO.md` does not exist, create it.
+After Phase 2 and Phase 3 complete, append findings to the project's `TODO.md` as a new phase. **This always runs — do not ask first.** If `TODO.md` does not exist, create it. `/plan-todo` refreshes preserve this section verbatim — remediation items are never dropped or folded into PRD phases.
 
 ### Format
 

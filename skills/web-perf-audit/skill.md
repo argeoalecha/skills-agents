@@ -110,7 +110,7 @@ Rules:
 
 ## TODO writeback (project repos only)
 
-When the audited site's repo is the working directory (or the user owns it), append fix-needed findings to `TODO.md` as a new phase — same closure loop as `/audit`, `/load-test`, and `/ux-review`:
+When the audited site's repo is the working directory (or the user owns it), append fix-needed findings to `TODO.md` as a new phase — same closure loop as `/audit`, `/load-test`, and `/ux-review`. `/plan-todo` refreshes preserve this section verbatim:
 
 ```markdown
 ## Phase X: Perf Remediation (YYYY-MM-DD)
@@ -127,6 +127,7 @@ Skip writeback when auditing an external site you don't control (client intake, 
 - **Pairs with `/ux-review`** — this skill measures the HTTP layer; its Phase 5.5 reviews the rendered markup/content. Findings here that need code changes (bundle bloat, unsized images found in local build audit) route to `/feature-dev` or `/ui-builder`
 - **Pairs with `/load-test`** — this skill measures single-request delivery; `/load-test` measures behavior under concurrency. TTFB fine here but slow in production → load problem, not delivery problem
 - **Feeds `/web-research`** — prospect-site audits become sales evidence in client intake reports
+- **Wrapped by `/web-rebuild`** — when findings are bad enough that a rebuild beats incremental fixes, `/web-rebuild` uses this skill for the baseline, build-time budget checks, and before/after verification
 
 ## Reference files
 

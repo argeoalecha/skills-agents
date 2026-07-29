@@ -241,7 +241,7 @@ LCP, CLS, and INP are ranking signals. This phase flags the *markup/styling caus
 
 ## Phase 6 — TODO Writeback (Auto)
 
-Append to `TODO.md` as a new phase. Always runs.
+Append to `TODO.md` as a new phase. Always runs. `/plan-todo` refreshes preserve this section verbatim.
 
 ```markdown
 ## Phase X: UX Remediation (YYYY-MM-DD)
@@ -379,6 +379,7 @@ Appended N items to TODO.md under "Phase X: UX Remediation (YYYY-MM-DD)"
 - **Feeds `/feature-dev`** — UX Remediation TODO items needing data or logic changes become feature-dev inputs
 - **Verification via `/e2e-test`** — after fixes, run e2e to confirm flows still work
 - **Re-run after fixes** — `/ux-review` in re-test mode marks resolved items with `~~strikethrough~~`
+- **Wrapped by `/web-rebuild`** — supplies the baseline UX findings on the old site (Phase 1) and the pre-ship gate on the rebuilt one (Phase 6)
 
 ---
 

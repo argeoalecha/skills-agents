@@ -890,7 +890,7 @@ RNG seed: <int>
 
 ### Append failed gates to `TODO.md`
 
-Every FAIL in the report becomes a remediation task under a `## ML Model Remediation` section in `TODO.md` (create the section if missing). Format:
+Every FAIL in the report becomes a remediation task under a `## ML Model Remediation` section in `TODO.md` (create the section if missing). `/plan-todo` refreshes preserve this section verbatim. Format:
 
 ```markdown
 - [ ] [GATE: Accuracy] Primary metric 0.71 < 0.80 threshold — see MODEL_REPORT.md

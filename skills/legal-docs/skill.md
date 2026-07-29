@@ -547,7 +547,7 @@ Placeholder fields to fill:
 
 ## Phase 5 — TODO Writeback (Auto)
 
-Append to `TODO.md`. Always runs.
+Append to `TODO.md`. Always runs. `/plan-todo` refreshes preserve this section verbatim.
 
 ```markdown
 ## Phase X: Legal Docs Review (YYYY-MM-DD)

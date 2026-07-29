@@ -240,7 +240,7 @@ For every issue in the report, append an entry under a `## E2E Test Remediation`
 - [ ] [HIGH] [BUG] <description> — see E2E_TEST.md for repro
 ```
 
-Do not silently swallow findings. If `TODO.md` doesn't exist in the project, create it.
+Do not silently swallow findings. If `TODO.md` doesn't exist in the project, create it. `/plan-todo` refreshes preserve this section verbatim.
 
 ### 4c. State the GO / NO-GO verdict in chat
 

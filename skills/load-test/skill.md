@@ -334,7 +334,7 @@ For each finding, attempt to attribute the bottleneck:
 
 ## Phase 6 — TODO Writeback (Auto)
 
-Append findings to `TODO.md` as a Performance Remediation phase. Always runs.
+Append findings to `TODO.md` as a Performance Remediation phase. Always runs. `/plan-todo` refreshes preserve this section verbatim.
 
 ```markdown
 ## Phase X: Performance Remediation (YYYY-MM-DD)

@@ -67,6 +67,8 @@ grep -n "IN PROGRESS\|in-progress\|WIP\|TODO\|FIXME" TODO.md 2>/dev/null
 npx tsc --noEmit 2>&1 | head -20
 ```
 
+If `TODO.md` looks stale — its `Generated:` date predates recent commits, or checked/unchecked status contradicts what the git log shows shipped — note it in the briefing and offer `/plan-todo` to refresh it before continuing.
+
 ---
 
 ## Step 4 — Scan Project State
@@ -120,7 +122,7 @@ Checkpoint: <fresh/stale/reconstructed>
 
 ### Recommended Next Action
 <single, specific, immediately actionable step>
-Skill to use: /feature-dev | /db-migrate | /api-new | /audit | ...
+Skill to use: /feature-dev | /plan-todo | /db-migrate | /api-new | /audit | ...
 ```
 
 ---

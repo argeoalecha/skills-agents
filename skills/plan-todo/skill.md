@@ -14,11 +14,13 @@ Reads the project's PRD and TDD, cross-references the current codebase and any e
 | Skill / Agent | What It Does | When to Use |
 |---|---|---|
 | `/brainstorm-ideas` | Diverge/converge ideation; ranks options (ICE/RICE/2×2) | Before docs exist, or to re-rank backlog scope |
-| `product-planner` (built-in agent) | Creates a plan and PRD from a vague idea | Before docs exist |
+| `/init` | Bootstraps skeleton + git, auto-runs `/prd-tdd-writer` then this skill | Before docs exist |
 | `/prd-tdd-writer` | Writes or reviews formal PRD and TDD documents | To spec or critique |
 | **`/plan-todo`** | **Reads PRD + TDD → ordered, refreshable TODO list** | **Any stage of development** |
 | `/ui-builder` | Locks theme, logo + tagline, component conventions | Phase 1 Foundation — web app projects only |
+| `/company-site` | Builds the marketing-site scaffold | Marketing-site projects, stepped through the TODO |
 | `/feature-dev` | Executes the full build lifecycle for a feature | Implementing a specific feature |
+| Gate skills: `/audit`, `/load-test`, `/ux-review`, `/e2e-test`, `/ml-ops`, `/legal-docs`, `/web-perf-audit` | Append remediation phases to TODO.md | Pre/post-deploy gates — this skill preserves their sections on refresh |
 | `/checkpoint` | Saves session state for resuming | End of session |
 
 ---
@@ -117,6 +119,7 @@ Never mark something DONE without finding the code. Existing file ≠ working fe
 If `TODO.md` already exists:
 - Preserve all `- [x]` checked items (do not uncheck completed work)
 - Preserve any lines that start with `>` or contain inline notes added by the user
+- **Preserve remediation phases appended by gate skills — verbatim, including unchecked items.** These sections are not PRD items and must never be dropped or folded into PRD phases on refresh. Recognize them by heading: `Audit Remediation` (/audit), `Performance Remediation` (/load-test), `Perf Remediation` (/web-perf-audit), `UX Remediation` (/ux-review), `E2E Test Remediation` (/e2e-test), `ML Model Remediation` (/ml-ops), `Legal Docs Review` (/legal-docs). Items already `~~struck through~~ (resolved)` stay as-is.
 - Add net-new items from the PRD that aren't already in the list
 - Update status of items where the codebase state has changed
 - Do NOT reorder sections the user has reorganized manually
@@ -163,7 +166,10 @@ Based on: PRD (<Status field value>), TDD (<Status field value>)
 
 ## Phase 6: Deployment
 - [ ] Configure Vercel project + env vars
+- [ ] Run /audit — GO sign-off required before production deploy
 - [ ] Deploy to production
+- [ ] Verify live site with /web-perf-audit
+- [ ] Optional (pre-scale): /load-test against the deployed URL
 
 ---
 
@@ -175,7 +181,7 @@ Based on: PRD (<Status field value>), TDD (<Status field value>)
 
 ## Next Action
 <single most important thing to do right now>
-Skill: /feature-dev | /db-migrate | /api-new
+Skill: /feature-dev | /company-site | /db-migrate | /api-new
 ```
 
 ---
@@ -217,9 +223,11 @@ Based on: PRD (<Status>), TDD (<Status>)
 - [ ] Verify cost estimate matches TDD projection
 
 ## Phase 6: Deployment
+- [ ] Run /audit — GO sign-off required before production deploy
 - [ ] Deploy to <runtime: Vercel fn / cron / Edge Function>
 - [ ] Set env vars: ANTHROPIC_API_KEY, <others>
 - [ ] Enable monitoring (error rate, latency, token cost)
+- [ ] Optional (pre-scale): /load-test in AI-agent mode (token cost cap enforced)
 
 ---
 
@@ -243,7 +251,7 @@ After generating the TODO list, output:
 ```
 Next action: <specific task from the TODO list — not a category, a concrete item>
 Why: <one sentence on why this unblocks the most work>
-Skill: /feature-dev | /db-migrate | /api-new | /claude-api | /audit | ...
+Skill: /feature-dev | /company-site | /db-migrate | /api-new | /claude-api | /audit | ...
 ```
 
 If the project is first-run (no TODO.md existed and <25% of PRD items have code), offer to run `/feature-dev` on Phase 1 immediately.
@@ -255,6 +263,7 @@ If the project is first-run (no TODO.md existed and <25% of PRD items have code)
 - Never mark something DONE without finding the corresponding code
 - Phase order matters — flag any out-of-order work (e.g. frontend built before the API exists)
 - If TODO.md already exists, merge — never wholesale replace it
+- Remediation phases written by gate skills (/audit, /load-test, /ux-review, /e2e-test, /ml-ops, /legal-docs, /web-perf-audit) are preserved verbatim on every refresh — never drop their unchecked items or fold them into PRD phases
 - The "Next Action" must name a single concrete item, not a direction
 - If TDD has open questions, surface them in the TODO's "Open Questions" section so they don't get buried
 - If the PRD Status is Draft, add a visible warning — tasks from a draft spec carry scope risk

@@ -13,6 +13,8 @@ A skill for producing and reviewing lean, professional PRDs and TDDs for web app
 
 `/brainstorm-ideas` is another upstream: when a brainstorm ends with a build-worthy top pick, its Recommendation block (problem statement, constraints, top pick + rationale) is the seed input for the PRD — treat it like a mini concept doc and don't re-ask questions it already answers.
 
+`/interrogate-me` is the third upstream: its Concept Brief (problem, user, wedge, scope in/out, core interaction, design intent, market constraints, success signal, kill condition) is a stronger seed than a raw concept doc — it already represents decisions the user committed to under questioning. Do not re-litigate them. Anything the brief marks `UNRESOLVED` or lists under Open questions is genuinely still open and is the right thing to ask about.
+
 `/init` is the project bootstrapper and auto-runs this skill at the end of its chain. When invoked that way (or any time the cwd is a freshly-bootstrapped project), **a concept doc exists at `docs/concept.md`** — read it first (see Write Mode step 3). The skeleton's `CLAUDE.md` will say `Stack: TBD — decided in the TDD`; this skill's TDD is where stack, theme variant, and deploy target actually get pinned down. Treat that as a responsibility: the rest of the pipeline (`/company-site`, `/feature-dev`) reads the TDD to author framework files, so the TDD must state the chosen stack, the Hayah theme variant, and the deploy target explicitly.
 
 ---

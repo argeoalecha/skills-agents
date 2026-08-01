@@ -22,6 +22,11 @@ Always name the methodology used so the output is traceable and defensible.
 open-ended or strategic problems. For small decisions, compress to a short diverge/converge:
 3–4 options, a quick ranking, one recommendation — no template, no methodology citations.
 
+**Not this skill:** if the user already knows what they want to build and the idea is
+merely vague, there is nothing to diverge on — hand to `/interrogate-me`, which sharpens a
+single chosen idea into a Concept Brief. Use this skill only when the set of options is
+genuinely still open.
+
 ---
 
 ## Step 1 — Classify the Problem
@@ -187,7 +192,7 @@ A brainstorm that ends in a build decision feeds the project pipeline. After the
 
 | Outcome of the brainstorm | Hand off to |
 |---|---|
-| Top pick is a new product or project idea | `/init` — drop the Recommendation block (problem, constraints, top pick + rationale) into the project folder as the concept doc |
+| Top pick is a new product or project idea | `/interrogate-me` — pressure-test the pick into a Concept Brief first, then `/init`. Go straight to `/init` only if the Recommendation is already concrete on problem, user, and v1 scope |
 | Top pick needs formal scoping before build | `/prd-tdd-writer` — the Recommendation block is the seed input for the PRD |
 | Top pick is a feature in an existing project | `/feature-dev` — carry the constraints and rationale into Phase 1 requirements |
 | Brainstorm re-ranked existing scope or backlog items | `/plan-todo` — refresh TODO.md with the new priority order |

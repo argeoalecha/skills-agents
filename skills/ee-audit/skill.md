@@ -24,7 +24,12 @@ this one on the engineering deliverables, `/audit` on the dashboard software.
    (e.g. the 80% continuous flag)? A threshold that drifted from its breaker rating
    is the highest-consequence mismatch in this list — it misinforms an operator.
 4. Is every standards citation (PEC article, IEEE clause, RA 7920 reference) present
-   and traceable — none asserted without a source?
+   and traceable — none asserted without a source? Include **within-document** checks,
+   not just cross-document ones: a summary citation table can assert a clean single
+   standard (e.g. "meets Class 0.5S") while the same document's body text discloses a
+   caveat (e.g. only one of several shortlisted candidates actually meets that tier).
+   That's a discrepancy even though both halves are in the same file — a reader who
+   extracts only the table gets a wrong impression.
 5. Are as-built "field-verified" vs. "assumed" labels still correctly applied after
    any later edits?
 6. Did any load-calc result change after downstream deliverables were produced? If so,

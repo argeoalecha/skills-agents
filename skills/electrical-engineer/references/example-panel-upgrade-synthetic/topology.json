@@ -1,0 +1,217 @@
+{
+  "_meta": {
+    "project": "QC 3-storey mixed-use, panel replacement feasibility (SYNTHETIC smoke test)",
+    "document_type": "as-built, EXISTING CONDITIONS ONLY - not a replacement design",
+    "status": "DRAFT FOR PEE REVIEW - not issued for construction, not sealed",
+    "ra7920_note": "Seal required before this becomes IFC. This file and its drawing are pre-seal drafts.",
+    "survey_basis": "NO PHYSICAL SITE SURVEY PERFORMED. All data below is SYNTHETIC/ASSUMED, supplied as stated site data for this smoke test, not field-verified. See field_verification_status on every node/edge.",
+    "survey_date": null,
+    "document_generation_date": "2026-08-04",
+    "versioning_note": "This draft is version 0.1-synthetic, dated by GENERATION date only. Per as-built convention this drawing set is NOT properly versioned because no survey date exists to version it against. Do not treat 2026-08-04 as a survey date in any downstream consumption.",
+    "load_calc_dependency": "This existing-conditions as-built does NOT depend on load-calc output. Confirmed during this run - see routing_finding.",
+    "routing_finding": "as-built-agent can document existing conditions (topology, nameplate/rating observations, panel identities) independent of load-calc. Only a REPLACEMENT panel design/schedule requires load-calc's demand load and breaker/conductor sizing. These are two separable deliverables and should be scheduled as such in the pipeline."
+  },
+  "nodes": [
+    {
+      "id": "UTIL-SVC",
+      "type": "utility_service_point",
+      "description": "Meralco service point / point of utility interconnection",
+      "field_verification_status": "ASSUMED - not surveyed. Utility account/meter details, transformer kVA and %Z not obtained (baseline #5.2, OPEN/blocking for design, not for this doc).",
+      "attributes": {
+        "voltage": "230V",
+        "phase": "single-phase",
+        "note": "Available fault current NOT obtained from Meralco - immaterial to existing-conditions as-built, blocking for replacement design only."
+      }
+    },
+    {
+      "id": "MP-1",
+      "type": "main_panel",
+      "description": "Existing main service panel / service disconnect, ~15 years old",
+      "field_verification_status": "ASSUMED - stated site data, not field-verified. Age (~15 yrs), rating (100A), and voltage/phase are as-stated, not read off a nameplate.",
+      "attributes": {
+        "rating_amps": 100,
+        "voltage": "230V",
+        "phase": "single-phase",
+        "age_years_approx": 15,
+        "disconnects_downstream": 5,
+        "disconnects_downstream_note": "4 tenant subpanel feeders + presumed house-load disconnect(s), if any exist. Six-disconnect rule (PEC Art. 2.30 / NEC 230.71 2017 text) applicability CHECK-BOOK per baseline Sec.2 - actual disconnect count and whether it is a single main disconnect or up-to-6 disconnects has NOT been counted in the field."
+      }
+    },
+    {
+      "id": "GES-1",
+      "type": "grounding_electrode_system",
+      "description": "Grounding electrode system serving MP-1",
+      "field_verification_status": "UNKNOWN - CANNOT BE CONFIRMED WITHOUT PHYSICAL SITE VISIT. No electrode type, count, resistance test, or GEC size/routing has been observed or assumed.",
+      "risk_flag": "Standards baseline Sec.3: 15-year-old service was likely built to PEC 2000/2009; GES is the most likely non-compliance point and is generally not grandfathered on service equipment replacement."
+    },
+    {
+      "id": "SP-RETAIL1",
+      "type": "tenant_subpanel",
+      "description": "Retail-1 subpanel, ground floor",
+      "field_verification_status": "ASSUMED - stated site data (floor area, tenant identity, floor level). Panel rating, branch breaker inventory, and conductor sizes NOT surveyed.",
+      "attributes": {
+        "floor": "Ground",
+        "floor_area_sqm_approx": 80,
+        "metering": "unmetered - no individual utility or submeter installed today",
+        "panel_rating_amps": "UNKNOWN - not field-verified"
+      }
+    },
+    {
+      "id": "SP-RETAIL2",
+      "type": "tenant_subpanel",
+      "description": "Retail-2 subpanel, ground floor",
+      "field_verification_status": "ASSUMED - stated site data. Panel rating, branch breaker inventory, and conductor sizes NOT surveyed.",
+      "attributes": {
+        "floor": "Ground",
+        "floor_area_sqm_approx": 80,
+        "metering": "unmetered - no individual utility or submeter installed today",
+        "panel_rating_amps": "UNKNOWN - not field-verified"
+      }
+    },
+    {
+      "id": "SP-OFFICE1",
+      "type": "tenant_subpanel",
+      "description": "Office-1 subpanel, 2nd floor",
+      "field_verification_status": "ASSUMED - stated site data. Panel rating, branch breaker inventory, and conductor sizes NOT surveyed.",
+      "attributes": {
+        "floor": "2nd",
+        "floor_area_sqm_approx": 100,
+        "metering": "unmetered - no individual utility or submeter installed today",
+        "panel_rating_amps": "UNKNOWN - not field-verified"
+      }
+    },
+    {
+      "id": "SP-OFFICE2",
+      "type": "tenant_subpanel",
+      "description": "Office-2 subpanel, 3rd floor",
+      "field_verification_status": "ASSUMED - stated site data. Panel rating, branch breaker inventory, and conductor sizes NOT surveyed.",
+      "attributes": {
+        "floor": "3rd",
+        "floor_area_sqm_approx": 100,
+        "metering": "unmetered - no individual utility or submeter installed today",
+        "panel_rating_amps": "UNKNOWN - not field-verified"
+      }
+    },
+    {
+      "id": "HOUSE-LOADS",
+      "type": "house_load_uncertain",
+      "description": "Possible common-area/house loads (hallway lighting, signage, fire/life-safety) fed ahead of tenant subpanels",
+      "field_verification_status": "EXISTENCE UNCONFIRMED - not surveyed. Included as a placeholder node because the standards baseline flags 'house loads not supplied from a tenant panel' as a defect pattern to check for at this building age/type. Do not treat this node as confirmed to exist."
+    }
+  ],
+  "edges": [
+    {
+      "from": "UTIL-SVC",
+      "to": "MP-1",
+      "type": "service_conductors",
+      "field_verification_status": "ASSUMED - conductor size/type/routing not surveyed."
+    },
+    {
+      "from": "MP-1",
+      "to": "GES-1",
+      "type": "grounding_electrode_conductor",
+      "field_verification_status": "UNKNOWN - CANNOT BE CONFIRMED WITHOUT PHYSICAL SITE VISIT. GEC size, routing, and connection integrity not observed."
+    },
+    {
+      "from": "MP-1",
+      "to": "SP-RETAIL1",
+      "type": "feeder",
+      "field_verification_status": "ASSUMED - existence of a dedicated feeder assumed from stated site data (4 tenant subpanels fed from main). Conductor size, OCPD size, and routing NOT surveyed.",
+      "risk_flag_bonding": "UNKNOWN - CANNOT BE CONFIRMED WITHOUT PHYSICAL SITE VISIT whether neutral is re-bonded to EGC downstream of the service disconnect at this or any subpanel (PEC Art. 2.50 / NEC 250.24(A)(5)/250.142 concern per baseline Sec.2)."
+    },
+    {
+      "from": "MP-1",
+      "to": "SP-RETAIL2",
+      "type": "feeder",
+      "field_verification_status": "ASSUMED - see SP-RETAIL1 feeder note.",
+      "risk_flag_bonding": "UNKNOWN - CANNOT BE CONFIRMED WITHOUT PHYSICAL SITE VISIT, same bonding concern as above."
+    },
+    {
+      "from": "MP-1",
+      "to": "SP-OFFICE1",
+      "type": "feeder",
+      "field_verification_status": "ASSUMED - see SP-RETAIL1 feeder note.",
+      "risk_flag_bonding": "UNKNOWN - CANNOT BE CONFIRMED WITHOUT PHYSICAL SITE VISIT, same bonding concern as above."
+    },
+    {
+      "from": "MP-1",
+      "to": "SP-OFFICE2",
+      "type": "feeder",
+      "field_verification_status": "ASSUMED - see SP-RETAIL1 feeder note.",
+      "risk_flag_bonding": "UNKNOWN - CANNOT BE CONFIRMED WITHOUT PHYSICAL SITE VISIT, same bonding concern as above."
+    },
+    {
+      "from": "MP-1",
+      "to": "HOUSE-LOADS",
+      "type": "feeder_or_branch_uncertain",
+      "field_verification_status": "EXISTENCE AND ROUTING UNCONFIRMED - not surveyed."
+    },
+    {
+      "from": "SP-RETAIL1",
+      "to": "SP-RETAIL2",
+      "type": "possible_cross-tenant_branch_circuit",
+      "field_verification_status": "SPECULATIVE PLACEHOLDER, NOT AN OBSERVED CONDITION. Included only to make explicit that branch-circuit segregation between tenants (PEC Art. 2.10 / NEC 210.25(A)) CANNOT BE CONFIRMED WITHOUT PHYSICAL SITE VISIT. No circuit tracing has been performed. Remove this edge once field circuit-tracing confirms actual segregation or crossing."
+    }
+  ],
+  "panel_schedule_existing_conditions": {
+    "note": "This is NOT a replacement panel schedule and does not contain load-calc-derived values (breaker sizes, conductor sizes, demand loads). load-calc could not run - see load-calc-gap-report.md. Every cell below is either ASSUMED (stated site data) or UNKNOWN (requires field survey). No value has been invented to fill a gap.",
+    "panels": [
+      {
+        "panel_id": "MP-1",
+        "description": "Existing main panel",
+        "rating_amps": {"value": 100, "status": "ASSUMED"},
+        "voltage_phase": {"value": "230V, 1-phase", "status": "ASSUMED"},
+        "age_years": {"value": "~15", "status": "ASSUMED"},
+        "main_breaker_rating": {"value": null, "status": "UNKNOWN - not surveyed"},
+        "bus_rating": {"value": null, "status": "UNKNOWN - not surveyed"},
+        "aic_rating": {"value": null, "status": "UNKNOWN - not surveyed, and not derivable without Meralco fault-current data"},
+        "grounding_electrode_system_condition": {"value": null, "status": "UNKNOWN - cannot be confirmed without physical site visit"},
+        "neutral_ground_bonding_location": {"value": null, "status": "UNKNOWN - cannot be confirmed without physical site visit"}
+      },
+      {
+        "panel_id": "SP-RETAIL1",
+        "description": "Retail-1 tenant subpanel",
+        "floor": "Ground",
+        "area_sqm": {"value": 80, "status": "ASSUMED"},
+        "metering": {"value": "none installed", "status": "ASSUMED"},
+        "panel_rating_amps": {"value": null, "status": "UNKNOWN - not surveyed"},
+        "branch_breaker_inventory": {"value": null, "status": "UNKNOWN - not surveyed, no circuit directory available"},
+        "branch_circuit_segregation": {"value": null, "status": "UNKNOWN - cannot be confirmed without physical site visit (PEC Art. 2.10)"},
+        "occupant_access_to_ocpd": {"value": null, "status": "UNKNOWN - cannot be confirmed without physical site visit (PEC Art. 2.40 / NEC 240.24(B))"}
+      },
+      {
+        "panel_id": "SP-RETAIL2",
+        "description": "Retail-2 tenant subpanel",
+        "floor": "Ground",
+        "area_sqm": {"value": 80, "status": "ASSUMED"},
+        "metering": {"value": "none installed", "status": "ASSUMED"},
+        "panel_rating_amps": {"value": null, "status": "UNKNOWN - not surveyed"},
+        "branch_breaker_inventory": {"value": null, "status": "UNKNOWN - not surveyed, no circuit directory available"},
+        "branch_circuit_segregation": {"value": null, "status": "UNKNOWN - cannot be confirmed without physical site visit (PEC Art. 2.10)"},
+        "occupant_access_to_ocpd": {"value": null, "status": "UNKNOWN - cannot be confirmed without physical site visit (PEC Art. 2.40 / NEC 240.24(B))"}
+      },
+      {
+        "panel_id": "SP-OFFICE1",
+        "description": "Office-1 tenant subpanel",
+        "floor": "2nd",
+        "area_sqm": {"value": 100, "status": "ASSUMED"},
+        "metering": {"value": "none installed", "status": "ASSUMED"},
+        "panel_rating_amps": {"value": null, "status": "UNKNOWN - not surveyed"},
+        "branch_breaker_inventory": {"value": null, "status": "UNKNOWN - not surveyed, no circuit directory available"},
+        "branch_circuit_segregation": {"value": null, "status": "UNKNOWN - cannot be confirmed without physical site visit (PEC Art. 2.10)"},
+        "occupant_access_to_ocpd": {"value": null, "status": "UNKNOWN - cannot be confirmed without physical site visit (PEC Art. 2.40 / NEC 240.24(B))"}
+      },
+      {
+        "panel_id": "SP-OFFICE2",
+        "description": "Office-2 tenant subpanel",
+        "floor": "3rd",
+        "area_sqm": {"value": 100, "status": "ASSUMED"},
+        "metering": {"value": "none installed", "status": "ASSUMED"},
+        "panel_rating_amps": {"value": null, "status": "UNKNOWN - not surveyed"},
+        "branch_breaker_inventory": {"value": null, "status": "UNKNOWN - not surveyed, no circuit directory available"},
+        "branch_circuit_segregation": {"value": null, "status": "UNKNOWN - cannot be confirmed without physical site visit (PEC Art. 2.10)"},
+        "occupant_access_to_ocpd": {"value": null, "status": "UNKNOWN - cannot be confirmed without physical site visit (PEC Art. 2.40 / NEC 240.24(B))"}
+      }
+    ]
+  }
+}

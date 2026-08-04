@@ -32,17 +32,38 @@ dependency, not by preference. Use it only for work that falls outside this pipe
 ## Canonical dependency order
 
 Never run a downstream step on missing upstream inputs — flag the gap instead.
+Validated against a live smoke-test engagement (see `references/example-panel-upgrade-
+synthetic/` for the full worked run). The order is **not** a strict chain — several
+steps split into a structural/scoping half that only needs standards-compliance, and a
+numeric-sizing half that needs `/ee-load-calc`'s output. Route the independent halves
+in parallel.
 
 ```
-standards-compliance ──┬─→ /ee-load-calc ──┬─→ as-built ──┬─→ digital-twin
-                       │                   │              │
-                       └─→ instrumentation ┴─→ /ee-spec-writer
-                                                          │
-                                            all outputs ──┴─→ /ee-audit ─→ deliver
+standards-compliance ──┬─→ /ee-load-calc ──┬─→ as-built (replacement schedule)
+        │              │                   ├─→ instrumentation (CT/meter sizing)
+        │              │                   ├─→ /ee-spec-writer (Products: sizing)
+        │              │                   └─→ digital-twin (threshold values)
+        │              │
+        ├─→ field survey (external owner — no agent performs this)
+        │      │
+        │      └─→ as-built (existing-conditions doc) ─┐
+        │                                               ├─→ digital-twin (topology/schema)
+        ├─→ instrumentation (standard/protocol) ────────┘
+        │
+        └─→ /ee-spec-writer (General + most of Execution)
+
+  all outputs ──→ /ee-audit ─→ deliver
 ```
 
-`instrumentation-procurement-agent` may run in parallel with load-calc once sensing
-and metering requirements are known. Everything else is strictly ordered.
+**Field site survey has no agent owner.** If the engagement involves documenting an
+existing installation, someone has to physically visit the site before as-built or
+load-calc can use real (not stated/assumed) data. Flag this as a client/field-engineer
+deliverable in the task queue, not a silent gap.
+
+**Breaker interrupting rating (AIC) is a separate blocker from `/ee-load-calc`.** It
+depends on the utility's available fault current at the service point (e.g. Meralco,
+in writing) — track it as its own queue item with an external owner. Unblocking
+load-calc does not unblock AIC.
 
 ## The two layers — keep them separate
 
@@ -82,6 +103,14 @@ build is a normal web project:
 - Spec sections and basis-of-design → `document-skills:docx` for client-facing format.
 - Instrument comparison tables, BOQ, load lists → `document-skills:xlsx`.
 - Proposals → `/proposal-tech` and `/proposal-comm` (Philippines variant).
+
+## Worked example
+
+`references/example-panel-upgrade-synthetic/` — a full synthetic engagement run
+through every agent and skill in this pipeline, kept as a reference for what each
+step's output should look like and how gaps get carried forward without fabrication.
+Not real data; see that folder's `README.md` before treating anything in it as a
+template to copy verbatim.
 
 ## Non-negotiable: licensure boundary
 

@@ -196,6 +196,7 @@ A brainstorm that ends in a build decision feeds the project pipeline. After the
 | Top pick needs formal scoping before build | `/prd-tdd-writer` — the Recommendation block is the seed input for the PRD |
 | Top pick is a feature in an existing project | `/feature-dev` — carry the constraints and rationale into Phase 1 requirements |
 | Brainstorm re-ranked existing scope or backlog items | `/plan-todo` — refresh TODO.md with the new priority order |
+| Top pick needs execution as a multi-step or multi-agent workflow (not just a single build task) | `/graph-topology-planner` — feed it the Recommendation block as the scoped input; it decomposes into nodes, identifies human gates, and selects the orchestration topology |
 
 Offer the handoff; don't auto-run it.
 

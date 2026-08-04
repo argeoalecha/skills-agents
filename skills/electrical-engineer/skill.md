@@ -23,6 +23,12 @@ rules — do not restate or override them here.
 | Final cross-check before client delivery | `/ee-audit` |
 | Pricing and commercial packaging of the engagement | `/proposal-tech` + `/proposal-comm` |
 
+The dependency order below is **already solved** for this pipeline. Do not run
+`/graph-topology-planner` to re-derive it — that skill designs topologies for novel
+projects, and this one is a fixed instance whose order is fixed by engineering
+dependency, not by preference. Use it only for work that falls outside this pipeline
+(a new service line, a client engagement with an unfamiliar deliverable shape).
+
 ## Canonical dependency order
 
 Never run a downstream step on missing upstream inputs — flag the gap instead.

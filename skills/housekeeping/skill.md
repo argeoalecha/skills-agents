@@ -236,14 +236,17 @@ Only after explicit user confirmation per category or per file.
 All removals use `mv` to `~/.Trash/` — never `rm`. This sends files to the macOS system Trash so the admin user can review and empty it manually.
 
 ```bash
-# Move a single file to Trash (handle name collisions with timestamp)
+# Move a single file to Trash (handle name collisions, including dotfiles and
+# same-second batches — do not split on "." for a suffix, it breaks on
+# leading-dot names like .DS_Store and silently collides multiple sources
+# onto one destination when a whole batch runs within the same second)
 _trash() {
   local src="$1"
   local base
   base=$(basename "$src")
   local dest="${HOME}/.Trash/${base}"
   if [[ -e "$dest" ]]; then
-    dest="${HOME}/.Trash/${base%.*}_$(date +%s).${base##*.}"
+    dest="${HOME}/.Trash/${base}.$(date +%s)-$$-${RANDOM}"
   fi
   mv "$src" "$dest"
 }
@@ -306,5 +309,7 @@ After each housekeeping run, log the result here for trend tracking:
 | 2026-07-22 (2nd run, same day) | 255 MB | 255 MB | Nothing moved — user asked to skip trash and just log. Only finding was today's shell snapshot (~5.5 KB, not worth a batch). All other categories empty: no .DS_Store, debug, telemetry, statsig, stale file-history/tasks/session-env/jobs/paste-cache, skill backups, or agent-browser leftovers. 255 MB total growth vs. this morning's 255 MB is entirely session transcripts under `projects/` (out of scope). ide/48104.lock re-checked against live PID 7938 — VS Code still running on isp-billing/sheets-version, correctly left alone. |
 | 2026-08-02 | 296 MB | 259 MB | ~37 MB — 13 .DS_Store, 1 debug log, 1 stale ide lock (28039.lock, PID 1357 not running), 1 old shell snapshot (kept today's), 5 file-history folders (~36 MB, largest contributor), 54 stale session-env folders, 3 paste-cache files. Also removed the recurring orphaned skills/.vscode/ (5th occurrence) — root-caused this time: VS Code workspaceStorage has a window pinned to `~/.claude/skills` as folder root instead of `~/.claude`, so Power Query re-writes settings there each time it opens. Told user to open `~/.claude` instead and clear it from VS Code's recent-folders list; did not edit workspaceStorage itself (live app state). |
 | 2026-08-04 | 255 MB | 254 MB | ~7.4 MB — 1 stale ide lock (36412.lock, PID not running), 1 shell snapshot, 7 file-history folders (7.3 MB, largest contributor), 8 empty session-env folders (0 bytes each — count noise, not size). No .DS_Store, debug, telemetry, statsig, tasks, jobs, paste-cache, cache, stale plans, orphaned skill assets, or agent-browser leftovers this run. Also fixed the skill-cross-reference regex in Step 2 — the prior broad pattern matched route paths and CSS values as false "dangling skill references"; narrowed to backtick-wrapped `` `/name` `` mentions only. Re-verified all 3 newest skills (excel-to-python-notebook, interrogate-me, graph-topology-planner) have no orphaned references/assets, and all 10 agents (incl. electrical-agency) carry current model IDs. |
+
+| 2026-08-04 (2nd run, same day) | 257 MB | 257 MB | ~28K + 5 empty dirs — 3 .DS_Store, 5 empty session-env folders. Total size flat because the day's growth (electrical-engineer worked-example commit, ~3 MB) offset the trivial reclaim. **Found and fixed a real bug in this skill's own `_trash()` helper**: the collision-suffix logic split on `.` for a pseudo-extension, which produces an empty prefix for leading-dot names like `.DS_Store` — and since all 3 `.DS_Store` moves in this run's batch landed in the same second, they collided onto the identical fallback filename and silently overwrote each other in Trash (2 of 3 lost, though `.DS_Store` content is worthless so no real data loss). Fixed by appending `$(date +%s)-$$-${RANDOM}` to the full original name instead of splitting on `.` — see Step 6. All other categories empty this run: no debug, telemetry, statsig, stale file-history/tasks/paste-cache/cache, stale plans, orphaned skill assets, or agent-browser leftovers. Cross-checked the newly-added `electrical-engineer/references/example-panel-upgrade-synthetic/` — all 8 files correctly referenced via the skill's README pointer, no orphans. |
 
 Update this table after every run so you can track accumulation patterns over time.

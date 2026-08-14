@@ -1,7 +1,8 @@
 """
 dtk_common.py — shared layout, theming, and drawing helpers for diagram-toolkit.
 
-Not meant to be run directly. Imported by render_mindmap.py, render_orgchart.py,
+Not meant to be run directly. Imported by all six renderers: render_mindmap.py,
+render_orgchart.py, render_flowtree.py, render_flowchart.py,
 render_critical_path.py, and render_sketch.py.
 """
 import json
@@ -225,8 +226,11 @@ def topo_levels(node_ids, edges):
     (excluded from this call) instead of feeding them in here."""
     preds = {n: [] for n in node_ids}
     for s, d in edges:
-        if d in preds:
-            preds[d].append(s)
+        if s not in preds or d not in preds:
+            raise ValueError(
+                f"Edge {s!r} -> {d!r} references a node id that isn't in the node list"
+            )
+        preds[d].append(s)
     level = {}
 
     def get_level(n, stack):
@@ -255,7 +259,6 @@ def layered_positions(node_ids, edges, x_gap=2.6, y_gap=1.8):
     for n in node_ids:
         by_level.setdefault(level[n], []).append(n)
     pos = {}
-    max_width = max(len(v) for v in by_level.values())
     for lv, members in by_level.items():
         n = len(members)
         offset = (n - 1) / 2.0

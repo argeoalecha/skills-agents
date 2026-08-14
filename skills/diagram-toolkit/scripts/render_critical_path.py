@@ -89,6 +89,17 @@ def topo_sort(by_id):
     return order
 
 
+def task_label(tid, name, width=26, max_lines=2):
+    """Axis label for one task. Rows are one unit apart, so the label is capped
+    at two lines to stay off its neighbours — but a name that doesn't fit ends
+    in an ellipsis rather than being silently cut at the first line."""
+    lines = wrap_text(name, width).split("\n")
+    if len(lines) > max_lines:
+        lines = lines[:max_lines]
+        lines[-1] = lines[-1][:width - 1].rstrip() + "…"
+    return f"{tid} — " + "\n".join(lines)
+
+
 def render_gantt(by_id, order, theme, out_path):
     fig, ax = new_figure(theme["bg"], aspect="auto")
     ax.axis("on")
@@ -109,13 +120,16 @@ def render_gantt(by_id, order, theme, out_path):
         ax.text(t["ES"] + t["duration"] / 2, y, f'{tid} ({t["duration"]})',
                  ha="center", va="center", fontsize=8.5, color="#ffffff",
                  fontweight="bold", zorder=4)
-        y_labels.append(f'{tid} — {wrap_text(t["name"], 26).splitlines()[0]}')
+        y_labels.append(task_label(tid, t["name"]))
 
     ax.set_yticks(range(len(y_labels)))
     ax.set_yticklabels(y_labels, fontsize=8.5)
     ax.set_xlabel("Time")
-    ax.set_title("Project schedule — critical path in red" if theme["critical"] == "#dc2626"
-                  else "Project schedule — critical path highlighted", fontsize=11, loc="left")
+    # Worded without naming the colour: the previous version picked the wording
+    # by comparing the theme's critical colour to a hex literal, so a palette
+    # change would have left the title asserting the wrong colour.
+    ax.set_title("Project schedule — critical path highlighted, float in grey",
+                  fontsize=11, loc="left")
     ax.grid(axis="x", color="#00000015", zorder=0)
     save_fig(fig, out_path)
     print(f"Wrote {out_path}")

@@ -48,7 +48,11 @@ from dtk_common import (get_theme, wrap_text, new_figure, draw_box, draw_elbow_a
 
 BOX_W, BOX_H = 2.6, 0.85
 ROOT_W, ROOT_H = 3.2, 1.0
-GAP_BREADTH, GAP_DEPTH = 0.6, 1.8
+GAP_DEPTH = 1.8
+# Breadth is the axis siblings spread along: horizontal for TD, vertical for LR.
+# Measuring it in box widths regardless of direction made LR trees enormously
+# tall, since it reserved 2.6 units of vertical room for a 0.85-tall box.
+GAP_BREADTH = {"TD": 0.6, "LR": 0.5}
 
 STATUS_LABELS = {
     "selected": "Selected / recommended",
@@ -78,29 +82,37 @@ def box_size(node, depth):
     return (ROOT_W, ROOT_H) if depth == 0 else (BOX_W, BOX_H)
 
 
-def compute_widths(node, depth=0):
-    w, _ = box_size(node, depth)
+def box_breadth(node, depth, direction):
+    """Extent of a box along the axis siblings are spread on."""
+    w, h = box_size(node, depth)
+    return h if direction == "LR" else w
+
+
+def compute_widths(node, direction, depth=0):
+    own = box_breadth(node, depth, direction)
+    gap = GAP_BREADTH[direction]
     children = node.get("children", [])
     if not children:
-        node["_breadth"] = w
+        node["_breadth"] = own
         return node["_breadth"]
-    total = sum(compute_widths(c, depth + 1) for c in children) + GAP_BREADTH * (len(children) - 1)
-    node["_breadth"] = max(total, w)
+    total = sum(compute_widths(c, direction, depth + 1) for c in children) + gap * (len(children) - 1)
+    node["_breadth"] = max(total, own)
     return node["_breadth"]
 
 
-def assign_positions(node, center, depth=0):
+def assign_positions(node, center, direction, depth=0):
     node["u"] = center
     node["depth"] = depth
     children = node.get("children", [])
     if not children:
         return
-    total_w = sum(c["_breadth"] for c in children) + GAP_BREADTH * (len(children) - 1)
+    gap = GAP_BREADTH[direction]
+    total_w = sum(c["_breadth"] for c in children) + gap * (len(children) - 1)
     cursor = center - total_w / 2
     for c in children:
         c_center = cursor + c["_breadth"] / 2
-        assign_positions(c, c_center, depth + 1)
-        cursor += c["_breadth"] + GAP_BREADTH
+        assign_positions(c, c_center, direction, depth + 1)
+        cursor += c["_breadth"] + gap
 
 
 def to_xy(node, direction):
@@ -170,8 +182,11 @@ def main():
     root = data["root"]
     theme = get_theme(args.theme)
 
-    compute_widths(root)
-    assign_positions(root, 0)
+    if direction not in GAP_BREADTH:
+        raise ValueError(f'direction must be "TD" or "LR", got {direction!r}')
+
+    compute_widths(root, direction)
+    assign_positions(root, 0, direction)
     to_xy(root, direction)
 
     fig, ax = new_figure(theme["bg"])

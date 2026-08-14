@@ -167,7 +167,7 @@ This is the one for an actual procedure — an SOP, an alarm-response workflow, 
 
 ## Troubleshooting
 
-- **Labels overlapping / diagram too cramped**: shorten labels (the `wrap_text` helper wraps at a fixed character width — long unbroken words like URLs won't wrap), or pass a wider figure by editing `new_figure()`'s `figsize` for one-off cases.
+- **Labels overlapping / diagram too cramped**: shorten the label. `wrap_text` wraps at a fixed character width and *will* split a long unbroken token (a URL, a part number) mid-word, so nothing runs off the side — but the break lands at an arbitrary character. The mind map sizes each box to the wrapped result, so extra lines are absorbed; the org chart, flow tree and flowchart use fixed box heights, so a label wrapping to several lines overflows those boxes vertically. Shortening the label is the fix. For a one-off, `new_figure()` accepts `width=`/`height=`.
 - **Mind map branch collides with its neighbor**: usually means one branch has far more leaves than its siblings — either flatten it a level or increase `--radius-step`.
 - **Critical path script errors out**: it means either a cycle in `deps`, or a `deps` entry referencing an `id` that doesn't exist — both are real input errors, not a formatting issue, fix the task list.
 - **Flowchart or sketch script raises "Cycle detected"**: an edge goes backward through the DAG without being marked `"loop": true` — either mark it as a loop-back or fix the logic; the script won't guess which you meant. Both `render_flowchart.py` and `render_sketch.py` honour `loop`.

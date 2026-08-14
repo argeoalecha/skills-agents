@@ -1,0 +1,24 @@
+{
+  "title": "SISC Power Monitoring",
+  "children": [
+    {"label": "Field Layer", "children": [
+      {"label": "Schneider EasyPact MVS 1200A"},
+      {"label": "Modbus RTU network"},
+      {"label": "CT/PT metering"}
+    ]},
+    {"label": "Data Layer", "children": [
+      {"label": "PostgreSQL historian"},
+      {"label": "Modbus gateway"}
+    ]},
+    {"label": "Presentation", "children": [
+      {"label": "HTML command centre"},
+      {"label": "ISA-101 color discipline"},
+      {"label": "Alarm rationalization"}
+    ]},
+    {"label": "Studies", "children": [
+      {"label": "Load analysis"},
+      {"label": "Short-circuit"},
+      {"label": "Arc flash"}
+    ]}
+  ]
+}

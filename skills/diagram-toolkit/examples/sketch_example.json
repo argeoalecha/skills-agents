@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {"id": "start", "label": "Fault on feeder", "shape": "oval"},
+    {"id": "q1", "label": "Above pickup?", "shape": "diamond"},
+    {"id": "trip", "label": "MVS trips, log event", "shape": "box"},
+    {"id": "hold", "label": "Continue monitoring", "shape": "box"},
+    {"id": "end", "label": "Alarm on dashboard", "shape": "oval"}
+  ],
+  "edges": [
+    {"from": "start", "to": "q1"},
+    {"from": "q1", "to": "trip", "label": "yes"},
+    {"from": "q1", "to": "hold", "label": "no"},
+    {"from": "trip", "to": "end"}
+  ]
+}

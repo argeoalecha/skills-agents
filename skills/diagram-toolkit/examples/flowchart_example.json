@@ -1,0 +1,32 @@
+{
+  "title": "SISC Breaker Alarm Response Procedure",
+  "lanes": ["SCADA System", "Field Technician", "Campus Engineer"],
+  "nodes": [
+    {"id": "start", "label": "MVS alarm triggered", "shape": "terminator", "lane": "SCADA System"},
+    {"id": "notify", "label": "Send SMS/email alert", "shape": "process", "lane": "SCADA System"},
+    {"id": "log1", "label": "Log event in historian", "shape": "document", "lane": "SCADA System"},
+    {"id": "ack", "label": "Acknowledged within 15 min?", "shape": "decision", "lane": "Field Technician"},
+    {"id": "dispatch", "label": "Dispatch to site, inspect breaker", "shape": "process", "lane": "Field Technician"},
+    {"id": "escalate", "label": "Escalate to campus engineer", "shape": "process", "lane": "Campus Engineer"},
+    {"id": "fault", "label": "Fault confirmed?", "shape": "decision", "lane": "Field Technician"},
+    {"id": "study", "label": "Short-circuit study review", "shape": "predefined", "lane": "Campus Engineer"},
+    {"id": "reset", "label": "Reset breaker, restore feed", "shape": "process", "lane": "Field Technician"},
+    {"id": "closeout", "label": "Close out CMMS ticket", "shape": "document", "lane": "Field Technician"},
+    {"id": "end", "label": "Alarm cleared", "shape": "terminator", "lane": "SCADA System"}
+  ],
+  "edges": [
+    {"from": "start", "to": "notify"},
+    {"from": "notify", "to": "log1"},
+    {"from": "log1", "to": "ack"},
+    {"from": "ack", "to": "dispatch", "label": "Yes"},
+    {"from": "ack", "to": "escalate", "label": "No response"},
+    {"from": "escalate", "to": "dispatch"},
+    {"from": "dispatch", "to": "fault"},
+    {"from": "fault", "to": "study", "label": "Yes"},
+    {"from": "fault", "to": "reset", "label": "No / nuisance trip"},
+    {"from": "study", "to": "reset"},
+    {"from": "reset", "to": "closeout"},
+    {"from": "closeout", "to": "end"},
+    {"from": "closeout", "to": "ack", "label": "Recurs within 24h", "loop": true}
+  ]
+}

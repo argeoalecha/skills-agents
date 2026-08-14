@@ -1,0 +1,13 @@
+{
+  "name": "Argeo Alecha",
+  "title": "Owner's Technical Advisor",
+  "children": [
+    {"name": "MEP Contractor", "title": "Installation", "children": [
+      {"name": "Electrical Foreman", "title": "Site crew lead"}
+    ]},
+    {"name": "SISC Facilities", "title": "Owner rep", "children": [
+      {"name": "Campus Engineer", "title": "O&M"}
+    ]},
+    {"name": "First Gen Corp", "title": "Solar EPC (proposed)"}
+  ]
+}

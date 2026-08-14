@@ -1,0 +1,11 @@
+{
+  "tasks": [
+    {"id": "A", "name": "Site survey & load audit", "duration": 3, "deps": []},
+    {"id": "B", "name": "PRC/permit drawings", "duration": 10, "deps": ["A"]},
+    {"id": "C", "name": "Switchgear procurement", "duration": 21, "deps": ["A"]},
+    {"id": "D", "name": "Modbus gateway config", "duration": 5, "deps": ["A"]},
+    {"id": "E", "name": "Panel installation", "duration": 7, "deps": ["B", "C"]},
+    {"id": "F", "name": "Historian + dashboard build", "duration": 6, "deps": ["D"]},
+    {"id": "G", "name": "Commissioning & testing", "duration": 4, "deps": ["E", "F"]}
+  ]
+}

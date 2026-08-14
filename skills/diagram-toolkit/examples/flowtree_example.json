@@ -1,0 +1,20 @@
+{
+  "direction": "TD",
+  "root": {
+    "label": "How might we cut alarm fatigue on the SISC dashboard?",
+    "status": "root",
+    "children": [
+      {"label": "Alarm rationalization pass", "status": "selected", "children": [
+        {"label": "ISA-18.2 priority tiers", "status": "selected"},
+        {"label": "Suppress nuisance duplicates", "status": "selected"}
+      ]},
+      {"label": "Full SCADA replatform", "status": "discarded", "children": [
+        {"label": "6-month timeline, out of budget", "status": "discarded"}
+      ]},
+      {"label": "Add a second monitor", "status": "parked"},
+      {"label": "Weekly alarm log review", "status": "default", "children": [
+        {"label": "Owner: campus engineer", "status": "default"}
+      ]}
+    ]
+  }
+}

@@ -76,6 +76,8 @@ DEFAULT_WRAP = 18
 X_GAP, Y_GAP = 2.7, 1.9
 LANE_WIDTH = 3.1          # minimum; widened when a lane holds siblings (see compute_layout)
 NODE_SLOT = 2.7           # horizontal pitch between siblings sharing a lane + level
+BYPASS_GAP = 0.85         # clearance from a node's edge to a bypass channel
+LANE_PAD = 0.25           # keep contents off the lane divider
 
 
 def draw_shape(ax, node, theme):
@@ -101,6 +103,10 @@ def draw_shape(ax, node, theme):
         draw_rect(ax, x, y, w, h, label, theme)
 
 
+def node_width(node):
+    return SHAPE_SIZE.get(node.get("shape", "process"), SHAPE_SIZE["process"])[0]
+
+
 def compute_layout(nodes, forward_edges, lanes):
     node_ids = [n["id"] for n in nodes]
     by_id = {n["id"]: n for n in nodes}
@@ -114,36 +120,57 @@ def compute_layout(nodes, forward_edges, lanes):
     for nid in node_ids:
         by_level.setdefault(levels[nid], []).append(nid)
 
-    # Widen every lane to fit the busiest (lane, level) cell. Siblings are
-    # pitched a full node apart, so a lane holding two parallel steps has to be
-    # two nodes wide — at the old fixed 3.1 they overlapped and spilled into
-    # the neighbouring lane.
-    lane_width = LANE_WIDTH
-    if lanes:
-        max_share = 1
-        for members in by_level.values():
-            counts = {}
-            for nid in members:
-                ln = by_id[nid].get("lane")
-                counts[ln] = counts.get(ln, 0) + 1
-            if counts:
-                max_share = max(max_share, max(counts.values()))
-        lane_width = max(LANE_WIDTH, max_share * NODE_SLOT + 0.4)
-
     pos = {}
+    lane_width = LANE_WIDTH
+    bypass_offset = {}
     if lanes:
-        lane_x = {lane: i * lane_width for i, lane in enumerate(lanes)}
+        # Offsets within a lane don't depend on how wide the lane ends up, so
+        # settle them first and size the lane around them.
+        offset_in_lane = {}
         for lv in sorted(by_level):
-            members = by_level[lv]
-            # Group same-level nodes that share a lane so they don't overlap.
             by_lane_here = {}
-            for nid in members:
+            for nid in by_level[lv]:
                 by_lane_here.setdefault(by_id[nid].get("lane"), []).append(nid)
             for lane, ids_here in by_lane_here.items():
-                base_x = lane_x.get(lane, 0)
-                offset = (len(ids_here) - 1) / 2.0
+                off = (len(ids_here) - 1) / 2.0
                 for i, nid in enumerate(ids_here):
-                    pos[nid] = (base_x + (i - offset) * NODE_SLOT, -lv * Y_GAP)
+                    offset_in_lane[nid] = (i - off) * NODE_SLOT
+
+        # A lane must hold its widest node stack...
+        reach = 0.0
+        for nid in node_ids:
+            w = SHAPE_SIZE.get(by_id[nid].get("shape", "process"), SHAPE_SIZE["process"])[0]
+            reach = max(reach, abs(offset_in_lane[nid]) + w / 2)
+
+        # ...and, where a skip-level edge has to bypass intervening nodes, a
+        # channel for that bypass too. Without the reserved channel the bypass
+        # is routed outside the lane and reads as though the neighbouring actor
+        # owns the transition. The channel has to clear the leftmost node it
+        # passes, which is not necessarily the edge's own endpoints — a sibling
+        # sitting further left in the same lane would otherwise be cut through.
+        for s, d in forward_edges:
+            if levels[d] - levels[s] > 1 and \
+               by_id[s].get("lane") == by_id[d].get("lane") and \
+               abs(offset_in_lane[s] - offset_in_lane[d]) < 1e-9:
+                lane = by_id[s].get("lane")
+                lo, hi = levels[s], levels[d]
+                left_extent = min(
+                    offset_in_lane[nid] - node_width(by_id[nid]) / 2
+                    for nid in node_ids
+                    if by_id[nid].get("lane") == lane and lo <= levels[nid] <= hi
+                )
+                off = left_extent - BYPASS_GAP
+                bypass_offset[(s, d)] = off
+                reach = max(reach, abs(off))
+
+        lane_width = max(LANE_WIDTH, 2 * (reach + LANE_PAD))
+
+        lane_x = {lane: i * lane_width for i, lane in enumerate(lanes)}
+        for nid in node_ids:
+            base_x = lane_x.get(by_id[nid].get("lane"), 0)
+            pos[nid] = (base_x + offset_in_lane[nid], -levels[nid] * Y_GAP)
+        for (s, d), off in bypass_offset.items():
+            bypass_offset[(s, d)] = lane_x.get(by_id[s].get("lane"), 0) + off
     else:
         for lv in sorted(by_level):
             members = by_level[lv]
@@ -161,7 +188,7 @@ def compute_layout(nodes, forward_edges, lanes):
 
     for nid, (x, y) in pos.items():
         by_id[nid]["x"], by_id[nid]["y"] = x, y
-    return by_id, levels, lane_width
+    return by_id, levels, lane_width, bypass_offset
 
 
 def draw_lanes(ax, lanes, y_min, y_max, theme, lane_width=LANE_WIDTH):
@@ -180,17 +207,20 @@ def draw_lanes(ax, lanes, y_min, y_max, theme, lane_width=LANE_WIDTH):
     ax.plot([right_edge, right_edge], [y_min - pad, y_max + pad], color="#cbd5e1", lw=1, zorder=1)
 
 
-def draw_forward_edge(ax, by_id, edge, theme, levels):
+def draw_forward_edge(ax, by_id, edge, theme, levels, tight=False, bypass_x_override=None):
     s, d = by_id[edge["from"]], by_id[edge["to"]]
     sw, sh = SHAPE_SIZE.get(s.get("shape", "process"), SHAPE_SIZE["process"])
     dw, dh = SHAPE_SIZE.get(d.get("shape", "process"), SHAPE_SIZE["process"])
     level_gap = levels[edge["to"]] - levels[edge["from"]]
 
-    if level_gap > 1 and s["x"] == d["x"]:
+    if level_gap > 1 and abs(s["x"] - d["x"]) < 1e-9:
         # Same column, skipping over at least one intervening node: a straight
         # drop would cut through it. Bypass to the left instead, like the loop
-        # routing but solid (this is still a normal forward edge).
-        bypass_x = s["x"] - max(sw, dw) / 2 - 0.85
+        # routing but solid (this is still a normal forward edge). In swimlane
+        # mode compute_layout has already reserved this channel inside the
+        # lane, so the detour stays with the actor that owns the step.
+        bypass_x = (bypass_x_override if bypass_x_override is not None
+                    else s["x"] - max(sw, dw) / 2 - BYPASS_GAP)
         x1, y1 = s["x"] - sw / 2, s["y"]
         x2, y2 = d["x"] - dw / 2, d["y"]
         color = theme["line"]
@@ -199,9 +229,18 @@ def draw_forward_edge(ax, by_id, edge, theme, levels):
         ax.annotate("", xy=(x2, y2), xytext=(bypass_x, y2),
                     arrowprops=dict(arrowstyle="-|>", color=color, lw=1.3), zorder=2)
         if edge.get("label"):
-            ax.text(bypass_x - 0.1, (y1 + y2) / 2, edge["label"], fontsize=7.5,
-                     color=theme["accent"], fontweight="bold", ha="right", zorder=4,
-                     bbox=dict(boxstyle="round,pad=0.15", fc=theme["bg"], ec="none"))
+            if tight:
+                # Lane mode: a horizontal label would hang past the lane divider
+                # even though the edge itself no longer does. Run it along the
+                # channel instead, as the loop-back labels do.
+                ax.text(bypass_x - 0.12, (y1 + y2) / 2, edge["label"], fontsize=7.5,
+                         color=theme["accent"], fontweight="bold", rotation=90,
+                         ha="center", va="center", zorder=4,
+                         bbox=dict(boxstyle="round,pad=0.15", fc=theme["bg"], ec="none"))
+            else:
+                ax.text(bypass_x - 0.1, (y1 + y2) / 2, edge["label"], fontsize=7.5,
+                         color=theme["accent"], fontweight="bold", ha="right", zorder=4,
+                         bbox=dict(boxstyle="round,pad=0.15", fc=theme["bg"], ec="none"))
         return
 
     x1, y1 = s["x"], s["y"] - sh / 2
@@ -256,7 +295,7 @@ def main():
     forward = [(e["from"], e["to"]) for e in edges if not e.get("loop")]
     loops = [e for e in edges if e.get("loop")]
 
-    by_id, levels, lane_width = compute_layout(nodes, forward, lanes)
+    by_id, levels, lane_width, bypass_x = compute_layout(nodes, forward, lanes)
 
     xs = [n["x"] for n in nodes]
     ys = [n["y"] for n in nodes]
@@ -276,13 +315,15 @@ def main():
     draw_lanes(ax, lanes, y_min, y_max, theme, lane_width)
 
     has_bypass = any(
-        (levels[e["to"]] - levels[e["from"]] > 1) and (by_id[e["from"]]["x"] == by_id[e["to"]]["x"])
+        (levels[e["to"]] - levels[e["from"]] > 1)
+        and abs(by_id[e["from"]]["x"] - by_id[e["to"]]["x"]) < 1e-9
         for e in edges if not e.get("loop")
     )
 
     for e in edges:
         if not e.get("loop"):
-            draw_forward_edge(ax, by_id, e, theme, levels)
+            draw_forward_edge(ax, by_id, e, theme, levels, tight=bool(lanes),
+                               bypass_x_override=bypass_x.get((e["from"], e["to"])))
 
     loop_base = (x_max if not lanes else (len(lanes) - 0.5) * lane_width) + 0.9
     for i, e in enumerate(loops):
@@ -292,7 +333,9 @@ def main():
         draw_shape(ax, n, theme)
 
     pad = 1.6
-    left_pad = pad + (1.6 if has_bypass else 0)
+    # In lane mode the bypass channel lives inside the lane, so no extra
+    # left margin is needed to hold it.
+    left_pad = pad + (1.6 if has_bypass and not lanes else 0)
     right_pad = pad + (len(loops) * 0.55 if loops else 0)
     ax.set_xlim(x_min - left_pad, x_max + right_pad + (lane_width if lanes else 0))
     ax.set_ylim(y_min - pad, y_max + pad + (0.6 if lanes else 0))

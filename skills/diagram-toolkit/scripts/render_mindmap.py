@@ -57,19 +57,41 @@ def to_xy(node):
         to_xy(c)
 
 
+WRAP_AT = 16
+# Data units per point of font size, calibrated against the rendered output.
+# CHAR_W is deliberately above the average glyph width — labels are short and
+# often capitalised ("HTML command", "CT/PT"), which runs wider than lowercase.
+CHAR_W = 0.0108
+LINE_H = 0.026
+
+
+def fit_box(label, fontsize, wrap_at=WRAP_AT):
+    """Size a box to the text *after* wrapping.
+
+    Sizing off the raw label length with a fixed 0.42 height meant anything
+    wrapping to three lines overflowed its box vertically, while long labels
+    got over-wide boxes for text the wrapper had already broken up.
+    """
+    wrapped = wrap_text(label, wrap_at)
+    lines = wrapped.split("\n")
+    longest = max((len(line) for line in lines), default=1)
+    w = CHAR_W * fontsize * longest + 0.5
+    h = LINE_H * fontsize * len(lines) + 0.22
+    return wrapped, w, h
+
+
 def draw(ax, node, theme, branch_color=None, depth=0):
     label = node.get("label") or node.get("title") or ""
     x, y = node.get("x", 0), node.get("y", 0)
     fill = branch_color or theme["node_fill"]
-    fontsize = max(11 - depth, 7)
-    w = 0.28 * max(len(label), 6) ** 0.55 + 0.5
-    h = 0.42
+    fontsize = 12 if depth == 0 else max(11 - depth, 7)
+    wrapped, w, h = fit_box(label, fontsize)
     if depth == 0:
-        draw_box(ax, x, y, w + 0.6, 0.6, wrap_text(label, 16), theme,
-                  fill=theme["accent"], edge=theme["accent"], fontsize=12,
+        draw_box(ax, x, y, w + 0.5, h, wrapped, theme,
+                  fill=theme["accent"], edge=theme["accent"], fontsize=fontsize,
                   fontweight="bold", text_color="#ffffff", zorder=5)
     else:
-        draw_box(ax, x, y, w, h, wrap_text(label, 16), theme,
+        draw_box(ax, x, y, w, h, wrapped, theme,
                   fill=fill, edge=branch_color or theme["node_edge"],
                   fontsize=fontsize, zorder=4)
 

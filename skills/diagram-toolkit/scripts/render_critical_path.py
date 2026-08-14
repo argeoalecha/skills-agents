@@ -32,6 +32,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 from dtk_common import (get_theme, wrap_text, new_figure, draw_box, draw_connector,
                          save_fig, load_json, layered_positions)
 
+NODE_W, NODE_H = 2.2, 1.0
+
 
 def compute_cpm(tasks):
     by_id = {t["id"]: dict(t) for t in tasks}
@@ -88,7 +90,7 @@ def topo_sort(by_id):
 
 
 def render_gantt(by_id, order, theme, out_path):
-    fig, ax = new_figure(theme["bg"])
+    fig, ax = new_figure(theme["bg"], aspect="auto")
     ax.axis("on")
     ax.spines[["top", "right", "left"]].set_visible(False)
     ax.set_facecolor(theme["bg"])
@@ -127,11 +129,15 @@ def render_network(by_id, order, theme, out_path):
     pos, _ = layered_positions(list(by_id.keys()), edges, x_gap=2.8, y_gap=1.6)
 
     fig, ax = new_figure(theme["bg"])
+    # Stop each connector at the box border, not the box centre — the nodes are
+    # drawn at a higher zorder, so a centre-to-centre arrow has its head buried
+    # under the target box and the graph reads as undirected. Predecessors are
+    # always a level above their successors, hence bottom edge -> top edge.
     for s, d in edges:
         crit = by_id[s]["critical"] and by_id[d]["critical"] and \
                abs(by_id[s]["EF"] - by_id[d]["ES"]) < 1e-9
         x1, y1 = pos[s]; x2, y2 = pos[d]
-        draw_connector(ax, x1, y1, x2, y2, theme,
+        draw_connector(ax, x1, y1 - NODE_H / 2, x2, y2 + NODE_H / 2, theme,
                         color=theme["critical"] if crit else theme["line"],
                         lw=2.4 if crit else 1.3, arrow=True)
 
@@ -140,7 +146,7 @@ def render_network(by_id, order, theme, out_path):
         label = f'{tid}\n{wrap_text(t["name"], 16)}\nES{t["ES"]} EF{t["EF"]}  float {t["float"]}'
         fill = theme["critical"] if t["critical"] else theme["node_fill"]
         text_color = "#ffffff" if t["critical"] else theme["node_text"]
-        draw_box(ax, x, y, 2.2, 1.0, label, theme, fill=fill, fontsize=7.5,
+        draw_box(ax, x, y, NODE_W, NODE_H, label, theme, fill=fill, fontsize=7.5,
                   text_color=text_color, zorder=4)
 
     xs = [p[0] for p in pos.values()]; ys = [p[1] for p in pos.values()]

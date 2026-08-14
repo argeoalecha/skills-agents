@@ -155,11 +155,14 @@ This is the one for an actual procedure — an SOP, an alarm-response workflow, 
   ],
   "edges": [
     {"from": "start", "to": "q1"},
-    {"from": "q1", "to": "step", "label": "yes"}
+    {"from": "q1", "to": "step", "label": "yes"},
+    {"from": "step", "to": "q1", "label": "retry", "loop": true}
   ]
 }
 ```
 `shape` ∈ `box` (process), `diamond` (decision), `oval` (start/end) — defaults to `box`. Edge `label` is optional.
+
+`edge.loop: true` works the same way as in `render_flowchart.py`: it marks a retry/recheck back to an earlier step, keeps that edge out of the layering, and draws it as a dashed curve bowed away from the main flow. Any backwards edge must be marked, or it counts as a real cycle and the script errors out.
 **Keep node fills light** for this renderer — matplotlib's xkcd hand-drawn text effect turns white/light text on a dark fill into an illegible smudge. Dark text on a light fill stays readable through the wobble; that's why the theme's oval nodes use `node_fill`/`accent`-outline rather than a solid accent fill.
 
 ## Troubleshooting
@@ -167,7 +170,7 @@ This is the one for an actual procedure — an SOP, an alarm-response workflow, 
 - **Labels overlapping / diagram too cramped**: shorten labels (the `wrap_text` helper wraps at a fixed character width — long unbroken words like URLs won't wrap), or pass a wider figure by editing `new_figure()`'s `figsize` for one-off cases.
 - **Mind map branch collides with its neighbor**: usually means one branch has far more leaves than its siblings — either flatten it a level or increase `--radius-step`.
 - **Critical path script errors out**: it means either a cycle in `deps`, or a `deps` entry referencing an `id` that doesn't exist — both are real input errors, not a formatting issue, fix the task list.
-- **Flowchart script raises "Cycle detected"**: an edge goes backward through the DAG without being marked `"loop": true` — either mark it as a loop-back or fix the logic; the script won't guess which you meant.
+- **Flowchart or sketch script raises "Cycle detected"**: an edge goes backward through the DAG without being marked `"loop": true` — either mark it as a loop-back or fix the logic; the script won't guess which you meant. Both `render_flowchart.py` and `render_sketch.py` honour `loop`.
 - **Flowchart edge passes visually close to an unrelated node**: the layout auto-bypasses same-column skip-level edges to the left, but with three or more stacked skip-level edges in a lane-less diagram it can still get tight — adding `lanes` (even trivial ones, e.g. `["Process"]` isn't useful, but 2–3 real actors usually is) gives the layout more horizontal room and is usually the better fix.
 - **Font warnings in stderr about "xkcd"/"Comic Neue" fonts**: harmless — matplotlib falls back to a default hand-drawn-adjacent font. Doesn't affect output quality.
 

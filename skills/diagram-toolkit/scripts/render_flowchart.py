@@ -74,7 +74,8 @@ SHAPE_SIZE = {
 WRAP_WIDTH = {"terminator": 15, "decision": 16}
 DEFAULT_WRAP = 18
 X_GAP, Y_GAP = 2.7, 1.9
-LANE_WIDTH = 3.1
+LANE_WIDTH = 3.1          # minimum; widened when a lane holds siblings (see compute_layout)
+NODE_SLOT = 2.7           # horizontal pitch between siblings sharing a lane + level
 
 
 def draw_shape(ax, node, theme):
@@ -113,9 +114,25 @@ def compute_layout(nodes, forward_edges, lanes):
     for nid in node_ids:
         by_level.setdefault(levels[nid], []).append(nid)
 
+    # Widen every lane to fit the busiest (lane, level) cell. Siblings are
+    # pitched a full node apart, so a lane holding two parallel steps has to be
+    # two nodes wide — at the old fixed 3.1 they overlapped and spilled into
+    # the neighbouring lane.
+    lane_width = LANE_WIDTH
+    if lanes:
+        max_share = 1
+        for members in by_level.values():
+            counts = {}
+            for nid in members:
+                ln = by_id[nid].get("lane")
+                counts[ln] = counts.get(ln, 0) + 1
+            if counts:
+                max_share = max(max_share, max(counts.values()))
+        lane_width = max(LANE_WIDTH, max_share * NODE_SLOT + 0.4)
+
     pos = {}
     if lanes:
-        lane_x = {lane: i * LANE_WIDTH for i, lane in enumerate(lanes)}
+        lane_x = {lane: i * lane_width for i, lane in enumerate(lanes)}
         for lv in sorted(by_level):
             members = by_level[lv]
             # Group same-level nodes that share a lane so they don't overlap.
@@ -126,7 +143,7 @@ def compute_layout(nodes, forward_edges, lanes):
                 base_x = lane_x.get(lane, 0)
                 offset = (len(ids_here) - 1) / 2.0
                 for i, nid in enumerate(ids_here):
-                    pos[nid] = (base_x + (i - offset) * 1.1, -lv * Y_GAP)
+                    pos[nid] = (base_x + (i - offset) * NODE_SLOT, -lv * Y_GAP)
     else:
         for lv in sorted(by_level):
             members = by_level[lv]
@@ -144,22 +161,22 @@ def compute_layout(nodes, forward_edges, lanes):
 
     for nid, (x, y) in pos.items():
         by_id[nid]["x"], by_id[nid]["y"] = x, y
-    return by_id, levels
+    return by_id, levels, lane_width
 
 
-def draw_lanes(ax, lanes, y_min, y_max, theme):
+def draw_lanes(ax, lanes, y_min, y_max, theme, lane_width=LANE_WIDTH):
     if not lanes:
         return
     pad = 1.3
     for i, lane in enumerate(lanes):
-        cx = i * LANE_WIDTH
-        left, right = cx - LANE_WIDTH / 2, cx + LANE_WIDTH / 2
+        cx = i * lane_width
+        left, right = cx - lane_width / 2, cx + lane_width / 2
         fill = "#f8fafc" if i % 2 == 0 else "#ffffff"
         ax.axvspan(left, right, ymin=0, ymax=1, color=fill, zorder=0)
         ax.plot([left, left], [y_min - pad, y_max + pad], color="#cbd5e1", lw=1, zorder=1)
         ax.text(cx, y_max + pad - 0.3, lane, ha="center", fontsize=9.5, fontweight="bold",
                  color=theme["node_text"], zorder=2)
-    right_edge = (len(lanes) - 0.5) * LANE_WIDTH
+    right_edge = (len(lanes) - 0.5) * lane_width
     ax.plot([right_edge, right_edge], [y_min - pad, y_max + pad], color="#cbd5e1", lw=1, zorder=1)
 
 
@@ -239,7 +256,7 @@ def main():
     forward = [(e["from"], e["to"]) for e in edges if not e.get("loop")]
     loops = [e for e in edges if e.get("loop")]
 
-    by_id, levels = compute_layout(nodes, forward, lanes)
+    by_id, levels, lane_width = compute_layout(nodes, forward, lanes)
 
     xs = [n["x"] for n in nodes]
     ys = [n["y"] for n in nodes]
@@ -249,14 +266,14 @@ def main():
     # Long single-column chains (many levels, little horizontal spread) need a
     # taller figure, not smaller text — fixed figsize would let matplotlib's
     # fixed-point-size labels overflow narrow, deeply-stacked shapes.
-    x_span = (x_max - x_min) + (LANE_WIDTH * 2 if lanes else 4.5)
+    x_span = (x_max - x_min) + (lane_width * 2 if lanes else 4.5)
     y_span = (y_max - y_min) + 4
     fig_w = max(7.0, min(22.0, x_span * 0.85))
     fig_h = max(6.0, min(48.0, y_span * 0.6))
 
     fig, ax = new_figure(theme["bg"], width=fig_w, height=fig_h)
 
-    draw_lanes(ax, lanes, y_min, y_max, theme)
+    draw_lanes(ax, lanes, y_min, y_max, theme, lane_width)
 
     has_bypass = any(
         (levels[e["to"]] - levels[e["from"]] > 1) and (by_id[e["from"]]["x"] == by_id[e["to"]]["x"])
@@ -267,7 +284,7 @@ def main():
         if not e.get("loop"):
             draw_forward_edge(ax, by_id, e, theme, levels)
 
-    loop_base = (x_max if not lanes else (len(lanes) - 0.5) * LANE_WIDTH) + 0.9
+    loop_base = (x_max if not lanes else (len(lanes) - 0.5) * lane_width) + 0.9
     for i, e in enumerate(loops):
         draw_loop_edge(ax, by_id, e, theme, loop_base + i * 0.55, theme["critical"])
 
@@ -277,7 +294,7 @@ def main():
     pad = 1.6
     left_pad = pad + (1.6 if has_bypass else 0)
     right_pad = pad + (len(loops) * 0.55 if loops else 0)
-    ax.set_xlim(x_min - left_pad, x_max + right_pad + (LANE_WIDTH if lanes else 0))
+    ax.set_xlim(x_min - left_pad, x_max + right_pad + (lane_width if lanes else 0))
     ax.set_ylim(y_min - pad, y_max + pad + (0.6 if lanes else 0))
 
     if data.get("title"):

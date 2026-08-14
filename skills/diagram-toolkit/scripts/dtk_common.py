@@ -47,12 +47,17 @@ def wrap_text(text, width=18):
     return "\n".join(textwrap.wrap(str(text), width=width)) or str(text)
 
 
-def new_figure(bg="#ffffff", width=11, height=8):
+def new_figure(bg="#ffffff", width=11, height=8, aspect="equal"):
+    """Node diagrams want aspect="equal" so shapes aren't skewed (a diamond must
+    read as a diamond). Charts whose axes carry different units — the CPM gantt,
+    where x is time and y is a task index — must pass aspect="auto", or the
+    figure gets stretched to the arbitrary ratio between those units."""
     fig, ax = plt.subplots(figsize=(width, height))
     fig.patch.set_facecolor(bg)
     ax.set_facecolor(bg)
     ax.axis("off")
-    ax.set_aspect("equal", adjustable="box")
+    if aspect and aspect != "auto":
+        ax.set_aspect(aspect, adjustable="box")
     return fig, ax
 
 

@@ -377,7 +377,7 @@ Anything `ƒ (Dynamic)` needs a stated reason (`cookies()`, auth, personalizatio
 ## 3. Model Configuration
 | Parameter | Value | Rationale |
 |---|---|---|
-| Model | claude-sonnet-5 | <reason — or justify using claude-opus-4-8 (harder reasoning), claude-haiku-4-5 (high-volume/low-latency), or claude-fable-5> |
+| Model | claude-sonnet-5 | <reason — or justify using claude-opus-5 (harder reasoning), claude-haiku-4-5 (high-volume/low-latency), or claude-fable-5> |
 | Max tokens | <value> | <expected output size> |
 | Temperature | <value> | <deterministic vs. creative> |
 | Caching | <yes/no — which prompt parts> | <cost/latency reason> |

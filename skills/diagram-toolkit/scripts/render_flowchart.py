@@ -59,10 +59,12 @@ Per-node "fill" / "text_color" (optional): override the theme's default node
   color for that one node, e.g. to color-code stages semantically (source /
   pipeline / destination) rather than by shape. Falls back to the theme when
   omitted, so existing diagrams are unaffected.
-"accent" (optional, top-level): override just the theme's accent color (used
-  for the eyebrow, decision-branch labels, and edge labels) without changing
-  its other colors (node_text, line, bg) — use this instead of switching
-  --theme when you need one brand color but not a whole theme's palette.
+"accent" (optional, top-level): override just the theme's accent color, leaving
+  its other colors (node_text, line, bg) alone — use this instead of switching
+  --theme when you need one brand color but not a whole theme's palette. Note
+  this recolors every accent consumer, which includes terminator node fills as
+  well as the eyebrow, decision-branch labels, and edge labels: set a per-node
+  "fill" on the terminators too if you want them off the accent color.
 
 Usage:
   python3 render_flowchart.py input.json -o flowchart.svg [--theme default|hayah]

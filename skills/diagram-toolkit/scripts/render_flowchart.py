@@ -49,6 +49,20 @@ edge "loop": true — routes the edge as a feedback loop around the right side
 "lanes" (optional): activates swimlane mode — each node needs a "lane"
   matching one of the listed names. Omit "lanes" entirely for a plain
   (no-lane) flowchart.
+"direction" (optional, top-level): "TD" (default) or "LR". LR lays levels out
+  left-to-right instead of top-to-bottom — use it for a linear pipeline/stage
+  diagram that reads more naturally as a horizontal band. LR does not support
+  "lanes", skip-level bypass routing, or loop-back edges yet (raises a clear
+  error rather than mis-drawing if you combine them) — for anything with
+  branching/convergence/retries, use TD.
+Per-node "fill" / "text_color" (optional): override the theme's default node
+  color for that one node, e.g. to color-code stages semantically (source /
+  pipeline / destination) rather than by shape. Falls back to the theme when
+  omitted, so existing diagrams are unaffected.
+"accent" (optional, top-level): override just the theme's accent color (used
+  for the eyebrow, decision-branch labels, and edge labels) without changing
+  its other colors (node_text, line, bg) — use this instead of switching
+  --theme when you need one brand color but not a whole theme's palette.
 
 Usage:
   python3 render_flowchart.py input.json -o flowchart.svg [--theme default|hayah]
@@ -85,29 +99,33 @@ def draw_shape(ax, node, theme):
     x, y = node["x"], node["y"]
     w, h = SHAPE_SIZE.get(shape, SHAPE_SIZE["process"])
     label = wrap_text(node.get("label", node["id"]), WRAP_WIDTH.get(shape, DEFAULT_WRAP))
+    fill = node.get("fill")
+    text_color = node.get("text_color")
     if shape == "terminator":
-        draw_ellipse(ax, x, y, w, h, label, theme, fill=theme["accent"])
-        ax.texts[-1].set_color("#ffffff")
+        draw_ellipse(ax, x, y, w, h, label, theme, fill=fill or theme["accent"])
+        ax.texts[-1].set_color(text_color or "#ffffff")
         ax.texts[-1].set_fontweight("bold")
     elif shape == "decision":
-        draw_diamond(ax, x, y, w, h, label, theme, fontsize=8)
+        draw_diamond(ax, x, y, w, h, label, theme, fill=fill, fontsize=8)
     elif shape == "io":
-        draw_parallelogram(ax, x, y, w, h, label, theme)
+        draw_parallelogram(ax, x, y, w, h, label, theme, fill=fill)
     elif shape == "document":
-        draw_document(ax, x, y, w, h, label, theme)
+        draw_document(ax, x, y, w, h, label, theme, fill=fill)
     elif shape == "predefined":
-        draw_predefined_process(ax, x, y, w, h, label, theme)
+        draw_predefined_process(ax, x, y, w, h, label, theme, fill=fill)
     elif shape == "connector":
-        draw_ellipse(ax, x, y, w, h, node.get("id", ""), theme, fontsize=8)
+        draw_ellipse(ax, x, y, w, h, node.get("id", ""), theme, fill=fill, fontsize=8)
     else:
-        draw_rect(ax, x, y, w, h, label, theme)
+        draw_rect(ax, x, y, w, h, label, theme, fill=fill, text_color=text_color)
+    if fill and shape != "terminator" and text_color:
+        ax.texts[-1].set_color(text_color)
 
 
 def node_width(node):
     return SHAPE_SIZE.get(node.get("shape", "process"), SHAPE_SIZE["process"])[0]
 
 
-def compute_layout(nodes, forward_edges, lanes):
+def compute_layout(nodes, forward_edges, lanes, direction="TD"):
     node_ids = [n["id"] for n in nodes]
     by_id = {n["id"]: n for n in nodes}
     levels = topo_levels(node_ids, forward_edges)  # raises on a true cycle
@@ -172,19 +190,27 @@ def compute_layout(nodes, forward_edges, lanes):
         for (s, d), off in bypass_offset.items():
             bypass_offset[(s, d)] = lane_x.get(by_id[s].get("lane"), 0) + off
     else:
+        # LR swaps the two roles: level advances along x instead of y, and
+        # siblings spread along y instead of x. Sibling ordering keys off
+        # whichever axis carries that spread, so a bushy LR tree still orders
+        # its children by predecessor position instead of arbitrary dict order.
+        axis = 1 if direction == "LR" else 0
         for lv in sorted(by_level):
             members = by_level[lv]
             if lv == 0:
                 order = members
             else:
                 def key(nid):
-                    xs = [pos[p][0] for p in preds[nid] if p in pos]
-                    return sum(xs) / len(xs) if xs else 0
+                    vs = [pos[p][axis] for p in preds[nid] if p in pos]
+                    return sum(vs) / len(vs) if vs else 0
                 order = sorted(members, key=key)
             n = len(order)
             offset = (n - 1) / 2.0
             for i, nid in enumerate(order):
-                pos[nid] = ((i - offset) * X_GAP, -lv * Y_GAP)
+                if direction == "LR":
+                    pos[nid] = (lv * X_GAP, -(i - offset) * Y_GAP)
+                else:
+                    pos[nid] = ((i - offset) * X_GAP, -lv * Y_GAP)
 
     for nid, (x, y) in pos.items():
         by_id[nid]["x"], by_id[nid]["y"] = x, y
@@ -207,11 +233,37 @@ def draw_lanes(ax, lanes, y_min, y_max, theme, lane_width=LANE_WIDTH):
     ax.plot([right_edge, right_edge], [y_min - pad, y_max + pad], color="#cbd5e1", lw=1, zorder=1)
 
 
-def draw_forward_edge(ax, by_id, edge, theme, levels, tight=False, bypass_x_override=None):
+def draw_forward_edge(ax, by_id, edge, theme, levels, tight=False, bypass_x_override=None,
+                       direction="TD"):
     s, d = by_id[edge["from"]], by_id[edge["to"]]
     sw, sh = SHAPE_SIZE.get(s.get("shape", "process"), SHAPE_SIZE["process"])
     dw, dh = SHAPE_SIZE.get(d.get("shape", "process"), SHAPE_SIZE["process"])
     level_gap = levels[edge["to"]] - levels[edge["from"]]
+
+    if direction == "LR":
+        # Bypass/skip-level routing isn't wired up for LR — this diagram shape
+        # (deep single-lane chains needing a detour) hasn't come up yet, and
+        # guessing at the routing would risk drawing something misleading.
+        if level_gap > 1 and abs(s["y"] - d["y"]) < 1e-9:
+            raise NotImplementedError(
+                "direction=LR does not yet support skip-level bypass routing "
+                f"(edge {edge['from']}->{edge['to']}) — restructure the DAG so "
+                "no edge skips an intervening level in the same row, or use TD.")
+        x1, y1 = s["x"] + sw / 2, s["y"]
+        x2, y2 = d["x"] - dw / 2, d["y"]
+        draw_elbow_arrow(ax, x1, y1, x2, y2, theme, direction="LR")
+        if edge.get("label"):
+            # The gap between adjacent boxes (X_GAP minus their widths) is
+            # often narrower than a descriptive label at this font size, so
+            # centering it at box height — as TD does — lets it visually spill
+            # onto both neighboring boxes. Clearing the box tops keeps it in
+            # open canvas regardless of label length.
+            mx = (x1 + x2) / 2
+            my = (y1 if y1 == y2 else (y1 + y2) / 2) + max(sh, dh) / 2 + 0.32
+            ax.text(mx, my, edge["label"], fontsize=7.5, color=theme["accent"],
+                     fontweight="bold", ha="center", zorder=4,
+                     bbox=dict(boxstyle="round,pad=0.15", fc=theme["bg"], ec="none"))
+        return
 
     if level_gap > 1 and abs(s["x"] - d["x"]) < 1e-9:
         # Same column, skipping over at least one intervening node: a straight
@@ -277,10 +329,15 @@ def main():
     args = ap.parse_args()
 
     data = load_json(args.input)
-    theme = get_theme(args.theme)
+    theme = dict(get_theme(args.theme))
+    if data.get("accent"):
+        theme["accent"] = data["accent"]
     nodes = data["nodes"]
     edges = data["edges"]
     lanes = data.get("lanes")
+    direction = data.get("direction", "TD").upper()
+    if direction not in ("TD", "LR"):
+        raise ValueError(f'direction must be "TD" or "LR", got {direction!r}')
 
     node_ids = {n["id"] for n in nodes}
     for e in edges:
@@ -291,11 +348,17 @@ def main():
             if n.get("lane") not in lanes:
                 raise ValueError(f"Node '{n['id']}' has lane '{n.get('lane')}' "
                                   f"not present in top-level 'lanes' list {lanes}")
+        if direction == "LR":
+            raise NotImplementedError("direction=LR does not support swimlanes yet — omit "
+                                       "'lanes' or use TD.")
 
     forward = [(e["from"], e["to"]) for e in edges if not e.get("loop")]
     loops = [e for e in edges if e.get("loop")]
+    if loops and direction == "LR":
+        raise NotImplementedError("direction=LR does not support loop-back edges yet — "
+                                   "the routing assumes a vertical flow. Use TD.")
 
-    by_id, levels, lane_width, bypass_x = compute_layout(nodes, forward, lanes)
+    by_id, levels, lane_width, bypass_x = compute_layout(nodes, forward, lanes, direction)
 
     xs = [n["x"] for n in nodes]
     ys = [n["y"] for n in nodes]
@@ -323,7 +386,8 @@ def main():
     for e in edges:
         if not e.get("loop"):
             draw_forward_edge(ax, by_id, e, theme, levels, tight=bool(lanes),
-                               bypass_x_override=bypass_x.get((e["from"], e["to"])))
+                               bypass_x_override=bypass_x.get((e["from"], e["to"])),
+                               direction=direction)
 
     loop_base = (x_max if not lanes else (len(lanes) - 0.5) * lane_width) + 0.9
     for i, e in enumerate(loops):
@@ -340,8 +404,12 @@ def main():
     ax.set_xlim(x_min - left_pad, x_max + right_pad + (lane_width if lanes else 0))
     ax.set_ylim(y_min - pad, y_max + pad + (0.6 if lanes else 0))
 
+    title_y = y_max + pad + (1.0 if lanes else 0.4)
+    if data.get("eyebrow"):
+        ax.text((x_min + x_max) / 2, title_y + 0.55, data["eyebrow"].upper(),
+                 ha="center", fontsize=9, fontweight="bold", color=theme["accent"], zorder=6)
     if data.get("title"):
-        ax.text((x_min + x_max) / 2, y_max + pad + (1.0 if lanes else 0.4), data["title"],
+        ax.text((x_min + x_max) / 2, title_y, data["title"],
                  ha="center", fontsize=13, fontweight="bold", color=theme["node_text"], zorder=6)
 
     save_fig(fig, args.output)

@@ -131,6 +131,8 @@ This is the one for an actual procedure — an SOP, an alarm-response workflow, 
 
 `lanes` (optional, top-level list) turns on swimlanes: give each node a `lane` matching one of the listed names, and the diagram organizes into vertical columns (cross-functional flowchart convention — "who does what," reading top-to-bottom for sequence and left-to-right for ownership). Omit `lanes` entirely for a plain single-flow diagram.
 
+Top-level `direction`: `"TD"` (default) or `"LR"` for a linear pipeline/stage diagram that reads as a horizontal band. LR doesn't support `lanes`, skip-level bypass routing, or `loop` edges yet — combine them and the script raises rather than mis-drawing; use TD for anything with branching/convergence/retries. Per-node `fill`/`text_color` override the theme's node color for that one node (e.g. color-code pipeline stages by role rather than by shape); top-level `accent` overrides just the theme's accent color (eyebrow, decision-branch labels, edge labels) without switching the whole `--theme`. Top-level `eyebrow` renders a small label above the title.
+
 If you're rendering the output of the `graph-topology-planner` skill as a client-facing or presentation deliverable (rather than the dev-facing Mermaid it produces by default), this is the renderer — it's the only one here that's a general DAG, matching that skill's Nodes table: map its Topology clusters to `lanes`, Gates to a `decision` shape or a dedicated "Human" lane, and any Evaluator-Optimizer revise loop to `edge.loop: true`.
 
 ### Critical path (`render_critical_path.py`)

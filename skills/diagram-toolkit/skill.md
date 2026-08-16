@@ -131,6 +131,8 @@ This is the one for an actual procedure — an SOP, an alarm-response workflow, 
 
 `lanes` (optional, top-level list) turns on swimlanes: give each node a `lane` matching one of the listed names, and the diagram organizes into vertical columns (cross-functional flowchart convention — "who does what," reading top-to-bottom for sequence and left-to-right for ownership). Omit `lanes` entirely for a plain single-flow diagram.
 
+If you're rendering the output of the `graph-topology-planner` skill as a client-facing or presentation deliverable (rather than the dev-facing Mermaid it produces by default), this is the renderer — it's the only one here that's a general DAG, matching that skill's Nodes table: map its Topology clusters to `lanes`, Gates to a `decision` shape or a dedicated "Human" lane, and any Evaluator-Optimizer revise loop to `edge.loop: true`.
+
 ### Critical path (`render_critical_path.py`)
 ```json
 {

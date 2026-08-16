@@ -208,6 +208,7 @@ the Output Format block standing in as the scope document.
 | Consulting/engineering deliverable (SOW, spec) | `docx` skill — the Output Format block becomes the scope section |
 | Needs actual multi-agent execution, not just a plan | Flag explicitly that implementation (subagent definitions, orchestrator routing code) is a separate, later step — don't build it here even if asked to extend scope mid-skill |
 | Recurring workflow (content, reporting) | Reminders or a checklist — no code needed, the topology plan itself is the artifact |
+| Client-facing or presentation deliverable (not staying in a git repo next to code) | `diagram-toolkit`'s `render_flowchart.py` — map the Nodes table to `nodes`/`edges`, Topology clusters to `lanes` (one per worker/actor), Gates to a `decision` shape or a dedicated "Human" lane, and any Evaluator-Optimizer revise loop to an `edge.loop: true`. The Mermaid diagram from Step 5 stays the dev-facing version; this is the polished-SVG version of the same graph, not a replacement |
 
 ---
 

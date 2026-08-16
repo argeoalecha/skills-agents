@@ -14,3 +14,4 @@
 skills/SESSION_CHECKPOINT.md
 skills/.vscode/
 .DS_Store
+__pycache__/

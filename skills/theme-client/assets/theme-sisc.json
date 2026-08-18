@@ -1,0 +1,123 @@
+{
+  "name": "theme-sisc",
+  "client": "Southville International School and Colleges",
+  "slug": "sisc",
+  "industry": "education — private international school and college",
+  "mood": "serious",
+  "source": {
+    "extractedFrom": "post-mtg-08072026/Project_Plan_Details.pptx",
+    "engagement": "Campus Electrical Network Integration and Smart Energy Management Project",
+    "deckAuthor": "Argeo T. Alecha, Electrical Engineering Consultant",
+    "deckDate": "2026-08-10",
+    "extractedOn": "2026-08-19",
+    "method": "OOXML unpack — crest raster quantised in HSL, slide srgbClr frequency ranked across 24 slides, typeface and prstGeom census"
+  },
+  "colors": {
+    "primary": "#4B2F70",
+    "primaryLit": "#6A3D9E",
+    "primaryDark": "#301D49",
+    "accent": "#D2650F",
+    "background": "#FFF8F9",
+    "surface": "#FFFFFF",
+    "card": "#FDEEF0",
+    "border": "#E2C3CA",
+    "text": "#1E181B",
+    "textMuted": "#7C6F75",
+    "textSubtle": "#958389"
+  },
+  "brandExtended": {
+    "crestViolet": "#4B2F70",
+    "crestLaurel": "#3C875A",
+    "crestLaurelLit": "#60B158",
+    "crestMaroon": "#8D2725",
+    "crestField": "#F4F4F5",
+    "deckDisplayIndigo": "#410BDB",
+    "deckAlert": "#AE1029",
+    "deckTintViolet": "#D9B9EE",
+    "deckTintViolet2": "#C79FE4",
+    "deckTintBlush": "#F6D6DC"
+  },
+  "a11ySafeText": {
+    "note": "Use these in place of the display values when the color carries small body text (<18pt regular / <14pt bold). Verified >=4.5:1 against background, surface and card.",
+    "accentText": "#AB520C",
+    "mutedText": "#71656B",
+    "laurelText": "#357850"
+  },
+  "palette": {
+    "primary": {
+      "100": "#F5F3F6",
+      "200": "#E4DEED",
+      "300": "#B49ED1",
+      "400": "#7449AB",
+      "500": "#4B2F70",
+      "600": "#3C255B",
+      "700": "#301D49",
+      "800": "#221433",
+      "900": "#160D21"
+    }
+  },
+  "typography": {
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Gelasio:ital,wght@0,400..700;1,400..700&family=Cousine:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+    "displayFont": "Georgia",
+    "bodyFont": "Arial",
+    "monoFont": "Courier New",
+    "displayStack": "Georgia, Gelasio, 'Times New Roman', serif",
+    "bodyStack": "Arial, Arimo, Helvetica, system-ui, sans-serif",
+    "monoStack": "'Courier New', Cousine, monospace",
+    "webSubstitutes": {
+      "note": "Georgia, Arial and Courier New are system fonts, not webfonts. Arimo, Gelasio and Cousine are the metric-compatible Google-hosted equivalents — same advance widths, so layout does not reflow when they substitute.",
+      "Georgia": "Gelasio",
+      "Arial": "Arimo",
+      "Courier New": "Cousine"
+    },
+    "scale": {
+      "h1": "clamp(2.5rem, 6vw, 5rem)",
+      "h2": "clamp(2rem, 4.5vw, 3.5rem)",
+      "h3": "1.5rem",
+      "body": "1rem",
+      "small": "0.875rem"
+    },
+    "deckScalePt": {
+      "heroTitle": 54,
+      "displayNumeral": 48,
+      "slideTitle": 33,
+      "sectionHead": 24,
+      "subhead": 20.25,
+      "body": 18
+    },
+    "conventions": {
+      "kicker": "Arial bold 18pt, letter-spacing +1.8pt, uppercase, color accent #D2650F",
+      "displayNumeral": "Arial bold 48pt, letter-spacing -0.48pt, color #410BDB",
+      "sectionHead": "Georgia bold, color text #1E181B",
+      "divider": "2-3px solid bar in primaryLit #6A3D9E"
+    }
+  },
+  "radii": {
+    "xs": "0px",
+    "sm": "0px",
+    "md": "2px",
+    "lg": "4px",
+    "xl": "8px",
+    "full": "9999px"
+  },
+  "radiiRationale": "sharp — the deck uses 509 rect shapes and 27 ellipses, zero roundRect",
+  "shadows": {
+    "xs": "0 1px 2px rgba(75, 47, 112, 0.05)",
+    "sm": "0 2px 8px rgba(75, 47, 112, 0.06)",
+    "md": "0 4px 16px rgba(75, 47, 112, 0.08)",
+    "lg": "0 8px 32px rgba(75, 47, 112, 0.10)",
+    "cta": "0 4px 20px rgba(210, 101, 15, 0.40)"
+  },
+  "spacing": "8px",
+  "logo": {
+    "aspect": "combination",
+    "original": "theme-sisc-logo-original.png",
+    "light": "theme-sisc-logo.svg",
+    "dark": "theme-sisc-logo-dark.svg",
+    "originalIsRaster": true,
+    "vectorisationNeeded": true,
+    "description": "Heraldic shield crest — violet field, white inner shield, green laurel wreath, quartered diamond (blue star canton, maroon heart), scroll motto FACITE DIFFERENTIAM, founding year 1990",
+    "motto": "FACITE DIFFERENTIAM",
+    "founded": 1990
+  }
+}

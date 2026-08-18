@@ -169,21 +169,25 @@ Tinted to crest violet; CTA shadow tinted to accent orange. No black shadows.
 
 | File | Use |
 |---|---|
-| `theme-sisc-logo-original.png` | **The real crest**, extracted at 250×306 from the deck |
-| `theme-sisc-logo.svg` | Generated lockup, light backgrounds |
-| `theme-sisc-logo-dark.svg` | Generated lockup, dark backgrounds |
+| `theme-sisc-logo.png` | **Primary — the real horizontal lockup** (badge + single-line wordmark), light backgrounds |
+| `theme-sisc-logo-dark.png` | Same real lockup, programmatically recolored for dark backgrounds |
+| `theme-sisc-logo.svg` | Redrawn vector approximation of the real lockup, light backgrounds |
+| `theme-sisc-logo-dark.svg` | Redrawn vector approximation, dark backgrounds |
+| `theme-sisc-logo-original.png` | The bare crest (no wordmark), extracted at 250×306 from the deck |
 
-**Source:** raster PNG embedded in the deck. Per the skill's raster path, the original is preserved and an SVG wordmark lockup was generated alongside.
+**Source of the primary asset.** `theme-sisc-logo.png` was supplied directly by the user on 2026-08-19 as a screenshot of the client's actual horizontal lockup — a badge-with-name-banner plus a separate single-line serif wordmark on a blush ground. This is a materially better source than the pptx-embedded crest alone (`theme-sisc-logo-original.png`), which carries the badge but not the wordmark pairing, at lower resolution. **This screenshot is now the authoritative logo reference**, superseding the initial extraction pass's generated stacked-wordmark SVG.
 
-> **Vectorisation still needed.** The two SVGs are a *generated approximation* — a simplified shield, a suggested laurel, and a Georgia/Arial wordmark. They are **not** a trace of the official crest and must not be presented to the client as their logo. Request the vector original (`.ai`/`.eps`/`.svg`) from SISC marketing before any client-facing deliverable ships.
+**Dark variant is a recolor, not a client asset.** `theme-sisc-logo-dark.png` was produced by HSL-masking the real PNG: pixels in the flat blush background cluster (hue ≈355°, sat >35%, lightness >90%) were blended toward `primary-800 #221433`; pixels in the wordmark's violet cluster (hue 250–280°, sat >22%, lightness 38–58%) were blended toward `primary-300 #B49ED1`. The lightness window on the text rule was deliberately cut at 38% precisely to exclude the badge's own name-banner and star-canton violet, which sit at l≈31% — an early pass with a wider window (30–58%) accidentally recolored the badge itself, caught by visual diff before shipping. The badge's pixels are otherwise **untouched**; it keeps its own white card, which is why it reads fine floated on a dark ground without a full internal recolor.
 
-**Crest description.** Heraldic shield: violet field, white inner shield, green laurel wreath, quartered diamond at centre, scroll motto, founding year.
+**Vectorisation status.** The two SVGs are hand-redrawn to match the real lockup's *layout* (badge left, single-line wordmark right, motto relocated inside the badge at the diamond seam where it actually sits) but are still an approximation — simplified star/laurel geometry, not a trace. They are **not** the official crest and must not be presented to the client as their logo. Request the vector original (`.ai`/`.eps`/`.svg`) from SISC marketing before any client-facing deliverable ships; when it arrives, replace both SVGs and keep the PNGs as the fallback raster.
 
-- Motto: **FACITE DIFFERENTIAM** ("make a difference")
+**Crest description.** Heraldic shield: violet field, purple name-banner across the top in white type, white inner field, quartered diamond at centre (violet star canton — 5 stars, maroon heart canton, green globe-with-walking-figures base), tiny motto text across the diamond seam, green laurel wreath, founding year at the base.
+
+- Motto: **FACITE DIFFERENTIAM** ("make a difference") — confirmed legible in the 4×-upscaled crest crop; small enough to be easy to miss at native resolution.
 - Founded: **1990**
-- Correction worth recording: the diamond's star quarter reads as blue at a glance but samples as the **same violet `#4B2F70`** as the shield. The crest is a two-color diamond — violet with white stars, maroon with a white heart. There is no blue in this logo.
+- Correction from the first extraction pass: the diamond's star quarter was described as reading "blue at a glance." Re-sampled at 4× and again from this new screenshot — it is the **same violet `#4B2F70`** as the shield and banner in both sources, confirmed by exact hex match. There is no blue in this logo; that was a perceptual read of a small, anti-aliased thumbnail, not a pixel fact.
 
-**Usage rules:** minimum 24px tall in nav, 48px in hero. Clear space equal to the wordmark's x-height on all sides. Never stretch, recolor, or apply effects.
+**Usage rules:** minimum 24px tall in nav, 48px in hero. Clear space equal to the wordmark's x-height on all sides. Never stretch, recolor, or apply effects — the one sanctioned exception is the documented dark-mode recolor above, which exists because no client-supplied dark variant exists yet.
 
 ---
 
@@ -203,6 +207,8 @@ cd ~/.claude/skills/theme-client/assets
 cp theme-sisc.json              <project-root>/brand/theme.json
 cp theme-sisc.tokens.css        <project-root>/brand/tokens.css
 cp theme-sisc.tailwind.js       <project-root>/brand/tailwind.config.js
+cp theme-sisc-logo.png          <project-root>/brand/logo.png
+cp theme-sisc-logo-dark.png     <project-root>/brand/logo-dark.png
 cp theme-sisc-logo.svg          <project-root>/brand/logo.svg
 cp theme-sisc-logo-dark.svg     <project-root>/brand/logo-dark.svg
 cp theme-sisc-logo-original.png <project-root>/brand/logo-original.png
@@ -239,3 +245,4 @@ cp theme-sisc.BRAND.md          <project-root>/brand/BRAND.md
 | Date | Change | By |
 |---|---|---|
 | 2026-08-19 | Initial extraction from `Project_Plan_Details.pptx` | /theme-client |
+| 2026-08-19 | User supplied the real horizontal lockup (screenshot). Promoted it to primary logo asset (`theme-sisc-logo.png`), generated a dark recolor via HSL masking, redrew both SVGs to match the real single-line layout, fixed a "blue star canton" description error (confirmed violet), and corrected the badge description (globe-with-figures base, banner name text) | /theme-client |

@@ -111,12 +111,16 @@
   "spacing": "8px",
   "logo": {
     "aspect": "combination",
+    "light": "theme-sisc-logo.png",
+    "dark": "theme-sisc-logo-dark.png",
+    "lightVector": "theme-sisc-logo.svg",
+    "darkVector": "theme-sisc-logo-dark.svg",
     "original": "theme-sisc-logo-original.png",
-    "light": "theme-sisc-logo.svg",
-    "dark": "theme-sisc-logo-dark.svg",
     "originalIsRaster": true,
     "vectorisationNeeded": true,
-    "description": "Heraldic shield crest — violet field, white inner shield, green laurel wreath, quartered diamond (blue star canton, maroon heart), scroll motto FACITE DIFFERENTIAM, founding year 1990",
+    "realAssetProvided": true,
+    "realAssetNote": "theme-sisc-logo.png is the client's actual horizontal lockup (badge + single-line wordmark), supplied by the user on 2026-08-19 as a screenshot — not the low-res crest embedded in the pptx. theme-sisc-logo-dark.png is a programmatic recolor of that same real asset (HSL-masked: flat blush background swapped to primary-800 #221433, wordmark violet swapped to primary-300 #B49ED1; the badge's own pixels are untouched — it carries a self-contained white card). The .svg files are hand-redrawn approximations of this real layout for use cases needing a vector — they are NOT a trace of the official crest.",
+    "description": "Heraldic shield crest — violet shield, purple name banner across the top in white type, white inner field, quartered diamond (violet star canton with 5 stars, maroon heart canton, green globe-with-figures base), motto FACITE DIFFERENTIAM in small type across the diamond seam, green laurel wreath, founding year 1990 at the base. Paired with a single-line serif small-caps wordmark in primaryLit violet.",
     "motto": "FACITE DIFFERENTIAM",
     "founded": 1990
   }

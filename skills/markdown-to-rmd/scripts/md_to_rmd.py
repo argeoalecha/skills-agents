@@ -5,6 +5,10 @@ Wraps the body in a valid R Markdown YAML frontmatter (title, date, html_documen
 output with TOC) so the file opens and knits cleanly in RStudio. Plain fenced code
 blocks (```lang) are left as-is -- they stay syntax-highlighted display blocks and
 are never executed. Pass --live-r to turn ```r fences into live {r} knitr chunks.
+
+Output defaults to the current working directory (the project/workspace folder
+this script was invoked from), not alongside the source file. Batch conversions
+mirror the source directory's subfolder structure under that output root.
 """
 
 import argparse
@@ -95,7 +99,8 @@ def main():
     parser.add_argument("source", type=Path, help=".md file or a directory to convert")
     parser.add_argument(
         "-o", "--out-dir", type=Path, default=None,
-        help="Output directory (default: alongside each source file)",
+        help="Output directory (default: current working directory -- the "
+             "project/workspace folder the skill was invoked from)",
     )
     parser.add_argument("--theme", default="flatly", help="RStudio bootswatch theme (default: flatly)")
     parser.add_argument("--toc-depth", type=int, default=3)
@@ -119,8 +124,12 @@ def main():
     if args.render and not shutil.which("pandoc"):
         sys.exit("error: --render requires pandoc on PATH")
 
+    out_base = args.out_dir or Path.cwd()
+    root = args.source if args.source.is_dir() else args.source.parent
+
     for src in targets:
-        out_dir = args.out_dir or src.parent
+        rel_dir = src.parent.relative_to(root)
+        out_dir = out_base / rel_dir
         out_dir.mkdir(parents=True, exist_ok=True)
         dest = out_dir / (src.stem + ".Rmd")
         convert_file(src, dest, args.theme, args.toc_depth, args.live_r)

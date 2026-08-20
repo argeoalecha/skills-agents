@@ -20,17 +20,19 @@ the user actually wants R code in the doc to run.
 
 1. **Identify the source** -- a single `.md` file, or a directory to
    batch-convert (all `*.md` files under it, recursively).
-2. **Run the converter**:
+2. **Run the converter from the project/workspace folder** the skill was
+   triggered from -- that's where output lands by default:
    ```bash
    python3 scripts/md_to_rmd.py path/to/doc.md
    ```
    This strips any existing YAML frontmatter, pulls the title from the first
-   `# H1` (falling back to a humanized filename), and writes
-   `path/to/doc.Rmd` with a `html_document` frontmatter (TOC, `flatly` theme,
-   `tango` highlighting).
+   `# H1` (falling back to a humanized filename), and writes `doc.Rmd` into
+   the **current working directory** (not next to the source `.md`) with a
+   `html_document` frontmatter (TOC, `flatly` theme, `tango` highlighting).
+   Use `-o/--out-dir` to send it somewhere else instead.
 3. **Batch mode** -- pass a directory instead of a file to convert everything
-   under it in one pass; each `.Rmd` lands next to its source `.md` by
-   default:
+   under it in one pass; each `.Rmd` lands in the current working directory,
+   mirroring the source's subfolder structure:
    ```bash
    python3 scripts/md_to_rmd.py docs/
    ```
@@ -55,7 +57,7 @@ the user actually wants R code in the doc to run.
 
 | Flag | Default | Purpose |
 |---|---|---|
-| `-o/--out-dir DIR` | alongside source | write all `.Rmd` output here instead |
+| `-o/--out-dir DIR` | current working directory | write all `.Rmd` output here instead |
 | `--theme NAME` | `flatly` | any RStudio bootswatch theme (`cosmo`, `united`, `journal`, ...) |
 | `--toc-depth N` | `3` | heading depth included in the table of contents |
 | `--live-r` | off | convert ` ```r ` fences into executable `{r}` chunks |

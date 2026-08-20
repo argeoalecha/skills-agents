@@ -69,8 +69,9 @@ Saved: YYYY-MM-DD HH:MM PHT
 1. **Review the session**: Scan recent conversation for what was accomplished
 2. **Check git status**: `git status && git log --oneline -10` to confirm what was committed
 3. **Check open tasks**: Any TODOs or in-progress work that wasn't finished
-4. **Write the file**: Use the template above — be specific, not generic
-5. **Confirm**: Tell the user where it was saved and what the next recommended action is
+4. **Ensure it's gitignored**: If `<project-root>/.gitignore` doesn't already exclude `SESSION_CHECKPOINT.md`, add it before writing. This file is scratch state for the next session, not project history.
+5. **Write the file**: Use the template above — be specific, not generic
+6. **Confirm**: Tell the user where it was saved and what the next recommended action is
 
 ---
 
@@ -81,3 +82,4 @@ Saved: YYYY-MM-DD HH:MM PHT
 - If there are merge conflicts, uncommitted changes, or broken tests, note them under "Known Issues"
 - Do not write lengthy prose — bullet points are faster to scan on resume
 - The checkpoint is for the next Claude session — write it so a fresh context can pick up instantly
+- Never `git add` or stage `SESSION_CHECKPOINT.md` — it must stay gitignored and out of the project's committed history

@@ -54,6 +54,7 @@ All paths in this file are relative to the skill root: `~/.claude/skills/theme-h
 | `hayahai-design/project/README.md` | **Deep brand reference** — voice, visual foundations, imagery, animation, card types, layout rules |
 | `auth-pages/` | 5 ready-to-use login/signup HTML pages, one per theme |
 | `assets/showcase.html` | Full-page multi-theme showcase |
+| `assets/logos/` | Raster logo asset library — pre-rendered lockups to offer as options (see Logo Asset Library below) |
 | `references/color-palette.md` | Complete color usage + WCAG contrast notes |
 | `references/typography.md` | Font import URLs + per-variant type scale |
 
@@ -312,6 +313,19 @@ The canonical logo is defined in `hayahai-design/project/assets/HayahaiLogo.jsx`
 ```html
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
 ```
+
+---
+
+## Logo Asset Library
+
+Pre-rendered raster logo lockups at `assets/logos/`. Offer these as ready-made options alongside the canonical SVG above when a project wants a finished, packaged mark rather than a hand-assembled inline SVG — e.g. product sub-brands, or the parent mark with a custom tagline baked in.
+
+| File | What it is | Use when |
+|---|---|---|
+| `assets/logos/hayah-ai-office-expert-logo.png` | Canonical arc + coral dot mark, `hayah-ai` wordmark, tagline "the office expert" baked into the raster | Project needs the parent Hayah-AI mark with a fixed tagline as a drop-in image (favicons, doc headers, places an inline SVG is impractical) |
+| `assets/logos/levelup-logo-selection.png` | **LevelUp by hayah-ai** — a product sub-brand lockup sheet with a distinct bar-chart + coral-dot mark (not the parent arc device). Contains multiple ready variants: Midnight (dark teal bg, mint/white/coral) and Classic (cream bg, dark teal/coral) themes, each with Full lockup, Pill badge, Mark-only, and Dark-card layouts | Building a "LevelUp" product surface, or any sub-brand that should visually nest under Hayah-AI while keeping its own icon/mark |
+
+**How to offer these as choices:** when a project needs a logo, present the canonical arc+dot SVG (customizable tagline, theme-aware color) as the default, and mention these two raster options as alternates — the office-expert lockup for a fixed-tagline parent mark, or the LevelUp sheet for a product sub-brand needing its own icon. Crop the specific variant (Midnight/Classic × Full/Pill/Mark/Dark-card) the project needs out of `levelup-logo-selection.png` rather than shipping the whole sheet.
 
 ---
 

@@ -15,10 +15,14 @@ rules — do not restate or override them here.
 |---|---|
 | New SOW / RFP / client brief, scope not yet decomposed | `orchestrator-scope` agent |
 | Need to know which codes govern before anything else | `standards-compliance-agent` |
-| Panel schedule, breaker/conductor sizing, VD, fault current | `/ee-load-calc` |
+| Panel schedule, breaker/conductor sizing, VD, single-point fault current estimate | `/ee-load-calc` |
+| Multi-bus short-circuit study, coordination study, device duty/interrupting-rating check | `/ee-short-circuit` |
+| Arc flash / PPE category / incident-energy assessment (requires `/ee-short-circuit` first) | `elektra-arc-flash` |
 | Site survey → SLD, panel schedules, riser diagrams | `as-built-agent` |
+| Audit an existing SLD (client/vendor-supplied or as-built-produced) for compliance/completeness gaps | `elektra-sld-audit` |
 | Selecting CTs, PTs, meters, sensors, gateways | `instrumentation-procurement-agent` |
 | Formal spec sections (General/Products/Execution) | `/ee-spec-writer` |
+| Field-data ingestion pipeline for a monitoring platform (protocol gateways, topic contract, time-series storage, alarm engine) | `elektra-scada-retrofit` |
 | Mimic / digital-twin dashboard of the power system | `digital-twin-agent` |
 | Final cross-check before client delivery | `/ee-audit` |
 | Pricing and commercial packaging of the engagement | `/proposal-tech` + `/proposal-comm` |

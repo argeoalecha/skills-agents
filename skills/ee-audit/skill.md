@@ -38,6 +38,11 @@ this one on the engineering deliverables, `/audit` on the dashboard software.
    dashboard mimic? Divergent IDs break operator cross-reference between the drawing
    and the screen.
 8. Does any deliverable read as issued-for-construction rather than draft-for-PEE-review?
+9. If an arc-flash / incident-energy assessment (`elektra-arc-flash`) exists, does its
+   fault-current basis actually trace to an `ee-short-circuit` solve — not an assumed or
+   inline-estimated value? And does every bus report both the average- and minimum-
+   arcing-current cases, with the higher (governing) incident energy carried forward —
+   not the average case alone?
 
 ## Output format
 

@@ -19,7 +19,9 @@ does not go into a deliverable.
 3. Run `scripts/pec_calc_lib.py` for: demand load, minimum conductor ampacity (125%
    continuous per PEC Art. 2.15 / NEC-equivalent), breaker size (next standard rating
    up, from `reference/standard_breaker_ratings.md`), voltage drop %, and fault current
-   (point-to-point method).
+   (point-to-point method — a single-bus estimate only; for a real coordination study,
+   a bus-bracing check, or an arc-flash study's required fault-current input, use
+   `ee-short-circuit` instead).
 4. Cite the PEC article/table used for every demand factor and derating applied.
 5. Flag anything loaded beyond 80% continuous breaker rating.
 6. Output a structured panel schedule: load ID, connected load, demand factor, demand

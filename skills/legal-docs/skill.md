@@ -74,7 +74,7 @@ Phase 6 — Recommendations   (routing, footer links, update triggers)
 |---|---|
 | **Privacy Policy** | Use `/ph-dpa-compliance` — covers consent, data subject rights, retention per RA 10173 |
 | **Data Processing Agreement (DPA)** | Counsel — vendor/processor relationships are jurisdiction-sensitive |
-| **Vendor / customer contracts** | Counsel — bilateral negotiated agreements |
+| **Vendor / customer contracts** | Counsel — bilateral negotiated agreements. For redlining an existing draft against the Civil Code before it reaches counsel, see `atty-sia-redline` (Atty-Sia plugin) |
 | **Employment agreements / NDAs** | Counsel + HR |
 | **Intellectual property assignments** | Counsel |
 | **Anything for jurisdictions outside the Philippines** | Counsel in target jurisdiction |

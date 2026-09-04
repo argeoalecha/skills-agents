@@ -167,17 +167,17 @@ Tinted to crest violet; CTA shadow tinted to accent orange. No black shadows.
 
 ## Logo
 
-| File | Use |
-|---|---|
-| `theme-sisc-logo.png` | **Primary — the real horizontal lockup** (badge + single-line wordmark), light backgrounds |
-| `theme-sisc-logo-dark.png` | Same real lockup, programmatically recolored for dark backgrounds |
-| `theme-sisc-logo.svg` | Redrawn vector approximation of the real lockup, light backgrounds |
-| `theme-sisc-logo-dark.svg` | Redrawn vector approximation, dark backgrounds |
-| `theme-sisc-logo-original.png` | The bare crest (no wordmark), extracted at 250×306 from the deck |
+| File | Dimensions | Use |
+|---|---|---|
+| `logo.png` | 1966×186 | **Primary — the real horizontal lockup** (badge + single-line wordmark), light backgrounds |
+| `logo-dark.png` | 1966×186 | Same real lockup, programmatically recolored for dark backgrounds |
+| `logo.svg` | — | Redrawn vector approximation of the real lockup, light backgrounds |
+| `logo-dark.svg` | — | Redrawn vector approximation, dark backgrounds |
+| `logo-original.png` | 250×306 | The bare crest (no wordmark), extracted at 250×306 from the deck |
 
-**Source of the primary asset.** `theme-sisc-logo.png` was supplied directly by the user on 2026-08-19 as a screenshot of the client's actual horizontal lockup — a badge-with-name-banner plus a separate single-line serif wordmark on a blush ground. This is a materially better source than the pptx-embedded crest alone (`theme-sisc-logo-original.png`), which carries the badge but not the wordmark pairing, at lower resolution. **This screenshot is now the authoritative logo reference**, superseding the initial extraction pass's generated stacked-wordmark SVG.
+**Source of the primary asset.** `logo.png` was supplied directly by the user on 2026-08-19 as a screenshot of the client's actual horizontal lockup — a badge-with-name-banner plus a separate single-line serif wordmark on a blush ground. This is a materially better source than the pptx-embedded crest alone (`logo-original.png`), which carries the badge but not the wordmark pairing, at lower resolution. **This screenshot is now the authoritative logo reference**, superseding the initial extraction pass's generated stacked-wordmark SVG.
 
-**Dark variant is a recolor, not a client asset.** `theme-sisc-logo-dark.png` was produced by HSL-masking the real PNG: pixels in the flat blush background cluster (hue ≈355°, sat >35%, lightness >90%) were blended toward `primary-800 #221433`; pixels in the wordmark's violet cluster (hue 250–280°, sat >22%, lightness 38–58%) were blended toward `primary-300 #B49ED1`. The lightness window on the text rule was deliberately cut at 38% precisely to exclude the badge's own name-banner and star-canton violet, which sit at l≈31% — an early pass with a wider window (30–58%) accidentally recolored the badge itself, caught by visual diff before shipping. The badge's pixels are otherwise **untouched**; it keeps its own white card, which is why it reads fine floated on a dark ground without a full internal recolor.
+**Dark variant is a recolor, not a client asset.** `logo-dark.png` was produced by HSL-masking the real PNG: pixels in the flat blush background cluster (hue ≈355°, sat >35%, lightness >90%) were blended toward `primary-800 #221433`; pixels in the wordmark's violet cluster (hue 250–280°, sat >22%, lightness 38–58%) were blended toward `primary-300 #B49ED1`. The lightness window on the text rule was deliberately cut at 38% precisely to exclude the badge's own name-banner and star-canton violet, which sit at l≈31% — an early pass with a wider window (30–58%) accidentally recolored the badge itself, caught by visual diff before shipping. The badge's pixels are otherwise **untouched**; it keeps its own white card, which is why it reads fine floated on a dark ground without a full internal recolor.
 
 **Vectorisation status.** The two SVGs are hand-redrawn to match the real lockup's *layout* (badge left, single-line wordmark right, motto relocated inside the badge at the diamond seam where it actually sits) but are still an approximation — simplified star/laurel geometry, not a trace. They are **not** the official crest and must not be presented to the client as their logo. Request the vector original (`.ai`/`.eps`/`.svg`) from SISC marketing before any client-facing deliverable ships; when it arrives, replace both SVGs and keep the PNGs as the fallback raster.
 
@@ -199,31 +199,34 @@ Out of scope — no voice rules generated. SISC is an academic institution; if c
 
 ## How this brand is consumed
 
-These assets live in the **skill's** `assets/` folder rather than a project `brand/` folder, at the user's instruction. Downstream skills expect `<project-root>/brand/`, so to use this on a real build, copy and rename:
+These assets now live in the **dedicated `/theme-sisc` skill's** `assets/` folder — promoted out of `theme-client/assets/` on 2026-09-04 because SISC document and slide-deck work recurs across the Southville Electric engagement and warrants its own skill rather than living as a one-off inside the generic client-intake skill. See `/theme-sisc`'s `skill.md` for how documents and decks apply these tokens (decks: full theme; standard docs/reports: logo + white background + text color only).
+
+If a web build ever needs the brand (e.g. `digital-twin-agent`'s dashboard), downstream skills like `/company-site` and `/ui-builder` still expect `<project-root>/brand/`, so copy and rename:
 
 ```bash
 mkdir -p <project-root>/brand
-cd ~/.claude/skills/theme-client/assets
-cp theme-sisc.json              <project-root>/brand/theme.json
-cp theme-sisc.tokens.css        <project-root>/brand/tokens.css
-cp theme-sisc.tailwind.js       <project-root>/brand/tailwind.config.js
-cp theme-sisc-logo.png          <project-root>/brand/logo.png
-cp theme-sisc-logo-dark.png     <project-root>/brand/logo-dark.png
-cp theme-sisc-logo.svg          <project-root>/brand/logo.svg
-cp theme-sisc-logo-dark.svg     <project-root>/brand/logo-dark.svg
-cp theme-sisc-logo-original.png <project-root>/brand/logo-original.png
-cp theme-sisc.BRAND.md          <project-root>/brand/BRAND.md
+cd ~/.claude/skills/theme-sisc/assets
+cp theme.json            <project-root>/brand/theme.json
+cp tokens.css            <project-root>/brand/tokens.css
+cp tailwind.config.js    <project-root>/brand/tailwind.config.js
+cp logo.png              <project-root>/brand/logo.png
+cp logo-dark.png         <project-root>/brand/logo-dark.png
+cp logo.svg              <project-root>/brand/logo.svg
+cp logo-dark.svg         <project-root>/brand/logo-dark.svg
+cp logo-original.png     <project-root>/brand/logo-original.png
+cp BRAND.md              <project-root>/brand/BRAND.md
 ```
 
 | Skill | What it reads |
 |---|---|
+| `/theme-sisc` | All of `assets/` directly — no copy needed for documents/decks |
 | `/company-site` | `brand/theme.json` → `SITE_CONFIG.theme`; `brand/logo.svg` in nav + footer |
 | `/ui-builder` | All of `brand/` |
 | `/auth-page-scaffold` | `brand/theme.json` + `brand/logo.svg` |
 | Direct Tailwind | `brand/tailwind.config.js` |
 | Direct CSS | `brand/tokens.css` |
 
-`theme-sisc.json` keeps the canonical 11-token `colors` block, so it is drop-in compatible with the `hayah-*.json` shape. The `brandExtended`, `a11ySafeText`, `palette`, and `source` blocks are additive and ignored by consumers that don't know about them.
+`theme.json` keeps the canonical 11-token `colors` block, so it is drop-in compatible with the `hayah-*.json` shape. The `brandExtended`, `a11ySafeText`, `palette`, and `source` blocks are additive and ignored by consumers that don't know about them.
 
 ---
 
@@ -232,7 +235,7 @@ cp theme-sisc.BRAND.md          <project-root>/brand/BRAND.md
 | Default | What happened here | Why |
 |---|---|---|
 | Phase 0 interactive intake | Skipped — every field extracted from the deck | User supplied a source file instead of answers |
-| Output to `<project-root>/brand/` | Written to `skills/theme-client/assets/` as `theme-sisc*` | Explicit user instruction |
+| Output to `<project-root>/brand/` | Written to `skills/theme-client/assets/` as `theme-sisc*`, later promoted to `skills/theme-sisc/assets/` | Explicit user instruction, then promoted to a dedicated skill |
 | Palette scale by fixed ±% lightness | Monotonic interpolation, `500` pinned to source | Default rule inverts on a primary at L=31% |
 | Accent generated by hue rotation | Taken from the deck's existing kicker orange | Real usage beats derivation; collision rule passes anyway |
 | Fonts chosen from mood table | Read from the deck (Georgia/Arial), mood inferred backwards | Extraction, not generation |
@@ -245,4 +248,5 @@ cp theme-sisc.BRAND.md          <project-root>/brand/BRAND.md
 | Date | Change | By |
 |---|---|---|
 | 2026-08-19 | Initial extraction from `Project_Plan_Details.pptx` | /theme-client |
-| 2026-08-19 | User supplied the real horizontal lockup (screenshot). Promoted it to primary logo asset (`theme-sisc-logo.png`), generated a dark recolor via HSL masking, redrew both SVGs to match the real single-line layout, fixed a "blue star canton" description error (confirmed violet), and corrected the badge description (globe-with-figures base, banner name text) | /theme-client |
+| 2026-08-19 | User supplied the real horizontal lockup (screenshot). Promoted it to primary logo asset (`logo.png`), generated a dark recolor via HSL masking, redrew both SVGs to match the real single-line layout, fixed a "blue star canton" description error (confirmed violet), and corrected the badge description (globe-with-figures base, banner name text) | /theme-client |
+| 2026-09-04 | Promoted from `theme-client/assets/theme-sisc*` into a dedicated `/theme-sisc` skill (own `skill.md`, assets renamed without the redundant `theme-sisc` prefix). Re-verified extraction against a newer revision of the same deck (`Plans and Deliverables/Project_Plan_Details.pptx`, created 2026-09-03, MD5 `73fa2bb6f2fc68a7a9c17d128cdb8d45`) — same 24 slides, same PptxGenJS authorship, same font census (Arial/Calibri). No palette or type changes required; the extraction holds. New skill formalizes a two-tier application: full theme for slide decks, logo + white background only for standard reports/design docs. | /theme-sisc |

@@ -97,9 +97,11 @@ Three tokens do not clear 4.5:1 for small text. That is not a defect in the sour
 
 | Role | Font | Source |
 |---|---|---|
-| Display | **Georgia** | Extracted — used for section heads on slides 4–6 |
-| Body | **Arial** | Extracted — 1,290 runs, the dominant typeface |
+| Display / statement | **Georgia** | Extracted — **only 5 runs, on slides 4–6** (48pt bold indigo section titles, 42pt bold white statement, 24pt regular muted qualifier). A rare accent, not the deck's title face. |
+| Body **and most titles** | **Arial** | Extracted — 1,272 runs. The deck face at every size from 18pt to 54pt. |
 | Mono | **Courier New** | Extracted — 3 runs |
+
+> **Correction (2026-09-04).** The original extraction pass labelled Georgia the "display" font and the first `/theme-sisc` skill draft propagated that into a type scale assigning Georgia to 54pt/33pt/24pt titles. A per-run census of the current deck revision disproves it: those sizes are **Arial**. Georgia's entire footprint is the 5 runs listed above. Georgia remains in the token set as a legitimate statement face, but Arial is the deck's voice.
 
 Both are system fonts, not webfonts. The metric-compatible Google-hosted equivalents have identical advance widths, so substitution does not reflow layout:
 
@@ -115,16 +117,17 @@ https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&f
 
 Load the stacks as `Georgia, Gelasio, serif` and `Arial, Arimo, sans-serif` — system font first, so most visitors render with zero webfont download. Worth keeping for the PH-mobile audience.
 
-**Deck type scale (pt, on a 20in-wide 16:9 stage):**
+**Deck type scale (pt, on a 20 × 11.25in 16:9 stage) — corrected 2026-09-04 from a per-run census:**
 
 | Role | Size | Treatment |
 |---|---|---|
-| Hero title | 54 | Georgia bold |
-| Display numeral | 48 | Arial bold, letter-spacing −0.48pt, `#410BDB` |
-| Slide title | 33 | Georgia bold |
-| Section head | 24 | Georgia bold, `#1E181B` |
-| Subhead | 20.25 | Arial |
-| Body | 18 | Arial (504 runs — the workhorse size) |
+| Title-slide headline | 54 | Arial bold |
+| Slide title / display numeral | 48 | Arial bold, letter-spacing −0.48pt, `#410BDB` (19 runs); Georgia bold at this size on slides 4–5 only |
+| Statement title | 42 | Georgia bold, white, on a filled ground (slide 6) |
+| Secondary title | 33 | Arial regular or bold, `#1E181B` |
+| Section head / kicker | 24 | Arial bold — `#D2650F` letterspaced +0.96pt, or `#1E181B` |
+| Subhead | 20.25 | Arial (203 runs) |
+| Body | 18 | Arial (502 runs — the workhorse size, and a hard floor: the deck has no type below 18pt) |
 
 **Rationale.** The Georgia/Arial split is a serif-display + grotesque-body pairing, which maps to the skill's **serious** mood row rather than *refined* or *technical*. That fits: an institutional education client receiving an engineering proposal. The pairing was not chosen from the mood table — it was read off the deck and the mood inferred backwards from it.
 
@@ -249,4 +252,5 @@ cp BRAND.md              <project-root>/brand/BRAND.md
 |---|---|---|
 | 2026-08-19 | Initial extraction from `Project_Plan_Details.pptx` | /theme-client |
 | 2026-08-19 | User supplied the real horizontal lockup (screenshot). Promoted it to primary logo asset (`logo.png`), generated a dark recolor via HSL masking, redrew both SVGs to match the real single-line layout, fixed a "blue star canton" description error (confirmed violet), and corrected the badge description (globe-with-figures base, banner name text) | /theme-client |
+| 2026-09-04 | **Review pass.** Per-run and per-shape census of the current deck revision corrected three errors and filled the layout gap: (1) Georgia was mislabelled the display/title face — it is 5 runs on slides 4–6; Arial carries titles at 54/48/33/24pt. (2) The card spec (`#FDEEF0` + border + shadow) did not match the deck's actual cards (`#FFF8F9` + `0.05in` colored top bar, no border, no shadow). (3) Shadow guidance for decks was wrong — the deck has **zero** shadow declarations. Added the measured grid (1.08in margin, 17.83in content width, vertical rhythm), footer band, nested-square motif, agenda/card geometry, 18pt floor, and six slide archetypes to `skill.md`. | /theme-sisc review |
 | 2026-09-04 | Promoted from `theme-client/assets/theme-sisc*` into a dedicated `/theme-sisc` skill (own `skill.md`, assets renamed without the redundant `theme-sisc` prefix). Re-verified extraction against a newer revision of the same deck (`Plans and Deliverables/Project_Plan_Details.pptx`, created 2026-09-03, MD5 `73fa2bb6f2fc68a7a9c17d128cdb8d45`) — same 24 slides, same PptxGenJS authorship, same font census (Arial/Calibri). No palette or type changes required; the extraction holds. New skill formalizes a two-tier application: full theme for slide decks, logo + white background only for standard reports/design docs. | /theme-sisc |

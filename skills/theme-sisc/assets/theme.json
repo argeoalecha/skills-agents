@@ -61,7 +61,9 @@
   "typography": {
     "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Gelasio:ital,wght@0,400..700;1,400..700&family=Cousine:ital,wght@0,400;0,700;1,400;1,700&display=swap",
     "displayFont": "Georgia",
+    "displayFontNote": "Statement/accent face only — 5 runs across slides 4-6 of the source deck. Arial carries titles at every other size. Do not set all headings in Georgia.",
     "bodyFont": "Arial",
+    "bodyFontNote": "The deck face — 1,272 of 1,290 runs, used for body AND most titles (18pt through 54pt).",
     "monoFont": "Courier New",
     "displayStack": "Georgia, Gelasio, 'Times New Roman', serif",
     "bodyStack": "Arial, Arimo, Helvetica, system-ui, sans-serif",
@@ -80,18 +82,32 @@
       "small": "0.875rem"
     },
     "deckScalePt": {
-      "heroTitle": 54,
-      "displayNumeral": 48,
-      "slideTitle": 33,
-      "sectionHead": 24,
+      "titleSlideHeadline": 54,
+      "slideTitleAndNumeral": 48,
+      "statementTitle": 42,
+      "secondaryTitle": 33,
+      "sectionHeadKicker": 24,
       "subhead": 20.25,
-      "body": 18
+      "body": 18,
+      "minimum": 18,
+      "note": "Corrected 2026-09-04 by per-run census. 18pt is a hard floor — the deck contains no smaller type. All sizes are Arial except statementTitle (Georgia) and the slides 4-5 variant of slideTitle."
     },
     "conventions": {
-      "kicker": "Arial bold 18pt, letter-spacing +1.8pt, uppercase, color accent #D2650F",
+      "kicker": "Arial bold 18pt uppercase. Default: muted #7C6F75, letter-spacing +2.88pt (18 runs). Emphasis: accent #D2650F, letter-spacing +1.8pt.",
       "displayNumeral": "Arial bold 48pt, letter-spacing -0.48pt, color #410BDB",
-      "sectionHead": "Georgia bold, color text #1E181B",
-      "divider": "2-3px solid bar in primaryLit #6A3D9E"
+      "sectionHead": "Arial bold 24pt — accent #D2650F letterspaced +0.96pt, or text #1E181B",
+      "statementTitle": "Georgia bold 42-48pt — section-opening statements only, white on a filled ground or #410BDB on light",
+      "divider": "17.83in x 0.02in bar in primaryLit #6A3D9E under the title; #B589D6 on statement slides; title slide uses a short 2.92in x 0.04in rule",
+      "footerBand": "17.83in x 0.89in band at y=9.53 filled tintBlush #F6D6DC — uppercase label plus a middot-separated list",
+      "cards": "3-up, 5.69 x 3.53in, gutter 0.38in, fill background #FFF8F9, 0.05in top accent bar in a different color per card (#AE1029 / #D2650F / #6A3D9E). No border, no shadow.",
+      "nestedSquares": "Three concentric unfilled squares top-right: 2.43in at (16.90,0.58), 1.70in at (17.27,0.95), 0.97in at (17.63,1.31)"
+    },
+    "deckGrid": {
+      "stageInches": [20.0, 11.25],
+      "leftMargin": 1.08,
+      "contentWidth": 17.83,
+      "fullWidthTextBox": 19.62,
+      "verticalRhythm": { "kicker": 1.0, "title": 1.43, "divider": 2.47, "content": 2.91, "footerBand": 9.53 }
     }
   },
   "radii": {
@@ -104,6 +120,7 @@
   },
   "radiiRationale": "sharp — the deck uses 509 rect shapes and 27 ellipses, zero roundRect",
   "shadows": {
+    "_note": "WEB OUTPUT ONLY. The source deck contains zero shadow/effect declarations and is deliberately flat — never apply these to a slide or document.",
     "xs": "0 1px 2px rgba(75, 47, 112, 0.05)",
     "sm": "0 2px 8px rgba(75, 47, 112, 0.06)",
     "md": "0 4px 16px rgba(75, 47, 112, 0.08)",

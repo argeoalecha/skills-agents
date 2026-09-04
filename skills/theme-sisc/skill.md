@@ -1,6 +1,6 @@
 ---
 name: theme-sisc
-description: Southville International School and Colleges (SISC) brand system — applies the client's extracted palette, typography, and logo to two output shapes. Slide decks (PowerPoint) get the full theme (palette, sharp radii, shadows, kicker/numeral/divider conventions). Standard documents (reports, design docs — Word/PDF) get a minimal treatment — logo + white background + text color only. Use for any deliverable on the Southville Electric Campus Electrical Network Integration and Smart Energy Management Project engagement. Triggers on /theme-sisc, "brand this for SISC", "Southville deck", "SISC report", "apply the SISC theme", "put the SISC logo on this".
+description: Southville International School and Colleges (SISC) brand system — applies the client's extracted palette, typography, and logo to two output shapes. Slide decks (PowerPoint) get the full theme (measured grid, Arial type scale, sharp corners, flat fills, kicker/numeral/divider conventions). Standard documents (reports, design docs — Word/PDF) get a minimal treatment — logo + white background + text color only. Use for any deliverable on the Southville Electric Campus Electrical Network Integration and Smart Energy Management Project engagement. Triggers on /theme-sisc, "brand this for SISC", "Southville deck", "SISC report", "apply the SISC theme", "put the SISC logo on this".
 user-invocable: true
 ---
 

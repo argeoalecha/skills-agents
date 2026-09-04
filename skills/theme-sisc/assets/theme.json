@@ -10,7 +10,9 @@
     "deckAuthor": "Argeo T. Alecha, Electrical Engineering Consultant",
     "deckDate": "2026-08-10",
     "extractedOn": "2026-08-19",
-    "method": "OOXML unpack — crest raster quantised in HSL, slide srgbClr frequency ranked across 24 slides, typeface and prstGeom census"
+    "method": "OOXML unpack — crest raster quantised in HSL, slide srgbClr frequency ranked across 24 slides, typeface and prstGeom census",
+    "reconfirmedAgainst": "southville-electric-docs/Plans and Deliverables/Project_Plan_Details.pptx (created 2026-09-03, MD5 73fa2bb6f2fc68a7a9c17d128cdb8d45) — same 24 slides, same PptxGenJS authorship, same font census; no palette or type changes",
+    "reconfirmedOn": "2026-09-04"
   },
   "colors": {
     "primary": "#4B2F70",
@@ -111,15 +113,15 @@
   "spacing": "8px",
   "logo": {
     "aspect": "combination",
-    "light": "theme-sisc-logo.png",
-    "dark": "theme-sisc-logo-dark.png",
-    "lightVector": "theme-sisc-logo.svg",
-    "darkVector": "theme-sisc-logo-dark.svg",
-    "original": "theme-sisc-logo-original.png",
+    "light": "logo.png",
+    "dark": "logo-dark.png",
+    "lightVector": "logo.svg",
+    "darkVector": "logo-dark.svg",
+    "original": "logo-original.png",
     "originalIsRaster": true,
     "vectorisationNeeded": true,
     "realAssetProvided": true,
-    "realAssetNote": "theme-sisc-logo.png is the client's actual horizontal lockup (badge + single-line wordmark), supplied by the user on 2026-08-19 as a screenshot — not the low-res crest embedded in the pptx. theme-sisc-logo-dark.png is a programmatic recolor of that same real asset (HSL-masked: flat blush background swapped to primary-800 #221433, wordmark violet swapped to primary-300 #B49ED1; the badge's own pixels are untouched — it carries a self-contained white card). The .svg files are hand-redrawn approximations of this real layout for use cases needing a vector — they are NOT a trace of the official crest.",
+    "realAssetNote": "logo.png is the client's actual horizontal lockup (badge + single-line wordmark), supplied by the user on 2026-08-19 as a screenshot — not the low-res crest embedded in the pptx. logo-dark.png is a programmatic recolor of that same real asset (HSL-masked: flat blush background swapped to primary-800 #221433, wordmark violet swapped to primary-300 #B49ED1; the badge's own pixels are untouched — it carries a self-contained white card). The .svg files are hand-redrawn approximations of this real layout for use cases needing a vector — they are NOT a trace of the official crest.",
     "description": "Heraldic shield crest — violet shield, purple name banner across the top in white type, white inner field, quartered diamond (violet star canton with 5 stars, maroon heart canton, green globe-with-figures base), motto FACITE DIFFERENTIAM in small type across the diamond seam, green laurel wreath, founding year 1990 at the base. Paired with a single-line serif small-caps wordmark in primaryLit violet.",
     "motto": "FACITE DIFFERENTIAM",
     "founded": 1990

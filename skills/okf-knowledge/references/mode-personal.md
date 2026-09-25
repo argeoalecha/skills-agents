@@ -25,7 +25,7 @@ Organize by how *you* think — by topic, by area, by PARA, whatever fits. The s
 
 ```
 knowledge/
-├── index.md                 # may carry okf_version: "0.1"
+├── index.md                 # may carry okf_version: "0.2"
 ├── log.md
 ├── research/
 │   ├── index.md
@@ -45,24 +45,27 @@ knowledge/
 type: Research
 title: Open Knowledge Format
 description: How OKF works and where it fits vs RAG and MCP.
-resource: https://github.com/GoogleCloudPlatform/knowledge-catalog
+resource: https://github.com/GoogleCloudPlatform/open-knowledge-format
 tags: [ai, knowledge, agents]
-timestamp: <ISO 8601 now>
-source: <where you learned this>
+generated: { by: claude-code/<model-id>, at: <ISO 8601 now, e.g. 2026-09-25T10:30:00Z> }
+status: draft
+sources:
+  - id: okf-spec
+    resource: https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md
+    title: OKF v0.2 specification
 ---
 
 # Summary
 The core insight in a few sentences.
 
 # Details
-Structured findings — headings, lists, tables.
+Structured findings — headings, lists, tables. v0.2 adds provenance and trust frontmatter.[^okf-spec]
 
 # Related
 - [MCP notes](/research/mcp.md)
 - [RAG patterns](/research/rag.md)
 
-# Citations
-[1] [OKF spec](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+[^okf-spec]: OKF v0.2 specification
 ```
 
 ## Concept template — reading note
@@ -73,8 +76,12 @@ type: Reading
 title: Thinking, Fast and Slow
 description: Key takeaways on System 1 / System 2 cognition.
 tags: [psychology, decision-making]
-timestamp: <ISO 8601 now>
-author: Daniel Kahneman
+generated: { by: human:<id>, at: <ISO 8601 now, e.g. 2026-09-25T10:30:00Z> }
+sources:
+  - id: book
+    resource: isbn:9780374533557
+    title: Thinking, Fast and Slow
+    author: human:daniel-kahneman
 ---
 
 # Key ideas
@@ -96,7 +103,7 @@ type: Reference
 title: SQL Window Functions
 description: Syntax and patterns for window functions.
 tags: [sql, cheatsheet]
-timestamp: <ISO 8601 now>
+generated: { by: claude-code/<model-id>, at: <ISO 8601 now, e.g. 2026-09-25T10:30:00Z> }
 ---
 
 # Patterns
@@ -114,6 +121,9 @@ SELECT id, RANK() OVER (PARTITION BY dept ORDER BY salary DESC) FROM emp;
 ## Tips
 
 - Lower the bar to capture: a `Note` with just `type` and a body is conformant. Enrich later.
+- Actor honesty: notes the user dictates or writes are `generated.by: human:<id>`; notes you draft from research are `claude-code/<model-id>` with `status: draft` until the user reviews them — then add `verified: { by: human:<id>, at: <now> }`. An agent reading the vault can then tell the user's own knowledge from machine summaries.
+- Book/paper authors go in `sources[].author`, not a top-level `author` key — keeps the field meaning "who wrote the source" consistent across the bundle.
+- Time-sensitive notes (prices, tool versions, "current best practice") get a `stale_after` so the agent knows when to re-check.
 - Link notes to each other to build a personal knowledge graph the agent can traverse.
-- Coming from Obsidian: vault ≈ bundle, note ≈ concept, frontmatter ≈ frontmatter, wikilink ≈ markdown link. The only required change is a non-empty `type` per note and `/`-absolute links for stability.
+- Coming from Obsidian: vault ≈ bundle, note ≈ concept, frontmatter ≈ frontmatter, wikilink ≈ markdown link. The only required change is a non-empty `type` per note and `/`-absolute links for stability. Obsidian `created`/`updated` properties map to `generated.at` (add an explicit offset).
 - Copyright: when capturing reading notes, keep quoted passages short and attributed; summarize in your own words.

@@ -22,7 +22,7 @@ A standalone repo or folder (e.g. `team-wiki/` or `~/wiki/`). Git-backed so cura
 
 ```
 wiki/
-├── index.md                 # may carry okf_version: "0.1"
+├── index.md                 # may carry okf_version: "0.2"
 ├── log.md
 ├── guides/
 │   ├── index.md
@@ -46,9 +46,14 @@ type: How-To
 title: Deploy to Production
 description: Step-by-step production deploy with rollback.
 tags: [deploy, ops]
-timestamp: <ISO 8601 now>
+generated: { by: claude-code/<model-id>, at: <ISO 8601 now, e.g. 2026-09-25T10:30:00Z> }
 owner: <team or person>
-status: current
+status: stable
+verified: { by: human:<owner-id>, at: <when the owner last walked through it> }
+sources:
+  - id: deploy-dash
+    resource: https://...
+    title: Internal deploy dashboard
 ---
 
 # Prerequisites
@@ -57,14 +62,15 @@ status: current
 # Steps
 1. First action.
 2. Second action — see [incident response](/runbooks/incident-response.md) if it fails.
-3. Verify.
+3. Verify on the deploy dashboard.[^deploy-dash]
 
 # Rollback
 How to undo safely.
 
-# Citations
-[1] [Internal deploy dashboard](https://...)
+[^deploy-dash]: Internal deploy dashboard
 ```
+
+Include `verified` only once the owner has actually confirmed the steps. Leave it out of drafts.
 
 ## Concept template — decision record (ADR)
 
@@ -74,8 +80,9 @@ type: Decision
 title: Postgres over Mongo for primary store
 description: Why we chose relational for the core data model.
 tags: [architecture, database]
-timestamp: <ISO 8601 now>
-status: accepted
+generated: { by: claude-code/<model-id>, at: <ISO 8601 now, e.g. 2026-09-25T10:30:00Z> }
+decision_status: accepted   # proposed | accepted | superseded — the ADR's own state
+status: stable              # OKF lifecycle: superseded ADRs become deprecated
 ---
 
 # Context
@@ -99,7 +106,7 @@ type: Reference
 title: Glossary
 description: Canonical definitions of internal terms.
 tags: [reference]
-timestamp: <ISO 8601 now>
+generated: { by: claude-code/<model-id>, at: <ISO 8601 now, e.g. 2026-09-25T10:30:00Z> }
 ---
 
 # Terms
@@ -111,9 +118,13 @@ timestamp: <ISO 8601 now>
 
 - Notion pages and Obsidian notes already use markdown + frontmatter, so the shape transfers directly. The work is adding a non-empty `type` to each file and converting wikilinks to `/`-absolute markdown links.
 - One Notion page = one concept file. Use the page's database property (category/type) as the OKF `type`.
-- Preserve existing properties as extra frontmatter keys — consumers must keep them.
+- Preserve existing properties as extra frontmatter keys — consumers must keep them. Exception: a Notion `Status` property must not land in OKF `status` unless its values are `draft`/`stable`/`deprecated`; rename it (e.g. `page_status`).
+- Notion "Last edited time" + "Last edited by" → `generated: { by: human:<editor>, at: <time with offset> }`. Pages you rewrite during import get your own actor instead.
+- The Notion page URL makes a good `sources` entry (`id: notion`) so readers can trace the concept back to where it came from.
 
 ## Tips
 
 - A wiki's value is the cross-link graph: link guides to the processes they support, runbooks to the systems they touch, decisions to the components they shaped.
 - Keep one canonical definition per concept. Duplication is what OKF exists to eliminate.
+- Mark superseded guides and decisions `status: deprecated` instead of deleting them, and link to the replacement — inbound links keep working and the history stays readable.
+- Policies and processes tied to a date (fee schedules, annual reviews) get a `stale_after` so agents flag them once they expire.

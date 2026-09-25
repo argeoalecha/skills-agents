@@ -7,11 +7,11 @@ Scans a single directory's concept files, reads each one's frontmatter
 are listed too. index.md and log.md are skipped.
 
 The bundle-root index may carry an okf_version declaration; pass --root to add
-`okf_version: "0.1"` frontmatter (the only place frontmatter is allowed in an
+`okf_version: "0.2"` frontmatter (the only place frontmatter is allowed in an
 index file).
 
 Usage:
-    python gen_index.py <directory> [--root] [--version 0.1]
+    python3 gen_index.py <directory> [--root] [--version=0.2]
 """
 from __future__ import annotations
 import sys
@@ -30,9 +30,9 @@ def read_meta(path: Path):
                 break
             ln = lines[i]
             if ln.startswith("title:"):
-                title = ln.split(":", 1)[1].strip()
+                title = ln.split(":", 1)[1].strip().strip("'\"")
             elif ln.startswith("description:"):
-                desc = ln.split(":", 1)[1].strip()
+                desc = ln.split(":", 1)[1].strip().strip("'\"")
     if not title:
         title = path.stem.replace("-", " ").replace("_", " ").title()
     return title, desc
@@ -50,7 +50,7 @@ def main(argv):
         return 2
 
     is_root = "--root" in flags
-    version = "0.1"
+    version = "0.2"
     for fl in flags:
         if fl.startswith("--version"):
             parts = fl.split("=", 1)

@@ -13,5 +13,6 @@
 # Local-only exceptions inside skills/ (must come after the re-include)
 skills/SESSION_CHECKPOINT.md
 skills/.vscode/
+skills/synced/
 .DS_Store
 __pycache__/

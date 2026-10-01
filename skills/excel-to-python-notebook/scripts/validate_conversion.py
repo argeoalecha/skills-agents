@@ -1,9 +1,21 @@
-"""Three-tier validation of a Python conversion against its source workbook.
+"""Validation of a Python conversion against its source workbook.
 
-Import this into a converted notebook. It reads cached values out of the original
-workbook and records one of three verdicts per check:
+Import this into a converted notebook, with formula_fidelity.py beside it. Two things
+are checked, and report() fails unless both were:
+
+Formula fidelity — the conversion still carries the workbook's formulas
+
+    formulas_carried()  every distinct source formula appears verbatim in the
+                        conversion's FORMULAS map, beside its Python expression
+    engine_parity()     an Excel-compatible engine recalculates those formula strings
+                        and is compared with what Excel cached
+    engine()            Python must match the formula itself, evaluated by the engine —
+                        at the cached inputs or at changed ones
+
+Numeric parity — the Python reproduces what Excel computed
 
     exact()         deterministic cell — Python must match Excel to rtol
+    legacy_stat()   deterministic cell from a low-precision legacy Excel solver
     tolerance()     volatile/simulated cell — Excel's cached value is one frozen
                     draw and its RNG cannot be seed-matched, so only agreement
                     within a stated tolerance is meaningful
@@ -14,10 +26,14 @@ Usage in a notebook:
 
     from validate_conversion import Validator
     v = Validator("Session 2.4.2 - MLE.xlsx")
+    v.formulas_carried(FORMULAS)
+    v.engine_parity()
     v.exact("beta (MLE)", beta_py, v.cell("CL-Weibull", "D2"))
+    v.engine("MTTF at beta=2.5", model(beta=2.5), "CL-Weibull", "D4",
+             inputs={("CL-Weibull", "D2"): 2.5})
     v.tolerance("P(system up)", p_py, v.cell("SERIES", "G5"), rtol=0.05)
     v.unvalidatable("SERIES!C6:C12", "VBA-written at runtime, no cached value")
-    v.report()
+    assert v.report()
 
 CLI (quick look at what a sheet cached):
 
@@ -25,7 +41,6 @@ CLI (quick look at what a sheet cached):
 """
 
 import argparse
-import math
 import sys
 import warnings
 from pathlib import Path
@@ -37,7 +52,7 @@ try:
 except ImportError:
     sys.exit("openpyxl required: pip install openpyxl")
 
-ERROR_VALUES = ("#REF!", "#DIV/0!", "#VALUE!", "#N/A", "#NAME?", "#NULL!", "#NUM!")
+from formula_fidelity import EngineUnavailable, FormulaBook, agree, is_error
 
 PASS, FAIL, GAP = "PASS", "FAIL", "GAP"
 
@@ -47,28 +62,40 @@ PASS, FAIL, GAP = "PASS", "FAIL", "GAP"
 # at the 1e-8 level on one of these, scipy is the more accurate side — loosen rtol to
 # RTOL_LEGACY_STAT and say so in the notebook rather than bending the Python to match.
 RTOL_LEGACY_STAT = 1e-6
-LEGACY_STAT_FUNCS = {
-    "CHIINV", "CHIDIST", "CHISQ.INV", "CHISQ.INV.RT", "TINV", "FINV",
-    "GAMMAINV", "BETAINV", "BINOMDIST", "POISSON",
-}
 
 
 class Validator:
-    """Collects verdicts comparing Python results against a workbook's cached values."""
+    """Collects verdicts comparing a conversion against its source workbook."""
 
-    def __init__(self, workbook, rtol=1e-9):
+    def __init__(self, workbook, rtol=1e-9, cached_from=None):
+        """cached_from: a recalculated copy of an uncached workbook, used for cached
+        values only. Formulas are always read from `workbook` itself."""
         self.path = Path(workbook)
         self.default_rtol = rtol
-        self._wb = openpyxl.load_workbook(self.path, data_only=True)
+        self._cached_from = cached_from
+        self._wb = openpyxl.load_workbook(cached_from or self.path, data_only=True)
         self.checks = []
+        self._book = None
+        self._parity = None
+        self._carried_checked = False
+        self._parity_checked = False
+
+    @property
+    def book(self):
+        """Every formula in the source workbook; see formula_fidelity.FormulaBook."""
+        if self._book is None:
+            self._book = FormulaBook(self.path, self._cached_from)
+        return self._book
 
     # -- reading the source -------------------------------------------------
 
     def cell(self, sheet, coord):
         """Cached value of one cell. Returns None when Excel never cached one."""
         value = self._wb[sheet][coord].value
-        if isinstance(value, str) and value.startswith(ERROR_VALUES):
+        if is_error(value):
             return None
+        if value is None and self.book.formula(sheet, coord) is not None:
+            return self.book.cached(sheet, coord)
         return value
 
     def range(self, sheet, ref, drop_none=True):
@@ -77,15 +104,115 @@ class Validator:
         for row in self._wb[sheet][ref]:
             cells = row if isinstance(row, tuple) else (row,)
             for c in cells:
-                v = c.value
-                if isinstance(v, str) and v.startswith(ERROR_VALUES):
-                    v = None
+                v = None if is_error(c.value) else c.value
                 if v is None and drop_none:
                     continue
                 out.append(v)
         return out
 
-    # -- recording verdicts -------------------------------------------------
+    def formula(self, sheet, coord):
+        """The source formula at a cell, verbatim. None for a constant."""
+        return self.book.formula(sheet, coord)
+
+    # -- formula fidelity ---------------------------------------------------
+
+    def formulas_carried(self, carried, excluded=None):
+        """Every distinct source formula must be carried verbatim into the conversion.
+
+        carried   {"Sheet!Cell": (excel_formula, python_expression)} — one entry per
+                  distinct formula, keyed by any cell that holds it
+        excluded  {"Sheet!Cell": reason} for formulas deliberately not converted
+        """
+        self._carried_checked = True
+        covered, failed = set(), False
+        for ref, pair in carried.items():
+            sheet, _, coord = ref.rpartition("!")
+            excel, python = pair
+            actual = self.book.formula(sheet, coord)
+            if actual is None:
+                self._record(FAIL, f"formula carried: {ref}", "the source workbook holds no formula at this cell")
+            elif actual != excel:
+                self._record(FAIL, f"formula carried: {ref}", f"not verbatim — source holds {actual}")
+            elif not str(python).strip() or str(python).startswith("TODO"):
+                self._record(FAIL, f"formula carried: {ref}", f"no Python expression given for {actual}")
+            else:
+                covered.add(self.book.shape_of(sheet, coord))
+                continue
+            failed = True
+        for ref, reason in (excluded or {}).items():
+            sheet, _, coord = ref.rpartition("!")
+            shape = self.book.shape_of(sheet, coord)
+            if shape is None:
+                self._record(FAIL, f"formula excluded: {ref}", "the source workbook holds no formula at this cell")
+                failed = True
+                continue
+            covered.add(shape)
+            self._record(GAP, f"formula excluded: {ref}  {self.book.formula(sheet, coord)}", reason)
+        for shape in self.book.shapes:
+            if shape["id"] not in covered:
+                failed = True
+                self._record(FAIL, f"formula not carried: {shape['sheet']}!{shape['cell']}",
+                             f"{shape['formula']}  ({len(shape['cells'])} cells)")
+        if not failed:
+            self._record(PASS, "formulas carried verbatim",
+                         f"{len(self.book.shapes)} distinct formulas covering {len(self.book.cells)} cells")
+        return not failed
+
+    def _engine_parity(self):
+        if self._parity is None:
+            try:
+                self._parity = self.book.engine_parity(self.default_rtol)
+            except EngineUnavailable as exc:
+                self._parity = exc
+        return self._parity
+
+    def engine_parity(self):
+        """Recalculate the source formulas with the Excel-compatible engine.
+
+        Agreement with Excel's cached values shows the carried formula strings are
+        what produced the workbook's numbers. Where the engine disagrees, Excel stays
+        the authority and the cell is recorded as a gap in the engine's coverage.
+        """
+        self._parity_checked = True
+        parity = self._engine_parity()
+        if isinstance(parity, EngineUnavailable):
+            return self._record(GAP, "engine parity", str(parity))
+        skipped = f"{parity['volatile']} volatile, {parity['uncached']} uncached or broken not compared"
+        if parity["agree"]:
+            self._record(PASS, "engine parity",
+                         f"engine reproduces {parity['agree']} cached formula results ({skipped})")
+        elif not parity["disagree"]:
+            self._record(GAP, "engine parity", f"no cached formula results to compare with ({skipped})")
+        for d in parity["disagree"]:
+            self._record(GAP, f"engine parity: {d['sheet']}!{d['cell']}  {d['formula']}",
+                         f"engine gives {d['engine']!r}, Excel cached {d['excel']!r} — Excel is the authority")
+        return not parity["disagree"]
+
+    def engine(self, label, python_value, sheet, coord, inputs=None, rtol=None):
+        """Python must match the source formula at this cell, evaluated by the engine.
+
+        With inputs={(sheet, coord): value} the workbook is recalculated at changed
+        inputs first, which tests the formula rather than one cached number.
+        """
+        rtol = self.default_rtol if rtol is None else rtol
+        parity = self._engine_parity()
+        if isinstance(parity, EngineUnavailable):
+            return self._record(GAP, label, str(parity))
+        if (sheet, coord) in parity["cells"]:
+            return self._record(GAP, label, f"engine does not reproduce Excel at {sheet}!{coord}")
+        try:
+            value = self.book.engine.value(sheet, coord, inputs)
+        except Exception as exc:
+            return self._record(GAP, label, f"engine could not recalculate: {exc}")
+        if value is None or is_error(value):
+            return self._record(GAP, label, f"engine has no value at {sheet}!{coord} ({value!r})")
+        ok = agree(python_value, value, rtol)
+        shown = "" if not inputs else " at " + ", ".join(f"{s}!{c}={v!r}" for (s, c), v in inputs.items())
+        self.checks.append((PASS if ok else FAIL, label, python_value, value,
+                            f"engine {sheet}!{coord}{shown} rtol={rtol:g}"))
+        return ok
+
+    # -- numeric parity -----------------------------------------------------
 
     def legacy_stat(self, label, python_value, excel_value):
         """Deterministic cell computed by a low-precision legacy Excel solver.
@@ -99,7 +226,7 @@ class Validator:
         rtol = self.default_rtol if rtol is None else rtol
         if excel_value is None:
             return self.unvalidatable(label, "no cached value in source workbook")
-        ok = self._close(python_value, excel_value, rtol)
+        ok = agree(python_value, excel_value, rtol)
         self.checks.append((PASS if ok else FAIL, label, python_value, excel_value,
                             f"exact rtol={rtol:g}"))
         return ok
@@ -108,44 +235,42 @@ class Validator:
         """Volatile/simulated cell: agreement within rtol is the strongest claim available."""
         if excel_value is None:
             return self.unvalidatable(label, "no cached value in source workbook")
-        ok = self._close(python_value, excel_value, rtol)
+        ok = agree(python_value, excel_value, rtol)
         self.checks.append((PASS if ok else FAIL, label, python_value, excel_value,
                             f"tolerance rtol={rtol:g} (Excel RNG not seed-matchable)"))
         return ok
 
     def unvalidatable(self, label, reason):
         """Record a known validation gap so it appears in the report instead of vanishing."""
-        self.checks.append((GAP, label, None, None, reason))
-        return None
+        return self._record(GAP, label, reason)
 
-    @staticmethod
-    def _close(a, b, rtol):
-        try:
-            a, b = float(a), float(b)
-        except (TypeError, ValueError):
-            return a == b
-        if math.isnan(a) or math.isnan(b):
-            return False
-        return math.isclose(a, b, rel_tol=rtol, abs_tol=1e-12)
+    def _record(self, verdict, label, note):
+        self.checks.append((verdict, label, None, None, note))
+        return None
 
     # -- output -------------------------------------------------------------
 
     def report(self, verbose=True):
         """Print the verdict table. Returns True when nothing FAILed."""
-        n_pass = sum(1 for c in self.checks if c[0] == PASS)
-        n_fail = sum(1 for c in self.checks if c[0] == FAIL)
-        n_gap = sum(1 for c in self.checks if c[0] == GAP)
+        checks = list(self.checks)
+        if not self._carried_checked:
+            checks.append((FAIL, "formula fidelity", None, None, "formulas_carried() was never called"))
+        if not self._parity_checked:
+            checks.append((FAIL, "formula fidelity", None, None, "engine_parity() was never called"))
+        n_pass = sum(1 for c in checks if c[0] == PASS)
+        n_fail = sum(1 for c in checks if c[0] == FAIL)
+        n_gap = sum(1 for c in checks if c[0] == GAP)
 
         if verbose:
             print(f"Validation against {self.path.name}")
             print("-" * 78)
-            for verdict, label, py, xl, note in self.checks:
-                if verdict == GAP:
-                    print(f"  {verdict:4}  {label}")
-                    print(f"        not validatable: {note}")
+            for verdict, label, py, xl, note in checks:
+                print(f"  {verdict:4}  {label}")
+                if py is None and xl is None:
+                    print(f"        {'not validatable: ' if verdict == GAP else ''}{note}")
                 else:
-                    print(f"  {verdict:4}  {label}")
-                    print(f"        python={py!r}  excel={xl!r}  [{note}]")
+                    against = "engine" if note.startswith("engine") else "excel"
+                    print(f"        python={py!r}  {against}={xl!r}  [{note}]")
             print("-" * 78)
             print(f"  {n_pass} passed, {n_fail} failed, {n_gap} unvalidatable")
             if n_gap and not n_fail:

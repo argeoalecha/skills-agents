@@ -3,6 +3,60 @@
 Mappings and the traps that silently produce wrong numbers. Everything below was
 verified against real workbooks, not recalled from memory.
 
+## The Excel-compatible engine: what it settles and where it stops
+
+`formulas` (1.3.4) evaluates the workbook's own formula strings, so it applies Excel's
+rules without anyone transcribing them. Measured on a test workbook recalculated
+independently by LibreOffice, the engine and LibreOffice agreed on all 57 non-volatile
+formulas, including the traps this file exists for:
+
+| Formula | Engine | Literal Python |
+|---|---|---|
+| `=-2^2` | `4` | `-2**2` is `-4` |
+| `=ROUND(1.479,2)` family | half away from zero | `round()` is half-to-even |
+| `=CHIINV(p,df)` | right-tailed | `chi2.ppf` is left-tailed |
+| `=SLOPE(y,x)` | y first | `linregress(x, y)` |
+| `=Rate*2`, `=Data!B2+INDEX(...MATCH(...))` | defined names and cross-sheet lookups resolved | — |
+
+That makes `Validator.engine()` the check for every trap below: write the Python, then
+compare it with the formula at changed inputs.
+
+The engine is not Excel. On three real workbooks — one calculated by Excel Online, two
+by LibreOffice, 11,181 formula cells in all — it reproduced 11,173 cached results. The
+eight misses were the engine's or the cache's, never the formula's:
+
+| Seen | Cause |
+|---|---|
+| `=SUBTOTAL(9,H4:H62)` gives `#NAME?` (Excel cache `104`) | function not implemented |
+| `=SUMIFS(sum,rng,"",rng2,"<>")` gives `0` (LibreOffice cache `100`) | blank and non-blank criteria |
+| `=TEXT(0,"#,##0")` gives `0,` | thousands-separator number formats |
+| `=IF(OR(H2="",O2=""),"",H2*O2)` gives `0` (LibreOffice cache `""`) | blank handling differs by application, see below |
+| `DATE()`/`EOMONTH()` give a serial number | not a miss — openpyxl shows the cached value as a `datetime`; the validator compares serials |
+| `RAND()` and other volatile cells | never comparable; skipped |
+
+`formula_fidelity.py engine <workbook>` lists these per workbook before conversion
+starts. `engine_parity()` records each as a gap and `engine()` refuses to vouch for
+those cells. Loading is slow — about 3 s for a few hundred formula cells, 50–90 s for
+4,000–7,000.
+
+`pycel` and `xlcalculator` do the same job as `formulas`. Neither has been run against
+these workbooks, so nothing here is claimed for them.
+
+### The cache is only as good as the application that wrote it
+
+`inspect_workbook.py` reports which application last saved the workbook. When it is
+LibreOffice, the cached values are LibreOffice's. The two differ where a blank travels
+through a formula. Measured: `O2` held `=INDEX(range, n)` landing on an empty cell and
+was cached as `0`, yet LibreOffice still treated it as blank in the next column's
+`=IF(OR(H2="",O2=""),"",H2*O2)` and cached `""`. The engine took `O2` as the number
+`0` and returned `0`, which is how Excel is documented to behave; no Excel-calculated
+copy of that workbook was available to confirm it. A disagreement of this kind is a
+finding about the source, to report, not a conversion bug.
+
+LibreOffice also rewrites formula text when it saves — `FALSE` becomes `FALSE()` — so
+a recalculated copy is a source of cached values only. Read formulas from the original
+(`Validator(original, cached_from=recalculated_copy)`).
+
 ## Operator traps
 
 ### Unary minus binds tighter than `^` in Excel — the opposite of Python

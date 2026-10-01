@@ -8,6 +8,9 @@ validate against, whether VBA or iterative calculation is involved.
 Usage:
     python3 inspect_workbook.py <workbook> [--sheet NAME] [--json OUT] [--formulas N]
 
+For the complete formula record (every cell, not a sample) use
+formula_fidelity.py manifest.
+
 Exit codes: 0 ok, 2 workbook unreadable.
 """
 
@@ -27,8 +30,8 @@ try:
 except ImportError:
     sys.exit("openpyxl required: pip install openpyxl")
 
-# Recalculated on every edit, so a cached value is one frozen draw, not a target.
-VOLATILE = {"RAND", "RANDBETWEEN", "RANDARRAY", "NOW", "TODAY", "OFFSET", "INDIRECT", "INFO", "CELL"}
+from formula_fidelity import (ERROR_VALUES, VOLATILE, analyse, formula_text, grid_sheets,
+                              uncached_formula_cells)
 
 # Excel functions with no direct numpy/scipy equivalent worth flagging early.
 NEEDS_CARE = {
@@ -37,24 +40,6 @@ NEEDS_CARE = {
     "LINEST", "TREND", "SLOPE", "INTERCEPT", "RSQ", "FORECAST", "VLOOKUP", "HLOOKUP",
     "INDEX", "MATCH", "SUMPRODUCT", "FREQUENCY", "PERCENTILE", "QUARTILE",
 }
-
-FUNC_RE = re.compile(r"\b([A-Z][A-Z0-9_.]*)\s*\(")
-
-# A broken source formula must never be silently reproduced in Python.
-ERROR_VALUES = ("#REF!", "#DIV/0!", "#VALUE!", "#N/A", "#NAME?", "#NULL!", "#NUM!")
-
-
-def formula_text(value):
-    """openpyxl yields str for normal formulas, ArrayFormula objects for CSE formulas."""
-    if isinstance(value, str):
-        return value if value.startswith("=") else None
-    text = getattr(value, "text", None)
-    return text if isinstance(text, str) and text.startswith("=") else None
-
-
-def grid_sheets(wb):
-    """Chartsheets have no cells; skip them without crashing on .iter_rows."""
-    return [(name, wb[name]) for name in wb.sheetnames if hasattr(wb[name], "iter_rows")]
 
 
 def inspect(path, only_sheet=None, formula_samples=12):
@@ -71,6 +56,7 @@ def inspect(path, only_sheet=None, formula_samples=12):
         "sheets_all": wb_f.sheetnames,
         "chartsheets": [n for n in wb_f.sheetnames if not hasattr(wb_f[n], "iter_rows")],
         "has_vba": False,
+        "calculated_by": None,
         "calc_mode": getattr(calc, "calcMode", None),
         "iterative_calc": bool(getattr(calc, "iterate", False)),
         "iterate_count": getattr(calc, "iterateCount", None),
@@ -83,6 +69,9 @@ def inspect(path, only_sheet=None, formula_samples=12):
         with zipfile.ZipFile(path) as z:
             names = z.namelist()
             report["has_vba"] = "xl/vbaProject.bin" in names
+            if "docProps/app.xml" in names:
+                app = re.search(r"<Application>(.*?)</Application>", z.read("docProps/app.xml").decode("utf-8", "replace"))
+                report["calculated_by"] = app.group(1) if app else None
     except Exception:
         pass
 
@@ -95,10 +84,16 @@ def inspect(path, only_sheet=None, formula_samples=12):
     except Exception:
         pass
 
+    try:
+        uncached = uncached_formula_cells(path)
+    except Exception:
+        uncached = None
+
     for name, ws in grid_sheets(wb_f):
         if only_sheet and name != only_sheet:
             continue
         ws_v = wb_v[name] if hasattr(wb_v[name], "iter_rows") else None
+        no_result = uncached.get(name, set()) if uncached is not None else None
 
         funcs = Counter()
         n_formula = n_const = n_uncached = 0
@@ -122,7 +117,8 @@ def inspect(path, only_sheet=None, formula_samples=12):
                     n_const += 1
                     continue
                 n_formula += 1
-                found = set(FUNC_RE.findall(ftext))
+                shape, names = analyse(ftext, cell.coordinate)
+                found = set(names)
                 funcs.update(found)
 
                 if any(e in ftext for e in ERROR_VALUES) and len(error_cells) < 25:
@@ -131,13 +127,18 @@ def inspect(path, only_sheet=None, formula_samples=12):
                 if found & VOLATILE:
                     volatile_cells.append(cell.coordinate)
 
-                if ws_v is not None and cached_val is None:
+                # A formula returning "" reads as None too, but it is a real cached value.
+                if no_result is not None:
+                    is_uncached = cell.coordinate in no_result
+                else:
+                    is_uncached = ws_v is not None and cached_val is None
+                if is_uncached:
                     n_uncached += 1
                     if len(uncached_cells) < 25:
                         uncached_cells.append(cell.coordinate)
+                elif cached_val is None:
+                    cached_val = ""
 
-                # Collapse row-repeated formulas: strip digits to find the shape.
-                shape = re.sub(r"\d+", "#", ftext)
                 if shape not in unique_shapes:
                     unique_shapes[shape] = cell.coordinate
                     if len(samples) < formula_samples:
@@ -174,6 +175,10 @@ def render(report):
     add(f"WORKBOOK  {report['workbook']}")
     add(f"  sheets: {len(report['sheets_all'])}  (chartsheets skipped: {report['chartsheets'] or 'none'})")
     add(f"  VBA project: {'YES — macro logic lives outside cells' if report['has_vba'] else 'no'}")
+    saved_by = report["calculated_by"] or "unknown"
+    is_excel = saved_by.startswith("Microsoft Excel") and "Compatible" not in saved_by
+    not_excel = "" if is_excel else "  — cached values are not Excel's own"
+    add(f"  last saved by: {saved_by}{not_excel}")
     add(f"  calc mode: {report['calc_mode']}   iterative: {report['iterative_calc']} ({report['iterate_count']})")
     if report["external_links"]:
         add(f"  external links: {report['external_links']}  — resolve before converting")
@@ -185,7 +190,7 @@ def render(report):
         add(f"SHEET  {s['name']}   [{s['dimensions']}]")
         add(f"  formula cells {s['n_formula_cells']}  (unique shapes {s['n_unique_formula_shapes']})  constants {s['n_constant_cells']}")
         if s["n_uncached_formula_cells"]:
-            add(f"  UNCACHED formula cells: {s['n_uncached_formula_cells']} — not validatable by parity")
+            add(f"  UNCACHED formula cells: {s['n_uncached_formula_cells']} — no cached value; check against the formula engine")
             add(f"    e.g. {', '.join(s['uncached_sample'][:8])}")
         if s["n_volatile_cells"]:
             add(f"  VOLATILE cells: {s['n_volatile_cells']} — cached values are one frozen draw, use tolerance checks")

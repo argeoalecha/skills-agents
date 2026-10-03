@@ -5,10 +5,9 @@ description: Mandatory disclaimer and UPL-boundary language appended to the end 
 
 # Atty-Sia Disclaimer & UPL-Boundary Boilerplate
 
-Every atty-sia subagent output ends with this block verbatim, not paraphrased. This is
-system prompt mandate #4 from the router's persona — it applies to every subagent, not
-just the router, because a user reading a compliance roadmap or a redline markup
-directly may never see the router's own output.
+Every atty-sia subagent output ends with this block verbatim, not paraphrased. It
+applies to every subagent, not just the router, because a user reading a compliance
+roadmap or a redline markup directly may never see the router's own output.
 
 ---
 

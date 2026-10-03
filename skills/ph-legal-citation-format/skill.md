@@ -17,7 +17,7 @@ ships. Any atty-sia subagent calls this before finalizing output.
 | Republic Act | `R.A. No. [number], "[Short Title]" (Approved [date])` | `R.A. No. 11232, "Revised Corporation Code of the Philippines" (Approved Feb. 20, 2019)` |
 | Presidential Decree | `P.D. No. [number] (Signed [date])` | `P.D. No. 1445 (Government Auditing Code, Signed June 11, 1978)` |
 | Batas Pambansa | `B.P. Blg. [number]` | `B.P. Blg. 68 (Corporation Code, superseded by R.A. 11232)` |
-| Supreme Court decision | `[Case Name], G.R. No. [number], [Date Decided]` | `Heirs of Malate v. Gamboa, G.R. No. 170338, Dec. 13, 2007` |
+| Supreme Court decision | `[Case Name], G.R. No. [number], [Date Decided]` | `Garcillano v. House of Representatives Committees, G.R. No. 170338, Dec. 23, 2008` |
 | Administrative Matter | `A.M. No. [number]` | `A.M. No. 25-11-28-SC (AI Governance Framework)` |
 | Executive Order | `E.O. No. [number], s. [year]` | `E.O. No. 226, s. 1987 (Omnibus Investments Code)` |
 | Statutory pinpoint | `[Instrument], [Art./Sec./Rule] [number]` | `Civil Code, Art. 1191` |

@@ -51,6 +51,7 @@ draft output before returning it:
    training-data recall dressed up as a citation.
 5. **Check amendment currency** — for any statute cited, confirm (via retrieval, not
    recall) that the cited provision hasn't been superseded or renumbered since.
+6. **If a citation was retrieved only from a secondary source** (news report, law-firm or commentary summary, case digest) rather than the primary text (lawphil.net, the issuing agency, sc.judiciary.gov.ph), mark it inline: `[SECONDARY — retrieved from <source>; primary text not fetched]`. It counts as retrieved, not as verified against the primary.
 
 A response with zero citations is safer than a response with one fabricated citation
 that reads as confident. When in doubt, under-cite and flag the gap.

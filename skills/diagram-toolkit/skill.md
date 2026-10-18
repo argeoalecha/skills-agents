@@ -14,8 +14,8 @@ description: >-
   SVG/matplotlib for these six types — it does real layout math (radial
   tree, hierarchical tree, layered/topological, forward/backward CPM,
   DAG layering with loop-back routing) instead of guessing coordinates.
-  NOT for electrical one-lines or CAD/DXF — use short-circuit-study,
-  electrical-sld, or the QCAD/FreeCAD pipeline instead.
+  NOT for electrical one-lines or CAD/DXF — use /electrical-engineer
+  instead (routes to as-built-agent for SLDs/DXF and the /ee-* studies).
 ---
 
 # Diagram Toolkit
@@ -180,6 +180,6 @@ If you're rendering the output of the `graph-topology-planner` skill as a client
 
 ## When NOT to use this skill
 
-- CAD-grade electrical one-lines, panel schedules, arc-flash/short-circuit/protection-coordination studies → `short-circuit-study` skill, `electrical-sld` skill, or the QCAD CE/FreeCAD DXF pipeline.
+- CAD-grade electrical one-lines, panel schedules, arc-flash/short-circuit/protection-coordination studies → `/electrical-engineer` (entry point), which routes to `as-built-agent` (one-line diagrams, DXF via `ezdxf`), `/ee-load-calc` (panel schedules), `/ee-short-circuit` (fault current, protection coordination), and `/ee-arc-flash-calc` (arc flash). Audit an existing SLD with the `elektra-sld-audit` agent.
 - Software/system architecture diagrams meant to live in a git repo next to code → plain Mermaid is usually the better fit (renders natively on GitHub); this toolkit doesn't do diagram-as-code.
 - Pixel-precise UI mockups or wireframes → `frontend-design` skill.

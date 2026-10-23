@@ -1,518 +1,231 @@
 ---
 name: audit
-description: Pre-production hard gate. Runs build validation, then parallel deep static analysis across security, reliability, performance, compliance, quality, and accessibility, then production-readiness gates (env, monitoring, CI, rate limits, backups), then writes findings back to TODO.md as an Audit Remediation phase, then issues an explicit GO/NO-GO sign-off. Use before any production deployment, PR merge to main, or security review. Adapts to project type (web app vs. AI/agent). Triggers on "audit the code", "security review", "check for vulnerabilities", "pre-production audit", "is this ready for production", "code quality check", "production readiness", "go/no-go", or "ship check".
+description: Lifecycle audit against the SDLC Structural Plan's gates G0–G7, scaled by project tier (T1–T3) and AI feature class (A1–A4). Three modes — gap (read-only retrofit scorecard of an existing project), gate G3 (pre-merge), gate G5 (pre-release GO/NO-GO). Scores every check Pass / Partial / Missing / N/A with evidence, ranks gaps by the plan's severity rules, writes the report to the private audit-reports folder outside the repo, and issues a sign-off. Use before merging to main, before any production release, when retrofitting an existing project, or for a security, privacy or production-readiness review. Triggers on "audit", "gap audit", "retrofit audit", "security review", "pre-production audit", "is this ready for production", "production readiness", "go/no-go", "ship check", "gate G3", "gate G5".
 ---
 
-# Pre-Production Audit — Production Hard Gate
+# Lifecycle Audit
 
-A multi-phase production gate. Every project that runs through `/audit` must clear all phases before earning a GO sign-off. Findings flow into the project's `TODO.md` as an Audit Remediation phase so they cannot be forgotten.
+The SDLC Structural Plan defines **what** an audit must cover. This skill holds the checks and runs them. Gate exit criteria are the checks in `references/checks.yaml` filtered by gate, tier and AI class — there is no second checklist anywhere else.
 
----
+Vocabulary used throughout:
 
-## Phase Summary
-
-```
-Phase 0 — Pre-flight checks         (git hygiene + branch state)        HARD STOP
-Phase 1 — Build Validation          (typecheck, lint, test, build)      HARD STOP
-Phase 2 — Parallel Static Analysis  (5 sub-agents in parallel)
-Phase 3 — Production Readiness      (env, monitoring, CI, rate limits, backups)
-Phase 4 — TODO Writeback            (append findings to TODO.md)
-Phase 5 — Sign-off Gate             (explicit GO / NO-GO)
-```
-
----
-
-## Audit Modes
-
-```
-Full Audit    → All phases (10–20 min)                        — default
-Quick Check   → Phases 0+1, Critical findings only             — fast pre-commit
-Targeted      → Phases 0+1 + one sub-agent                     — /audit security
-Component     → All phases scoped to specific files/feature
-Re-audit      → Diff vs. last AUDIT.md, re-check prior issues  — after fixes
-```
-
----
-
-## Project Type Detection
-
-Before Phase 0, detect project type from the codebase or TDD:
-
-- **Web App**: has `app/` or `src/`, `package.json` with Next.js/React, DB migrations
-- **AI / Agent / Automation**: imports `@anthropic-ai/sdk`, has prompt files, tool definitions, agent flow
-- **Hybrid**: both signals present
-
-Adapt sub-agent checks accordingly (see Phase 2).
-
----
-
-## Phase 0 — Pre-flight Checks (Hard Stop)
-
-Block audit if any of these fail. The user must clean up first.
-
-```bash
-# Branch state
-git branch --show-current                              # Should not be 'main' for a real audit
-git status --short                                     # Should be empty (no uncommitted)
-git log origin/main..HEAD --oneline 2>/dev/null        # Commits to be deployed
-
-# Working tree sanity
-test -f package.json                                   # Manifest present
-ls package-lock.json pnpm-lock.yaml yarn.lock bun.lockb 2>/dev/null | head -1  # Any lockfile present
-git grep -l "^<<<<<<< " -- ':!*.md' 2>/dev/null        # Merge conflict markers (excludes docs)
-
-# Migrations (file listing only — applied state needs `supabase migration list`
-# or the Supabase MCP list_migrations tool; verify recent ones are applied to prod)
-ls supabase/migrations/ 2>/dev/null | sort | tail -5
-```
-
-**Block conditions:**
-- Uncommitted changes present
-- On `main`/`master` directly (audit a feature branch before merge)
-- Merge conflict markers in any tracked file
-- Missing lockfile
-
-If blocked: list the issues, suggest fixes, halt. Do not proceed.
-
----
-
-## Phase 1 — Build Validation (Hard Stop)
-
-Run sequentially. Any failure halts the audit.
-
-```bash
-# 1. Type check
-npx tsc --noEmit
-
-# 2. Lint
-npx eslint . --max-warnings 0   # ESLint 10 (Feb 2026) removed legacy .eslintrc entirely — flat eslint.config.js is mandatory, not just default. --ext is a v8-only flag; a lingering .eslintrc.* file on a project this old means it hasn't been migrated. ESLint 10 also raises the Node floor to ^20.19 || ^22.13 || >=24 — verify CI runner matches.
-
-# 3. Tests
-npx vitest run        # or: npm test / npx jest
-
-# 4. Production build
-npm run build         # catches what tsc misses (env access, RSC boundaries, route conflicts). Next.js 16: Turbopack is the default bundler (custom webpack config needs review), Node.js 20+ is required, and middleware.ts is deprecated in favor of proxy.ts.
-
-# 5. Bundle size sanity (if applicable)
-# Vite/Next.js: apply the budgets and analysis workflow from
-# ~/.claude/skills/web-perf-audit/references/local-build-audit.md
-# (largest chunk <150KB marketing / <250KB app, First Load JS per route <200KB,
-#  total JS, named bloat patterns). Read the next build / vite build output table.
-```
-
-**Pass criteria:** Zero TS errors, zero ESLint errors, all tests green, production build succeeds, bundle within the local-build-audit budgets (or overage justified in the report).
-
-If Phase 1 fails: report exact errors, halt. Do not proceed to Phase 2.
-
----
-
-## Phase 2 — Parallel Static Analysis
-
-After Phase 1 passes, spawn 5 sub-agents in parallel using `Agent` with `subagent_type: "general-purpose"`. Each agent receives a focused prompt and returns findings in a structured format. Merge results in the audit report.
-
-### Sub-Agent A: Security
-
-**Web App + AI/Agent (always check):**
-- Hardcoded secrets, API keys, credentials, tokens (search for `sk_live_`, `sk-ant-`, `pk_`, `Bearer `, `password =`, `apiKey =`, and `eyJ` — JWT-shaped strings, which is what a leaked Supabase `service_role` key looks like)
-- Hardcoded production URLs that should be env vars
-- Exposed service role keys or admin keys in client-side code
-- Environment variable leakage in client bundle (`NEXT_PUBLIC_*` exposing secrets)
-- `eval()`, `Function()`, dynamic imports of user input
-- Open redirects, path traversal, SSRF in URL fetch operations
-- Dependency vulnerabilities: `npm audit --audit-level=high`
-
-**Web App-specific:**
-- SQL injection: unparameterized queries, string-concatenated SQL
-- XSS: `dangerouslySetInnerHTML` with unsanitized input, unescaped user content
-- CSRF: missing SameSite cookies, unprotected POST/PATCH/DELETE
-- Missing auth guards on protected routes / API endpoints
-- Missing RLS policies on user-facing Supabase tables
-- Webhook endpoints without signature verification
-
-**AI/Agent-specific:**
-- Prompt injection vectors (untrusted input concatenated into system prompt)
-- Tool permission scope (least privilege — what can each tool actually access?)
-- Output validation before consuming tool results in downstream actions
-- API key handling (env vars only, never in prompts or logs)
-
-### Sub-Agent B: Reliability
-
-**Always:**
-- Unhandled promise rejections (async without try/catch)
-- Missing null/undefined guards at data boundaries
-- Race conditions in concurrent operations
-- Idempotency on POST endpoints with side effects (payment, email, write)
-- Database transaction boundaries on multi-step writes
-
-**Web App-specific:**
-- Missing error boundaries in React component trees
-- Missing loading and error states in UI components
-- Memory leaks: event listeners not cleaned up, intervals not cleared
-- Database queries with no `.single()` guard for expected single-row results
-
-**AI/Agent-specific:**
-- Error/fallback handling on Claude API failures, parse failures, timeouts
-- Bad-output recovery (retry with stricter prompt, default value, or escalation)
-- Tool call failure recovery (retry, skip, abort)
-- Max iteration / max token guard on agent loops
-- Pinned model IDs that are deprecated or retired (check against the current Claude model list — model retirement breaks production silently at the API boundary)
-
-### Sub-Agent C: Performance
-
-**Always:**
-- N+1 query patterns (queries inside loops)
-- Synchronous operations blocking the event loop
-- Missing database indexes for common query patterns
-
-**Web App-specific:**
-- Missing pagination on list endpoints
-- Large bundle size, unoptimized imports
-- Missing `React.memo`, `useMemo`, `useCallback` on expensive computations — unless `reactCompiler: true` is set in `next.config` (Next.js 16, React Compiler stable but opt-in): if enabled, missing manual memoization is not a finding (compiler inserts it); if not enabled, this remains a real gap
-- Missing caching on expensive routes (`fetch` `cache: 'force-cache'` or Next.js `revalidate`)
-- Unoptimized images (missing `next/image`, large uncompressed files)
-
-**AI/Agent-specific:**
-- Prompt caching not configured for repeated long system prompts
-- Missing token usage logging
-- No batch API usage where applicable
-- Cost guard rails (max tokens, max iterations) absent
-
-### Sub-Agent D: Compliance — Philippines DPA (RA 10173)
-
-- Missing consent checkbox on registration and public data collection forms
-- No privacy policy page linked from auth and landing pages
-- Missing cookie consent banner on EU/PH-targeted public sites
-- PII in log statements (`console.log(user.email)`, etc.)
-- PII in Claude prompts or tool inputs (sanitization layer absent)
-- Personal data stored beyond stated retention period
-- No data export endpoint (right to data portability — RA 10173 §16)
-- No account deletion / data purge endpoint (right to erasure)
-- Missing IP anonymization in analytics
-- Full IP addresses stored in logs or analytics tables
-- Unencrypted PII in DB columns that should use hashing
-- Missing Data Processing Agreement when third-party processors are used
-- **If the project scrapes or ingests data from public sources (e.g. Google Maps, Facebook, Instagram profiles):** check against NPC Advisory 2026-01 (Data Scraping Guidelines, issued 2026-04-13) — public availability of data is not a blanket lawful basis; the scraper must establish its own lawful basis for processing, must be able to inform data subjects their data was scraped, and must not bypass platform ToS/technical safeguards to collect it. Flag any scraping pipeline with no documented lawful basis or notice mechanism.
-
-### Sub-Agent E: Quality + Accessibility
-
-**Code Quality:**
-- TODO/FIXME/HACK/XXX comments left in code (list them all)
-- `console.log`, `debugger`, `// eslint-disable` left in production paths
-- Files exceeding 500 lines without clear modular structure
-- Functions with cyclomatic complexity > 15
-- Dead code (exported but never imported)
-- Naming inconsistent with project standards (file naming, component naming)
-- Magic numbers without named constants
-- `any` types in TypeScript code
-
-**Accessibility (Web App only):**
-- Interactive elements without keyboard support (`onClick` without `onKeyDown`)
-- Missing ARIA labels on icon-only buttons
-- Missing `alt` attributes on images
-- Form inputs without associated `<label>` or `aria-label`
-- Color contrast violations (WCAG AA: 4.5:1 normal, 3:1 large — unchanged from 2.1 to 2.2)
-- Missing focus states on interactive elements
-- Non-semantic markup (`<div onClick>` instead of `<button>`)
-- Missing skip-to-content link on long pages
-- No focus management on route changes / modal opens
-- **WCAG 2.2 additions (current AA baseline, superset of 2.1):** touch/click targets smaller than 24×24px with no adequate spacing (2.5.8 Target Size Minimum); focused elements fully or partially hidden by sticky headers/footers/cookie banners (2.4.11 Focus Not Obscured); drag-only interactions with no single-pointer alternative (2.5.7 Dragging Movements); authentication flows that require a cognitive test (puzzle CAPTCHA, memorized password only) with no alternative like paste/password-manager support or email link (3.3.8 Accessible Authentication)
-
-**Boundary:** Sub-Agent E covers code-level WCAG only. Flow-level UX, conversion friction, dark patterns, and the on-page SEO/marketing surface (headings, metadata, structured data, value prop) belong to `/ux-review` — recommended in follow-ups, not duplicated here.
-
----
-
-## Phase 3 — Production Readiness Gates
-
-Each item is a checkbox: PASS / FAIL / N/A. Fail blocks deployment.
-
-### Environment & Secrets
-- [ ] All required env vars documented in `.env.example`
-- [ ] No real secrets in `.env.example` (placeholders only)
-- [ ] `.env*` files in `.gitignore` (verify with `git check-ignore`)
-- [ ] No hardcoded secrets in source (already covered Sub-Agent A — re-verify here)
-- [ ] Production env vars set in deployment platform (Vercel/Netlify dashboard)
-
-### Monitoring & Observability
-- [ ] Error monitoring configured (Sentry client + server, or equivalent). Current Sentry Next.js SDK expects `instrumentation-client.ts` (browser), `sentry.server.config.ts` (Node runtime), `sentry.edge.config.ts` (edge runtime), and a root `instrumentation.ts` that imports both and exports `onRequestError` — flag projects still using the older single `sentry.client.config.ts` pattern without `instrumentation.ts`
-- [ ] `/api/health` (or platform health check) endpoint exists and returns 200
-- [ ] Structured logging in place for API routes (request id, user id, duration)
-- [ ] **AI/Agent**: token usage logging, cost tracking, error rate monitoring
-
-### Rate Limiting & Abuse
-- [ ] Rate limiting on public POST/PATCH/DELETE endpoints
-- [ ] Rate limiting on auth endpoints (login, signup, password reset)
-- [ ] **AI/Agent**: per-user rate limit on agent runs, max-cost guardrail
-
-### Security Headers
-- [ ] CSP configured (`next.config.js` `headers()` or proxy). Next.js 16 renamed `middleware.ts`/`middleware` → `proxy.ts`/`proxy` (codemod: `npx @next/codemod@canary middleware-to-proxy .`); a project on Next 16 still shipping `middleware.ts` is running deprecated, possibly-unstable behavior — flag it. Note: `proxy` only runs on the Node.js runtime now (edge runtime is no longer supported there), which affects any auth/CSP logic that assumed edge.
-- [ ] HSTS enabled
-- [ ] X-Frame-Options or frame-ancestors set
-- [ ] X-Content-Type-Options: nosniff
-
-> Config presence is NOT delivery. After deploy, verify the headers actually served with `/web-perf-audit` — headers configured in `next.config.js` can be dropped by the platform, middleware ordering, or a proxy in front. (Observed: CSP "configured" but never shipped across 3 consecutive audits.)
-
-### Data Integrity & Disaster Recovery
-- [ ] All Supabase migrations have reversal SQL (or documented rollback plan)
-- [ ] Foreign keys with appropriate `ON DELETE` behavior (CASCADE vs. RESTRICT vs. SET NULL — intentional)
-- [ ] Backup schedule confirmed for production DB (Supabase: PITR available as an add-on on Pro/Team/Enterprise — not Free — and requires at least a Small compute add-on to function correctly; enabling PITR replaces daily backups rather than supplementing them, so confirm this tradeoff was intentional, not accidental)
-- [ ] Soft-delete columns indexed where queried
-
-### CI/CD
-- [ ] GitHub Actions (or platform CI) runs Phase 1 checks on every PR
-- [ ] Branch protection on `main`: require PR review, require CI passing
-- [ ] Preview deploys configured (Vercel/Netlify auto-preview on PRs)
-
-### Documentation
-- [ ] `README.md` with setup instructions, env var docs, deploy instructions
-- [ ] `CLAUDE.md` present (project-specific Claude instructions if applicable)
-- [ ] Runbook for common production incidents (or note "first incident → write runbook")
-
-### Deployment Platform-Specific
-- **Vercel**: project linked, env vars set per environment (preview/production), domains configured
-- **Supabase**: production project URL set, RLS confirmed enabled on all user-facing tables (`SELECT tablename FROM pg_tables WHERE schemaname='public'` then check each)
-- **Netlify**: build command set, publish directory correct, redirect rules in `netlify.toml`
-
----
-
-## Phase 4 — TODO Writeback (Auto)
-
-After Phase 2 and Phase 3 complete, append findings to the project's `TODO.md` as a new phase. **This always runs — do not ask first.** If `TODO.md` does not exist, create it. `/plan-todo` refreshes preserve this section verbatim — remediation items are never dropped or folded into PRD phases.
-
-### Format
-
-```markdown
-## Phase X: Audit Remediation (YYYY-MM-DD)
-Source: AUDIT.md (this audit run)
-Audit verdict: <GO / NO-GO / GO with risks accepted>
-
-### Critical (BLOCKS DEPLOYMENT)
-- [ ] [SECURITY] Remove hardcoded API key in `lib/api.ts:23`
-- [ ] [RELIABILITY] Add error boundary to `app/dashboard/layout.tsx`
-
-### High (must fix before merge)
-- [ ] [COMPLIANCE] Add consent checkbox on `app/signup/page.tsx`
-- [ ] [READINESS] Configure Sentry server-side
-
-### Medium (fix this sprint)
-- [ ] [PERFORMANCE] Optimize N+1 in `lib/getTrips.ts:45`
-- [ ] [QUALITY] Remove 14 TODO comments — see AUDIT.md §5.2
-
-### Low / Advisory (next sprint)
-- [ ] [A11Y] Add skip-to-content link
-- [ ] [QUALITY] Replace 3 magic numbers with named constants
-```
-
-### Rules for writeback
-- Insert as a new top-level Phase, numbered after the highest existing phase
-- Preserve existing TODO content unchanged
-- Do not duplicate items: if an item with the same `[CATEGORY] description — file:line` already exists, skip it
-- Re-audit mode: mark previously-found items that are now resolved with `~~strikethrough~~ (resolved YYYY-MM-DD)`
-
----
-
-## Phase 5 — Sign-off Gate (Hard Gate)
-
-Default verdict is **NO-GO**. The verdict only flips to **GO** if all conditions below are met. The user must read this section and respond before deployment.
-
-### Auto NO-GO conditions
-- Any Critical finding from Phase 2
-- Any FAIL from Phase 3 in: Env/Secrets, Monitoring, Rate Limiting, Data Integrity
-- Phase 0 or Phase 1 was skipped or failed
-
-### Conditional GO with risks accepted
-The user may accept specific High findings to proceed. Each accepted risk must be:
-- Listed by name in the Sign-off block
-- Justified in one sentence
-- Have a follow-up TODO item with a date
-
-### Sign-off Block (output)
-
-```markdown
-## Sign-off
-
-**Verdict: GO / GO with risks accepted / NO-GO**
-
-### Blockers (must resolve before deploy)
-- <Critical or required-pass items still open>
-
-### Risks Accepted (deploying anyway)
-- <High item> — Justification: <why>. Follow-up due: YYYY-MM-DD.
-
-### Approved for deployment to: <production / staging / canary>
-By: <user>
-On: YYYY-MM-DD
-
-### Next re-audit triggered by:
-- Code change in audited files
-- Dependency upgrade
-- Schema migration
-- Time elapsed: 30 days
-```
-
----
-
-## Stage Detection & Recommended Follow-ups
-
-After the sign-off block, generate stage-appropriate follow-ups in the AUDIT.md report. These are *not* gates — they are forward-looking recommendations that flag work the audit explicitly does not cover.
-
-### Detect project stage
-
-Infer from these signals (default to the most conservative match):
-
-| Stage | Signals |
-|---|---|
-| **A. Pre-MVP** | PRD Status = Draft/Review; no production env vars set; <50% TODO complete; no custom domain |
-| **B. Pre-launch** | PRD Approved; >75% TODO complete; production env staged but not live; about to deploy publicly |
-| **C. Launched (V1)** | Production deploy live; custom domain configured; real (non-test) users; payment integration absent or new |
-| **D. Growth / Scale** | Active paid users; multiple deploys/week; payment + analytics integrated; user has mentioned scaling concerns |
-| **E. Pre-Enterprise / Compliance** | User mentions SOC2, ISO 27001, enterprise customers, regulated industry, BAA, or DPIA |
-
-If signals are ambiguous, ask the user to confirm stage in one short question before generating follow-ups.
-
-### Follow-up library (output relevant ones for current + next stage)
-
-**Stage A → B (before launch)**
-- `/ux-review` — heuristic review of signup → first-value flow; on marketing pages its Phase 5.5 also covers the on-page SEO surface
-- `/e2e-test` — browser-driven validation of every user journey with DB verification
-- `/load-test` — initial capacity check at projected launch traffic
-- `/legal-docs` — generate template ToS, Privacy Policy, Refund Policy
-- `/ph-dpa-compliance` — if Philippines-targeted and not yet implemented
-- Smoke test on production-equivalent environment
-- `/web-perf-audit` on the deployed URL immediately after first deploy — verifies delivered security headers, TTFB, CDN caching, and DNS-level issues (double-proxy) that static audit cannot see
-
-**Stage C → D (after launch, before scale)**
-- Set up incident response runbook
-- Schedule recurring `/audit` cadence (every 30 days or per major release)
-- `/web-perf-audit` re-check after each fix deploy (before→after deltas) and as a live TTFB/caching baseline for monitoring thresholds
-- Manual user research session (5–10 real users) — Claude cannot do this
-- Privacy policy review by qualified counsel if not yet done
-- Tune monitoring alert thresholds based on real traffic baselines
-
-**Stage D → E (scaling / pre-enterprise)**
-- Re-run `/load-test` with realistic traffic patterns (replay production logs)
-- Capacity planning + DB scaling review
-- Disaster recovery drill (restore from backup, run end-to-end)
-- Cost optimization audit (AI token usage, DB query cost, CDN, egress)
-- Bug bounty program scoped to public-facing surface
-
-**Stage E (enterprise / compliance milestones)**
-- Engage external pen testing firm (manual + automated, not just OWASP ZAP)
-- Legal review of ToS, DPA, vendor contracts by qualified counsel
-- SOC2 / ISO 27001 readiness assessment
-- Vendor risk management documentation
-- Privacy Impact Assessment (DPIA) if handling sensitive PII or EU users
-- Annual compliance refresh on `/ph-dpa-compliance` and equivalent regulations
-
-### Recommended Follow-ups Block (output)
-
-```markdown
-## Recommended Follow-ups
-
-Detected project stage: <A. Pre-MVP / B. Pre-launch / C. Launched / D. Growth / E. Pre-Enterprise>
-
-### Recommended now (current stage)
-- [ ] <stage-appropriate item> — <one-line why>
-- [ ] <stage-appropriate item> — <one-line why>
-
-### Plan for next stage (<next stage name>)
-- [ ] <next-stage item> — <when this typically becomes relevant>
-
-### Out of scope for this audit
-- Manual penetration testing — engage professional firm <when stage E>
-- Real user research — qualitative interviews, usability sessions
-- Legal review by counsel — template generation possible via `/legal-docs`, not legal advice
-```
-
----
-
-## Output: AUDIT.md
-
-Always write a full report to `AUDIT.md` at the project root.
-
-```markdown
-# Pre-Production Audit Report
-Date: YYYY-MM-DD
-Project type: <Web App / AI Agent / Hybrid>
-Branch: <branch name>
-Commit: <short SHA>
-
-## Phase 0: Pre-flight — PASS / FAIL
-<details>
-
-## Phase 1: Build Validation — PASS / FAIL
-- TypeScript: PASS / FAIL (N errors)
-- ESLint: PASS / FAIL
-- Tests: PASS / FAIL (N passing / N failing)
-- Production build: PASS / FAIL
-- Bundle size: largest chunk N KB
-
-## Phase 2: Static Analysis Findings
-
-### Critical (block deployment)
-- [SECURITY] <description> — `file:line`
-- [RELIABILITY] <description> — `file:line`
-
-### High (fix before merge)
-- ...
-
-### Medium / Low / Advisory
-- ...
-
-## Phase 3: Production Readiness Checklist
-| Category | Item | Status |
+| Term | Values | Meaning |
 |---|---|---|
-| Env | All vars in `.env.example` | PASS |
-| Monitoring | Sentry client | FAIL |
-| ... | ... | ... |
-
-## Phase 4: TODO Writeback
-Appended N items to TODO.md under "Phase X: Audit Remediation (YYYY-MM-DD)"
-
-## Summary
-Critical: N | High: N | Medium: N | Low: N
-Readiness: M/N gates passing
-Verdict: GO / GO with risks accepted / NO-GO
-
-## Sign-off
-<sign-off block from Phase 5>
-
-## Recommended Follow-ups
-<recommended follow-ups block — see Stage Detection section>
-```
+| Gate | G0 governance · G1 requirements · G2 design · G3 build · G4 verify · G5 release · G6 operate (standing) · G7 retire | Lifecycle exit gates from the plan |
+| Tier | T1 prototype · T2 production · T3 critical/regulated | Sets depth; a check above the project's tier is N/A |
+| AI class | A1 assistive internal · A2 customer-facing generation · A3 agentic with tools · A4 decisions about people | Per AI feature; A4 is treated as T3; the stricter of tier and class wins |
+| Step | 1–9 below | This skill's procedure (not lifecycle phases) |
 
 ---
 
-## Re-Audit Mode
+## Configuration
 
-When the user runs `/audit` after a previous audit:
+```
+AUDIT_REPORT_DIR=/Users/argeotublealecha/projects-mvp/audit-reports   # default if the env var is unset
+```
 
-1. Read prior `AUDIT.md` if present.
-2. Diff prior Critical/High findings vs. current code state.
-3. Mark resolved items in TODO.md with `~~strikethrough~~ (resolved YYYY-MM-DD)`.
-4. **Count unresolved repeats.** Any Critical/High finding present in a prior audit and still open gets an explicit escalation tag in the report and TODO: `(flagged 2× — was: Audit YYYY-MM-DD)`. Repeat findings lead their severity section — unescalated repeat findings never ship (observed: CSP flagged 3 consecutive audits before fixing).
-5. Run only Phase 1 (build validation) + Phase 2 (focused on prior issues + new files since last audit) + Phase 3 (recheck all gates) + Phase 4 + Phase 5.
-6. Issue new sign-off.
+Before writing anything, check the report folder:
+
+```bash
+DIR="${AUDIT_REPORT_DIR:-/Users/argeotublealecha/projects-mvp/audit-reports}"
+test -d "$DIR" || { mkdir -p "$DIR" && chmod 700 "$DIR"; }
+git -C "$DIR" rev-parse --is-inside-work-tree 2>/dev/null && echo "REFUSE: report dir is inside a git repo"
+```
+
+- If the folder cannot be created or is inside a git repository: **stop** and tell the user. Never fall back to writing the report into the project repo.
+- Run folder: `$DIR/<client-or-internal>/<project>/<YYYY-MM-DD>-<mode>/` containing `AUDIT.md` and `evidence/`. Create it with `chmod 700`.
+- All scan output goes to `evidence/` in the run folder, never to the project tree.
+
+---
+
+## Modes
+
+| Mode | Invoke | Scope | Hard stops | Writes to the repo |
+|---|---|---|---|---|
+| `gap` | `/audit gap` | Every gate G0–G7 at the project's tier; whole history | None — failures are scored as findings | Nothing. Remediation stays in the report; offer TODO writeback after the owner signs off |
+| `gate G3` | `/audit gate G3` (default on a feature branch) | G3 checks on the diff vs. base, plus every critical check | Step 2 and Step 3 | TODO.md writeback (Step 8) |
+| `gate G5` | `/audit gate G5` (default on main or a release tag) | G3–G6 on the full codebase, plus every critical check, plus G0–G2 records the release depends on (G0-05, G1-01, G1-02, G2-03) | Step 2 and Step 3 | TODO.md writeback (Step 8) |
+| `re-audit` | `/audit re-audit` | Prior report's open findings, files changed since, and every critical check | Same as the prior run's mode | Same as the prior run's mode |
+
+Narrowing: `--agent <security|reliability|efficiency|compliance|quality|ai>` runs one sub-agent's checks; `--path <dir>` scopes code checks to a feature. Critical checks always run.
+
+If the mode is ambiguous (for example, main branch of a project that has never been audited), ask once: gap or gate G5.
+
+---
+
+## Step 1 — Scope
+
+Record in the report before running anything:
+
+1. **Project facts:** name, client (or internal), repos, environments, data stores, hosting, owner.
+2. **Project type:** web app (Next.js/React, `app/` or `src/`), AI (model SDK imports, prompt files, tool definitions), Python service (`pyproject.toml`, FastAPI), or a mix. Checks with `applies_if` that don't match are N/A.
+3. **Tier with a one-line rationale.** Read it from the G1 record if one exists; otherwise derive it — real users, personal data or a paying client means at least T2; finance, health, industrial/OT or contractual compliance means T3 — and confirm with the user in one question.
+4. **AI class per AI feature** (A1–A4) with a one-line rationale. A feature that gained tools or now decides about people moves class.
+5. **Operating mode:** team or solo. Solo enables the recorded-substitute rule on G3-61 and related checks.
+6. **Lifecycle phase now:** which gate the project is working toward (used for follow-ups in Step 9).
+
+---
+
+## Step 2 — Pre-flight
+
+```bash
+git branch --show-current
+git status --short
+git log origin/main..HEAD --oneline 2>/dev/null
+git grep -l "^<<<<<<< " -- ':!*.md' 2>/dev/null
+ls package-lock.json pnpm-lock.yaml yarn.lock bun.lock bun.lockb uv.lock poetry.lock 2>/dev/null
+ls supabase/migrations/ 2>/dev/null | sort | tail -5   # applied state: supabase migration list, or Supabase MCP list_migrations
+```
+
+| Condition | gate G3 | gate G5 | gap |
+|---|---|---|---|
+| Uncommitted changes | Stop | Stop | Record the commit audited; continue |
+| On main | Stop (audit the feature branch) | Expected | Expected |
+| Merge conflict markers | Stop | Stop | Finding (High) |
+| No lockfile for a manifest present | Stop | Stop | Finding against G3-09 |
+| Migrations in repo not applied to production | n/a | Stop | Finding against G3-23 |
+
+On a stop: list the issues, say what to fix, halt.
+
+---
+
+## Step 3 — Build validation
+
+Run what the project has (Node and/or Python):
+
+```bash
+npx tsc --noEmit
+npx eslint .                      # errors fail; warnings are reported, not blocking
+npx prettier --check .
+npx vitest run --coverage         # or npm test; changed-lines coverage threshold default 80%
+npm run build                     # catches env access, RSC boundaries, route conflicts
+ruff check services/ && pytest --cov services/   # if Python services exist
+```
+
+Then read the build output table for bundle budgets (check G3-31).
+
+- **Gate modes:** any error halts the audit (G3-30, G3-20 Missing). Report the exact errors.
+- **Gap mode:** record results against G3-20 and G3-30 and continue; a failing build is a finding, not a reason to stop scoring.
+
+---
+
+## Step 4 — Evidence scans (read-only)
+
+Run each tool that is installed; for a missing tool, say how to install it and score its checks Partial ("not verified") — never Pass without evidence.
+
+| Tool | Command (output to `$RUN/evidence/`) | Checks |
+|---|---|---|
+| Gitleaks | gap / gate G5: `gitleaks git --log-opts="--all" --redact --report-format json --report-path $RUN/evidence/gitleaks.json`; gate G3: `--log-opts="<base>..HEAD"` | G3-01 |
+| Semgrep CE | `semgrep scan --config p/default --config p/nextjs --config p/typescript --sarif -o $RUN/evidence/semgrep.sarif` (add `--baseline-commit <base>` in gate G3; `p/python` for services) | G3-03, G3-04, G3-06 |
+| OSV-Scanner | `osv-scanner scan source -r . --format json --output $RUN/evidence/osv.json` | G3-05 |
+| Trivy | `trivy fs --scanners vuln,misconfig,secret . --format json -o $RUN/evidence/trivy.json` (if Dockerfile or IaC) | G4-09 |
+| ZAP baseline | Against a preview or staging URL only, never production | G4-02 |
+| actionlint, zizmor | over `.github/` | G3-62 |
+| Supabase | Security and performance advisors (Supabase MCP `get_advisors`); read-only SQL from G3-08 | G3-08, G3-32 |
+| GitHub | `gh api repos/<o>/<r>/branches/main/protection`, `.../rulesets`, `.../environments/production` | G3-60, G3-61, G5-01 |
+| Vercel / GCP | `vercel.json`, `vercel ls --prod`, `vercel env ls production`, `gcloud run services list` | G2-08, G5-01, G5-06, G5-07 |
+
+**Secret handling (applies to every step and every sub-agent):**
+- Never print, store or quote a secret value. Use `--redact`; report file, line and secret type only.
+- A live secret found anywhere is Critical. Tell the owner immediately in the conversation to rotate it, then continue; the report records that rotation was requested, not the value.
+- Scan output stays in the run folder. The report cites evidence by relative path or URL; it never copies personal data.
+
+---
+
+## Step 5 — Parallel analysis
+
+Filter `references/checks.yaml` for this run: gate in the mode's scope, `min_tier` ≤ project tier (higher tiers become N/A), `ai_class` matching at least one feature, `applies_if` true. Group the remaining checks by `agent`.
+
+Spawn sub-agents in parallel with `Agent` (`subagent_type: "general-purpose"`), one per non-empty group among: **security, reliability, efficiency, compliance, quality, ai** (ai only when an A2–A4 feature exists; A1 checks go to it too if it runs, otherwise to the main agent). Checks with `agent: main` — platform settings, governance records, pipeline config — are done by the main agent, which has the CLI and MCP access.
+
+Each sub-agent prompt contains: the scope facts from Step 1, its check entries verbatim, the paths to scan output in `evidence/`, the secret-handling rules above, and this return format — one row per check:
+
+```
+id | status (Pass/Partial/Missing/N/A) | evidence (path, file:line or URL) | finding (one line, no secret values) | condition flags (pii_exposed / live_secret / no_restore_path / none)
+```
+
+Sub-agents report; they do not fix code or change settings.
+
+---
+
+## Step 6 — Score and rank
+
+**Status**
+
+| Status | Rule |
+|---|---|
+| Pass | In place and enforced, with a linked piece of evidence |
+| Partial | Exists but not enforced, incomplete, untested, or could not be verified |
+| Missing | Not in place |
+| N/A | Above the project's tier, or `applies_if`/`ai_class` does not apply |
+
+**Severity** (fix windows from the plan)
+
+| Severity | Rule | Fix window |
+|---|---|---|
+| Critical | Personal data exposed, a live secret in history, or no working restore path — regardless of which check found it | Before the next release |
+| High | A security (S) or reliability (R) check required at the tier is Missing; any critical check that is Partial | This cycle |
+| Medium | Any other Partial at the tier | Within two cycles |
+| Low | Efficiency (E), quality and documentation gaps | Backlog |
+
+Repeat findings: any Critical or High that was open in the prior report gets `(flagged N× — first seen YYYY-MM-DD)` and leads its severity section. A repeat High escalates to Critical on its third appearance.
+
+**Gate status**: a gate is *cleared* at the tier when none of its in-scope checks is Missing and every critical check in it is Pass.
+
+---
+
+## Step 7 — Write the report
+
+Write `$RUN/AUDIT.md` using `references/report-template.md`. Include the full scorecard, the gate summary, the critical-check table, the ranked backlog with fix windows, and the sign-off block. Do not suggest code fixes inline; findings state what is wrong and where.
+
+---
+
+## Step 8 — Remediation writeback
+
+| Mode | Behaviour |
+|---|---|
+| gate G3, gate G5, re-audit of a gate run | Append to the project's `TODO.md` (create if absent) as a new top-level section after the highest existing one, using the format in the report template. Items cite check IDs and file:line only, never secret values or personal data. Skip items already present (same check ID and location). Preserve existing content. `/plan-todo` refreshes keep this section verbatim. |
+| gap | Write nothing to the repo. After the owner or client signs off the report, offer to append the backlog to `TODO.md`. |
+| re-audit | Strike through resolved items: `~~item~~ (resolved YYYY-MM-DD)`. |
+
+Cheap fixes (scanners, CI checks on changed code, Sentry, uptime, billing alerts, region pin, backups and a restore drill) go under a "First-week safety net" heading; costly ones (RLS on live data, auth redesign, database region move, data-model changes) are listed as scheduled features. Security gaps on live personal data are always first, whatever they cost.
+
+---
+
+## Step 9 — Sign-off and follow-ups
+
+**Gate modes (GO / NO-GO).** Default is NO-GO. Automatic NO-GO when any of these holds:
+- any Critical finding;
+- any critical check in scope that is not Pass;
+- any High in a security or reliability check of the gate being exited (G3 for gate G3; G4 and G5 for gate G5), unless accepted below;
+- Step 2 or Step 3 skipped or failed.
+
+GO with risks accepted: the owner may accept specific High findings. Each acceptance records the check ID, a one-sentence justification, the owner, the approver (the client for client engagements), and a review date; each gets a TODO item. Critical findings cannot be accepted.
+
+**Gap mode (no GO/NO-GO).** Report gate status G0–G7 at the tier, the tier the project currently meets, and what blocks the next gate. The report is signed off by the project owner or client.
+
+**Follow-ups** come from tier and lifecycle phase, not from a separate maturity scale:
+1. Checks for the next gate the project is working toward that are not yet Pass.
+2. If the user plans to raise the tier: the checks that become in scope at the next tier (for T2 → T3: external pen test G4-07, staging and failure injection G4-10, canary and signed images G5-09, feature flags G3-26, PITR under G6-05).
+3. Related skills where they produce evidence a check needs: `/load-test` (G4-03), `/e2e-test` (G4-01), `/web-perf-audit` on the deployed URL (G5-04, G2-09), `/ux-review` for flow-level UX and SEO, `/ph-dpa-compliance` when compliance findings exist, `/legal-docs` for templates (not legal advice), `/feature-dev` on the highest-severity item.
+
+**Out of scope** (say so in the report; do not score as Pass): manual penetration testing (required evidence at T3 — score G4-07 on the report, not by testing), legal review by counsel, real-user research, copy editing.
+
+---
+
+## Re-audit cadence
+
+Re-audit after remediation, then quarterly at T2, before each major release at T3, and always before raising a project's tier. Also re-audit after a dependency upgrade of a framework or model SDK, a schema migration touching RLS, or a change of AI class.
 
 ---
 
 ## Rules
 
-- Phase 0 and Phase 1 are hard stops — never skip them, even for targeted audits.
-- Critical findings always block deployment. Do not soften this.
-- Do not suggest fixes inline in the audit report — report findings, let the user decide. (Fixes go into TODO.md, then run `/feature-dev` to implement.)
-- For compliance findings, reference the specific RA 10173 article or NPC Advisory when known.
-- Default verdict is NO-GO. GO requires explicit pass on all blocking conditions.
-- TODO writeback always runs — the audit's value is in the closure loop.
-- After audit, offer to run `/ph-dpa-compliance` if compliance findings present, or `/feature-dev` on the highest-severity TODO item.
-
----
-
-## Out of Scope
-
-This audit does NOT cover the items below. They are surfaced in the **Recommended Follow-ups** section of AUDIT.md, gated by detected project stage:
-
-- Load testing / performance benchmarking under realistic traffic — use `/load-test`
-- Manual penetration testing — engage professional firm at Stage E
-- UX research / usability testing — heuristic review available via `/ux-review`; real user research requires actual users
-- Content review / copy editing
-- Legal review of terms of service or privacy policy — `/legal-docs` generates templates only; binding review requires qualified counsel
+- `gap` mode is read-only: nothing in the project or its platforms changes.
+- Critical findings always block a release and cannot be accepted. Do not soften this.
+- Pass requires evidence. Unverifiable means Partial.
+- Never write the report or scan output into the project repo.
+- Never print or store secret values; request rotation of any live secret at once.
+- ZAP and other active tests run against preview or staging only.
+- Cite RA 10173 sections and NPC advisories precisely in compliance findings (portability is §18; erasure is §16(e); AI transparency is NPC Advisory 2024-04; scraping is NPC Advisory 2026-01).
+- A check's wording lives in `references/checks.yaml`. To add or change a check, edit that file; never renumber IDs.

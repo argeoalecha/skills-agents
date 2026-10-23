@@ -1,0 +1,1146 @@
+# Audit check catalog
+# Source of truth for every check the audit skill scores.
+# The SDLC Structural Plan defines WHAT an audit must cover; this file holds the checks.
+# Gate exit criteria = these checks filtered by gate, tier and AI class.
+#
+# Fields
+#   id          G<gate>-<nn>, stable; never renumber, retire by adding `retired: true`
+#   gate        G0..G7 (lifecycle gate the check belongs to)
+#   pillar      S security | R reliability | E efficiency
+#   area        governance | privacy | security | reliability | efficiency | quality | a11y | pipeline | ai
+#   min_tier    lowest tier that requires it (T1 < T2 < T3); above project tier -> N/A
+#   ai_class    optional; check applies only to AI features of these classes (A1..A4)
+#   applies_if  optional; condition that must hold, otherwise N/A
+#   critical    true = plan-critical check (named in the plan's "Gap audit checklist")
+#   agent       main | security | reliability | efficiency | compliance | quality | ai
+#   check       what must be true
+#   method      how to verify (read-only)
+#   evidence    what to link in the scorecard
+#   notes       optional version- or platform-specific detail
+#
+# Tool commands assume current CLIs: gitleaks v8.19+ (`gitleaks git`), semgrep CE,
+# osv-scanner v2, trivy, ZAP baseline via docker image ghcr.io/zaproxy/zaproxy.
+
+checks:
+
+# ───────────────────────── G0 — Governance and foundations ─────────────────────────
+- id: G0-01
+  gate: G0
+  pillar: S
+  area: governance
+  min_tier: T1
+  agent: main
+  check: SSO or MFA enforced on every account that can touch the system (GitHub, Vercel, Supabase, GCP, model provider, DNS registrar)
+  method: Ask the owner or inspect org security settings; gh api orgs/<org> | jq .two_factor_requirement_enabled
+  evidence: Screenshot or settings export per platform, stored in evidence/
+
+- id: G0-02
+  gate: G0
+  pillar: S
+  area: governance
+  min_tier: T2
+  agent: main
+  check: Admin tasks use a separate admin identity protected by a hardware key (solo substitute for separate admins)
+  method: Confirm with owner; check GitHub org owners and Vercel/Supabase owner roles list only the admin identity
+  evidence: Role listing per platform
+
+- id: G0-03
+  gate: G0
+  pillar: S
+  area: governance
+  min_tier: T2
+  applies_if: client engagement
+  agent: main
+  check: Client owns production cloud accounts, domains, repo organization and billing; Hayah-AI works through delegated least-privilege access
+  method: Inspect account ownership on GitHub org, Vercel team, Supabase org, GCP billing account, registrar
+  evidence: Ownership listing per platform
+
+- id: G0-04
+  gate: G0
+  pillar: S
+  area: privacy
+  min_tier: T2
+  agent: compliance
+  check: Signed data processing (outsourcing) agreement with the client, and a vendor DPA accepted for every processor (Vercel, Supabase, GCP, model provider, Sentry, Better Stack, Langfuse)
+  method: Check contract folder and vendor DPA acceptance records
+  evidence: Document references (names and dates, not copies)
+
+- id: G0-05
+  gate: G0
+  pillar: S
+  area: governance
+  min_tier: T2
+  critical: true
+  applies_if: client engagement
+  agent: main
+  check: Client access register exists, lists every holder of access with owner and expiry, and was reviewed at the last gate
+  method: Open the register; compare against actual members on GitHub, Vercel, Supabase, GCP
+  evidence: Register path plus diff against live membership
+
+- id: G0-06
+  gate: G0
+  pillar: S
+  area: security
+  min_tier: T1
+  agent: security
+  check: Secrets live only in platform stores; .env* files are git-ignored; .env.example holds placeholders only and lists every required variable
+  method: git check-ignore .env .env.local; grep .env.example for real-looking values; compare variable names used in code vs .env.example
+  evidence: Command output (values redacted)
+
+- id: G0-07
+  gate: G0
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: main
+  check: Environments (local, preview, production; staging at T3) defined as code where the platform allows (Terraform/OpenTofu)
+  method: Look for infra/ or *.tf; compare with live project settings
+  evidence: IaC path
+
+- id: G0-08
+  gate: G0
+  pillar: E
+  area: efficiency
+  min_tier: T1
+  agent: main
+  check: README (setup, env vars, deploy), CLAUDE.md and a definition of done exist and are current
+  method: Read files; check they match current scripts and env vars
+  evidence: File paths
+
+- id: G0-09
+  gate: G0
+  pillar: E
+  area: efficiency
+  min_tier: T1
+  agent: main
+  check: Billing alerts and spend caps set on every platform, including each AI API key
+  method: Inspect billing settings per platform
+  evidence: Settings per platform
+
+- id: G0-10
+  gate: G0
+  pillar: S
+  area: ai
+  min_tier: T1
+  ai_class: [A1, A2, A3, A4]
+  agent: compliance
+  check: Model-provider terms confirmed in writing for training use, retention and processing region; zero-retention used for client data where offered
+  method: Check engagement records for provider terms review
+  evidence: Document reference
+
+- id: G0-11
+  gate: G0
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: main
+  check: Named on-call owner and incident severity scheme defined; client escalation contact named
+  method: Read runbook or contract
+  evidence: Document path
+
+# ───────────────────────── G1 — Discovery and requirements ─────────────────────────
+- id: G1-01
+  gate: G1
+  pillar: R
+  area: governance
+  min_tier: T1
+  agent: main
+  check: Tier assigned with a one-line rationale; every AI feature assigned a class A1–A4
+  method: Look for docs/requirements or NFR spec; otherwise record the tier set in this audit's Scope step
+  evidence: Document path or report Scope section
+
+- id: G1-02
+  gate: G1
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: main
+  check: NFR spec quantified and signed off — SLOs per critical journey, RPO/RTO, performance budgets, cost ceiling per unit
+  method: Read NFR spec; each NFR must have a number and a test
+  evidence: Document path and sign-off record
+
+- id: G1-03
+  gate: G1
+  pillar: S
+  area: privacy
+  min_tier: T2
+  agent: compliance
+  check: Data classification, compliance map (RA 10173) and lawful basis recorded for each personal-data flow, including flows into prompts, retrieval and logs
+  method: Read data classification and compliance map
+  evidence: Document path
+
+- id: G1-04
+  gate: G1
+  pillar: S
+  area: privacy
+  min_tier: T2
+  agent: compliance
+  check: Privacy impact assessment done for personal-data processing; mandatory for every A2–A4 feature and for any data scraping
+  method: Read PIA
+  evidence: Document path and date
+  notes: Scraping PIA requirement per NPC Advisory 2026-01 (13 Apr 2026); AI PIA per NPC Advisory 2024-04
+
+- id: G1-05
+  gate: G1
+  pillar: E
+  area: governance
+  min_tier: T2
+  applies_if: client engagement
+  agent: main
+  check: Support terms (warranty window, response times, out-of-scope rates) and AI provider terms (which providers, under whose account, retention) written into the contract
+  method: Read contract
+  evidence: Clause references
+
+- id: G1-06
+  gate: G1
+  pillar: R
+  area: ai
+  min_tier: T1
+  ai_class: [A2, A3, A4]
+  agent: ai
+  check: AI quality thresholds written as NFRs — eval pass rate, latency p95, tokens per request
+  method: Read NFR spec or ai/ README
+  evidence: Document path
+
+- id: G1-07
+  gate: G1
+  pillar: S
+  area: security
+  min_tier: T2
+  agent: security
+  check: Abuse cases written beside use cases; target OWASP ASVS level chosen
+  method: Read requirements
+  evidence: Document path
+
+# ───────────────────────── G2 — Architecture and design ─────────────────────────
+- id: G2-01
+  gate: G2
+  pillar: E
+  area: efficiency
+  min_tier: T2
+  agent: main
+  check: Architecture diagram in repo showing trust boundaries; ADRs for key decisions (retroactive ADRs accepted on retrofit)
+  method: Look for docs/architecture and docs/adr
+  evidence: Paths
+
+- id: G2-02
+  gate: G2
+  pillar: S
+  area: security
+  min_tier: T2
+  agent: security
+  check: STRIDE threat model per trust boundary; every high threat has a mitigation or a signed risk acceptance (formal sign-off at T3)
+  method: Read threat model; sample three mitigations and confirm they exist in code or config
+  evidence: Document path plus sampled file:line
+
+- id: G2-03
+  gate: G2
+  pillar: S
+  area: ai
+  min_tier: T1
+  ai_class: [A2, A3, A4]
+  critical: true
+  agent: ai
+  check: LLM threat model covers all ten OWASP Top 10 for LLM Applications 2025 risks (plus the OWASP agentic list for A3)
+  method: Read the LLM threat model; confirm a row per LLM01–LLM10 with controls and the gate that checks them
+  evidence: Document path
+
+- id: G2-04
+  gate: G2
+  pillar: S
+  area: ai
+  min_tier: T1
+  ai_class: [A3, A4]
+  agent: ai
+  check: Agent tool controls — tool inventory; tools run with end-user or scoped identity, never service-role or admin keys; read/write tools separated; human approval for irreversible actions; per-session caps on steps, tool calls, tokens and time; sandbox for generated code
+  method: Read tool definitions and the code that executes them
+  evidence: file:line per control
+
+- id: G2-05
+  gate: G2
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: reliability
+  check: Failure-mode analysis on critical paths; timeouts on every outbound call; retries only with idempotency
+  method: Read FMEA; grep outbound calls (fetch, SDK clients) for timeouts and retry policy
+  evidence: Document path plus file:line samples
+
+- id: G2-06
+  gate: G2
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: main
+  check: Backup and restore design meets the G1 RPO/RTO
+  method: Compare backup design with RPO/RTO
+  evidence: Document path
+
+- id: G2-07
+  gate: G2
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: reliability
+  check: API contracts defined (OpenAPI 3.1 or Zod/TypeScript types shared by client and server)
+  method: Look for openapi.* or shared schema modules
+  evidence: Paths
+
+- id: G2-08
+  gate: G2
+  pillar: E
+  area: efficiency
+  min_tier: T1
+  critical: true
+  agent: main
+  check: Function region co-located with the database — Vercel functions pinned to sin1, Supabase in Singapore (ap-southeast-1), Cloud Run in asia-southeast1
+  method: vercel.json "regions" or per-function regions; Vercel project settings; supabase projects list (region column); gcloud run services list
+  evidence: Config lines and CLI output
+  notes: New Vercel projects default to iad1 (Washington, D.C.) unless pinned
+
+- id: G2-09
+  gate: G2
+  pillar: R
+  area: reliability
+  min_tier: T1
+  agent: main
+  check: Cloudflare, if used, is DNS-only in front of Vercel (no proxy)
+  method: Check DNS records proxy status; response headers from production must not show cf-ray in front of Vercel
+  evidence: DNS export or curl -sI output
+
+# ───────────────────────── G3 — Build (per PR) ─────────────────────────
+- id: G3-01
+  gate: G3
+  pillar: S
+  area: security
+  min_tier: T1
+  critical: true
+  agent: security
+  check: No secrets anywhere in git history
+  method: "gap and gate G5: gitleaks git --log-opts=\"--all\" --redact --report-format json --report-path <report>/evidence/gitleaks.json; gate G3: gitleaks git --log-opts=\"<base>..HEAD\" --redact"
+  evidence: Redacted report path
+  notes: Any live hit is Critical; tell the owner to rotate immediately and record only that rotation happened
+
+- id: G3-02
+  gate: G3
+  pillar: S
+  area: security
+  min_tier: T1
+  critical: true
+  agent: security
+  check: No secret keys reach the browser — no Supabase service_role or sb_secret_ keys, model-provider keys (sk-ant-, sk-), or other secrets in client components or NEXT_PUBLIC_* variables, and none in the built client bundle
+  method: grep client code and NEXT_PUBLIC_ names; after build, scan .next/static (or dist/) for key patterns and JWT-shaped strings (eyJ...) whose payload role is service_role
+  evidence: Command output (values redacted)
+
+- id: G3-03
+  gate: G3
+  pillar: S
+  area: security
+  min_tier: T1
+  agent: security
+  check: No hardcoded credentials or production URLs that should be environment variables
+  method: semgrep secrets and hardcoded-URL rules; grep for passwords, Bearer tokens, api keys
+  evidence: Findings list (redacted)
+
+- id: G3-04
+  gate: G3
+  pillar: S
+  area: security
+  min_tier: T1
+  agent: security
+  check: SAST clean — no new ERROR-severity Semgrep CE findings; existing findings recorded as a baseline
+  method: semgrep scan --config p/default --config p/nextjs --config p/typescript (plus p/python for services) --sarif -o <report>/evidence/semgrep.sarif; gate G3 uses --baseline-commit <base>
+  evidence: SARIF path
+
+- id: G3-05
+  gate: G3
+  pillar: S
+  area: security
+  min_tier: T1
+  agent: security
+  check: No known-vulnerable dependencies newly introduced; existing high/critical within patch SLA
+  method: osv-scanner scan source -r . --format json --output <report>/evidence/osv.json (T1 may use npm audit --audit-level=high)
+  evidence: Report path
+
+- id: G3-06
+  gate: G3
+  pillar: S
+  area: security
+  min_tier: T1
+  agent: security
+  check: No injection paths — parameterized SQL, no unsanitized dangerouslySetInnerHTML, no eval/Function/dynamic import of user input, no SSRF, open redirect or path traversal in URL and file handling
+  method: Semgrep results plus manual review of every raw SQL, fetch(userUrl), redirect and fs call
+  evidence: file:line per finding
+
+- id: G3-07
+  gate: G3
+  pillar: S
+  area: security
+  min_tier: T1
+  agent: security
+  check: Every protected route, API route and server action enforces authentication and authorization server-side; webhooks verify signatures; mutating endpoints are CSRF-safe
+  method: Enumerate app/**/route.ts, server actions and proxy.ts; confirm auth check per handler
+  evidence: Route table with auth status
+
+- id: G3-08
+  gate: G3
+  pillar: S
+  area: security
+  min_tier: T1
+  critical: true
+  applies_if: Supabase or another Postgres exposed through PostgREST
+  agent: security
+  check: RLS enabled on every table in every exposed schema; no permissive policy (using/with check true) on user data; views in exposed schemas use security_invoker; RLS policy tests run in CI
+  method: |
+    Read-only SQL against the target (preview branch in gate modes, production read replica or read-only role in gap mode):
+      select n.nspname, c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
+      where c.relkind in ('r','p') and n.nspname = any('{public}') and not c.relrowsecurity;
+      select schemaname, tablename, policyname from pg_policies where qual = 'true' or with_check = 'true';
+      select n.nspname, c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
+      where c.relkind = 'v' and n.nspname = 'public' and not coalesce('security_invoker=true' = any(c.reloptions), false);
+    Add every schema listed in the project's exposed-schemas setting. Also run the Supabase security advisor (Supabase MCP get_advisors, type security).
+  evidence: Query output and advisor output
+  notes: RLS enabled with no policy denies all — that is safe; flag only exposure
+
+- id: G3-09
+  gate: G3
+  pillar: R
+  area: reliability
+  min_tier: T1
+  agent: reliability
+  check: Lockfile committed and installs are frozen (npm ci, pnpm --frozen-lockfile, uv sync --locked)
+  method: ls package-lock.json pnpm-lock.yaml yarn.lock bun.lock bun.lockb uv.lock poetry.lock; read CI install steps
+  evidence: Lockfile path and CI line
+
+- id: G3-10
+  gate: G3
+  pillar: S
+  area: security
+  min_tier: T2
+  agent: main
+  check: Commits on main are signed
+  method: git log --format='%G? %h' -n 50 main
+  evidence: Command output
+
+- id: G3-11
+  gate: G3
+  pillar: S
+  area: ai
+  min_tier: T1
+  ai_class: [A1, A2, A3, A4]
+  agent: ai
+  check: Prompts, model IDs and parameters versioned in the repo; no secrets or authorization logic in system prompts (LLM07)
+  method: Locate prompt files and model config; grep prompts for keys and for permission rules that should be enforced in code
+  evidence: Paths
+
+- id: G3-12
+  gate: G3
+  pillar: S
+  area: ai
+  min_tier: T1
+  ai_class: [A2, A3, A4]
+  agent: ai
+  check: Untrusted input and retrieved content kept separate from instructions (LLM01); structured outputs schema-validated (Zod/Pydantic); model output never executed or rendered unescaped; generated SQL runs read-only and parameterized (LLM05)
+  method: Trace each model call from input assembly to output use
+  evidence: file:line per call site
+
+- id: G3-13
+  gate: G3
+  pillar: R
+  area: ai
+  min_tier: T1
+  ai_class: [A1, A2, A3, A4]
+  agent: ai
+  check: Model IDs pinned and not deprecated or retired; AI SDK versions pinned
+  method: List model IDs in code/config; check against the provider's current model and deprecation pages (web search)
+  evidence: Model ID list with status and date checked
+
+- id: G3-14
+  gate: G3
+  pillar: S
+  area: ai
+  min_tier: T2
+  ai_class: [A2, A3, A4]
+  agent: compliance
+  check: Personal data redacted or pseudonymized before model calls wherever the task allows; retrieval filtered by the caller's permissions (LLM02, LLM08)
+  method: Inspect prompt assembly and retrieval queries; confirm vector tables have RLS
+  evidence: file:line
+
+- id: G3-15
+  gate: G3
+  pillar: S
+  area: ai
+  min_tier: T1
+  ai_class: [A3, A4]
+  agent: ai
+  check: Third-party MCP servers and plugins vetted and version-pinned; their output treated as untrusted input (LLM03)
+  method: List MCP/plugin dependencies and how output is consumed
+  evidence: Inventory
+
+- id: G3-20
+  gate: G3
+  pillar: R
+  area: reliability
+  min_tier: T1
+  agent: reliability
+  check: Unit and contract tests pass; coverage on changed lines meets the threshold (default 80%)
+  method: npx vitest run --coverage (or npm test); pytest --cov for services
+  evidence: Test summary
+
+- id: G3-21
+  gate: G3
+  pillar: R
+  area: reliability
+  min_tier: T1
+  agent: reliability
+  check: Errors handled at boundaries — no unhandled promise rejections, null guards on external data, React error boundaries plus loading and error states, .single() or equivalent for single-row reads, listeners and intervals cleaned up
+  method: Code review of data boundaries and app/**/error.tsx, loading.tsx
+  evidence: file:line per finding
+
+- id: G3-22
+  gate: G3
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: reliability
+  check: Side-effecting POSTs are idempotent (payments, email, writes); multi-step writes use a transaction or RPC; no race conditions on concurrent updates
+  method: Review mutating handlers and server actions
+  evidence: file:line per finding
+
+- id: G3-23
+  gate: G3
+  pillar: R
+  area: reliability
+  min_tier: T1
+  agent: reliability
+  check: Migrations are forward-only and expand/contract — applied migrations never edited; drops, renames and type changes only in a contract release with a same-day backup and a PR callout; RLS changes in their own migration with tests; all migrations apply from scratch
+  method: git log --diff-filter=M -- supabase/migrations (edits to applied files); grep new migrations for drop/rename/alter type; supabase db reset locally or in CI
+  evidence: Command output
+  notes: Rollback means redeploying the previous app; schema rolls forward, not back
+
+- id: G3-24
+  gate: G3
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: reliability
+  check: Structured logs on API routes with request id, user id and duration, and no personal data in log lines
+  method: Inspect logger setup and sample handlers
+  evidence: file:line
+
+- id: G3-25
+  gate: G3
+  pillar: R
+  area: ai
+  min_tier: T1
+  ai_class: [A1, A2, A3, A4]
+  agent: ai
+  check: Model-call failures handled — timeouts, retries with backoff, parse-failure recovery, fallback or escalation; agent loops have max iterations and max tokens
+  method: Review every model and tool call site
+  evidence: file:line per call site
+
+- id: G3-26
+  gate: G3
+  pillar: R
+  area: reliability
+  min_tier: T3
+  agent: reliability
+  check: Risky features ship behind feature flags
+  method: Look for flag provider (PostHog, Unleash) and flag checks around new features
+  evidence: file:line
+
+- id: G3-30
+  gate: G3
+  pillar: E
+  area: efficiency
+  min_tier: T1
+  agent: main
+  check: Build is clean — tsc --noEmit with zero errors, ESLint (flat config) with zero errors, Prettier check, production build succeeds; Ruff and pytest for Python services
+  method: npx tsc --noEmit; npx eslint .; npx prettier --check .; npm run build; ruff check services/
+  evidence: Command summaries
+  notes: Lint errors fail, warnings are reported only (pipeline spec). ESLint 10 requires flat config and Node ^20.19 || ^22.13 || >=24.
+
+- id: G3-31
+  gate: G3
+  pillar: E
+  area: efficiency
+  min_tier: T2
+  applies_if: web app
+  agent: efficiency
+  check: Bundle within the G1 performance budgets, or the defaults when none were set (largest chunk under 150 KB marketing / 250 KB app; First Load JS per route under 200 KB)
+  method: Read the build output table; apply ~/.claude/skills/web-perf-audit/references/local-build-audit.md if present
+  evidence: Build table excerpt
+
+- id: G3-32
+  gate: G3
+  pillar: E
+  area: efficiency
+  min_tier: T2
+  agent: efficiency
+  check: No N+1 queries, missing indexes on common filters, unpaginated list endpoints, event-loop-blocking work or uncached expensive routes
+  method: Review data-access code; check indexes against where/order-by columns; Supabase performance advisor
+  evidence: file:line per finding
+
+- id: G3-33
+  gate: G3
+  pillar: E
+  area: efficiency
+  min_tier: T2
+  applies_if: web app
+  agent: efficiency
+  check: Rendering efficiency — next/image for images; manual memoization on expensive computations unless reactCompiler is enabled in next.config
+  method: Grep <img; read next.config for reactCompiler
+  evidence: file:line
+
+- id: G3-34
+  gate: G3
+  pillar: E
+  area: ai
+  min_tier: T2
+  ai_class: [A1, A2, A3, A4]
+  agent: efficiency
+  check: Prompt caching on long repeated prompts; batch API where latency allows; token usage logged per call
+  method: Inspect model client configuration
+  evidence: file:line
+
+- id: G3-35
+  gate: G3
+  pillar: R
+  area: reliability
+  min_tier: T1
+  applies_if: Next.js app
+  agent: main
+  check: Framework currency — Next.js 16 projects use proxy.ts (middleware.ts deprecated; proxy runs on Node.js only), Turbopack default reviewed for custom webpack config, Node version on CI meets framework and ESLint floors
+  method: Read package.json, next.config, root files, CI node-version
+  evidence: File lines
+
+- id: G3-40
+  gate: G3
+  pillar: E
+  area: quality
+  min_tier: T1
+  agent: quality
+  check: Code hygiene — no console.log, debugger or eslint-disable in production paths; TODO/FIXME/HACK listed; no TypeScript any; no files over 500 lines without clear structure; no functions over complexity 15; no dead exports; no unexplained magic numbers
+  method: grep and ESLint complexity rules; knip or ts-prune for dead exports
+  evidence: Counts plus file:line list
+
+- id: G3-41
+  gate: G3
+  pillar: E
+  area: a11y
+  min_tier: T2
+  applies_if: web app
+  agent: quality
+  check: WCAG 2.2 AA at code level — keyboard support, labelled icon buttons and inputs, alt text, contrast 4.5:1 / 3:1, visible focus, semantic elements, skip link, focus management on route change and modals, 24×24 targets (2.5.8), focus not obscured (2.4.11), drag alternatives (2.5.7), accessible authentication (3.3.8)
+  method: Code review plus axe on preview if available
+  evidence: file:line per finding
+  notes: Flow-level UX and SEO belong to /ux-review
+
+- id: G3-50
+  gate: G3
+  pillar: S
+  area: privacy
+  min_tier: T2
+  applies_if: collects personal data
+  agent: compliance
+  check: Consent captured where consent is the lawful basis; privacy notice linked from auth and landing pages; AI involvement, purpose and extent disclosed and AI output labelled
+  method: Inspect signup and public forms, footer, AI UI
+  evidence: file:line and route list
+  notes: AI transparency per NPC Advisory 2024-04
+
+- id: G3-51
+  gate: G3
+  pillar: S
+  area: privacy
+  min_tier: T2
+  agent: compliance
+  check: No personal data in logs, error reports or analytics; IPs anonymized; no full IPs stored
+  method: grep log calls for user fields; inspect Sentry beforeSend / sendDefaultPii; inspect analytics config and tables
+  evidence: file:line
+
+- id: G3-52
+  gate: G3
+  pillar: S
+  area: privacy
+  min_tier: T2
+  applies_if: collects personal data
+  agent: compliance
+  check: Data subject rights implemented — access and export in a structured format (RA 10173 §16, §18 portability), correction, erasure or blocking (§16(e)) — and erasure reaches embeddings, traces, logs and eval sets
+  method: Find export and deletion endpoints or admin procedures; trace deletion across stores
+  evidence: Endpoint list and deletion trace
+
+- id: G3-53
+  gate: G3
+  pillar: S
+  area: privacy
+  min_tier: T2
+  applies_if: collects personal data
+  agent: compliance
+  check: Retention periods stated and enforced by a purge job or policy
+  method: Read privacy notice retention; find scheduled purge
+  evidence: Paths
+
+- id: G3-54
+  gate: G3
+  pillar: S
+  area: privacy
+  min_tier: T2
+  applies_if: stores sensitive personal information
+  agent: compliance
+  check: Sensitive personal information encrypted or hashed at column level where the threat model calls for it
+  method: Inspect schema for government IDs, health, financial fields
+  evidence: Schema references
+
+- id: G3-55
+  gate: G3
+  pillar: S
+  area: privacy
+  min_tier: T1
+  applies_if: scrapes or ingests publicly available personal data
+  agent: compliance
+  check: Scraping has a documented specific purpose and lawful basis, a PIA, a mechanism to inform data subjects beforehand or at the next practical opportunity, and does not bypass site safeguards or terms of service
+  method: Read scraper code and its documentation
+  evidence: Document path and file:line
+  notes: NPC Advisory 2026-01, Guidelines on Data Scraping of Publicly Available Personal Data (13 Apr 2026)
+
+- id: G3-56
+  gate: G3
+  pillar: S
+  area: ai
+  min_tier: T1
+  ai_class: [A1, A2, A3, A4]
+  agent: compliance
+  check: Eval sets, fixtures and seed data contain no real personal data
+  method: Sample eval files and seeds
+  evidence: Paths sampled
+
+- id: G3-60
+  gate: G3
+  pillar: R
+  area: pipeline
+  min_tier: T1
+  agent: main
+  check: CI runs lint, type check, unit tests, Gitleaks and Semgrep on every PR, and they are required status checks on main
+  method: Read .github/workflows/ci.yml; gh api repos/<o>/<r>/branches/main/protection or repos/<o>/<r>/rulesets
+  evidence: Workflow path and required-check list
+
+- id: G3-61
+  gate: G3
+  pillar: S
+  area: pipeline
+  min_tier: T1
+  critical: true
+  agent: main
+  check: Main is protected (PR required, required checks, no force push or deletion), and review is satisfied by a second approver or, in solo mode, by a recorded substitute — AI review plus self-review checklist, with risky diffs (auth, data access, migrations, payments) re-read after a cooling-off period
+  method: gh api branch protection or rulesets; sample the last 10 merged PRs for an approval or the recorded solo substitute
+  evidence: Protection settings plus PR links
+  notes: Solo mode cannot satisfy GitHub required approvals; do not score that setting as Missing when the substitute is recorded. At T3 security-critical changes need an external reviewer.
+
+- id: G3-62
+  gate: G3
+  pillar: S
+  area: pipeline
+  min_tier: T1
+  agent: security
+  check: Workflow security — third-party actions pinned by full SHA; default permissions contents read; no pull_request_target; user-controlled values passed through env, never interpolated into run; checkout does not persist credentials unless pushing
+  method: Read .github/workflows/*; run actionlint and zizmor if installed
+  evidence: Findings list
+
+- id: G3-63
+  gate: G3
+  pillar: S
+  area: pipeline
+  min_tier: T2
+  agent: main
+  check: T2 PR checks present — OSV-Scanner, migrations job (apply from scratch plus pgTAP RLS tests), actionlint and zizmor
+  method: Read workflows
+  evidence: Job names
+
+- id: G3-64
+  gate: G3
+  pillar: S
+  area: pipeline
+  min_tier: T2
+  agent: main
+  check: Renovate (or Dependabot) configured, including GitHub Action pins
+  method: Read renovate.json or .github/dependabot.yml
+  evidence: Config path
+
+- id: G3-65
+  gate: G3
+  pillar: S
+  area: pipeline
+  min_tier: T1
+  agent: security
+  check: Every suppression (Gitleaks baseline entry, nosemgrep comment, ZAP IGNORE rule, eslint-disable) carries a written reason
+  method: grep for suppressions and check adjacent reasons
+  evidence: List of unexplained suppressions
+
+# ───────────────────────── G4 — Verify ─────────────────────────
+- id: G4-01
+  gate: G4
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: main
+  check: Playwright end-to-end tests run against the preview deployment and pass after at most one retry
+  method: Read preview.yml and the latest run
+  evidence: Run link
+
+- id: G4-02
+  gate: G4
+  pillar: S
+  area: security
+  min_tier: T2
+  applies_if: web app
+  agent: security
+  check: ZAP baseline (passive) against a preview or staging URL shows no alert whose rule is FAIL in .zap/rules.tsv
+  method: Latest preview.yml dast job, or run docker run ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t <preview-url>; never against production
+  evidence: Report path
+
+- id: G4-03
+  gate: G4
+  pillar: E
+  area: efficiency
+  min_tier: T2
+  agent: main
+  check: Load test (k6) results recorded against the G1 performance budgets
+  method: Find k6 scripts and the last results
+  evidence: Results path
+  notes: Use /load-test to produce results if none exist
+
+- id: G4-04
+  gate: G4
+  pillar: R
+  area: reliability
+  min_tier: T2
+  critical: true
+  agent: main
+  check: A restore drill has passed against the RTO — a backup restored end to end and the app verified on it — within the last 90 days
+  method: Read the restore-drill record (date, backup used, time to restore, verification)
+  evidence: Record path
+  notes: No working restore path is Critical
+
+- id: G4-05
+  gate: G4
+  pillar: R
+  area: ai
+  min_tier: T1
+  ai_class: [A2, A3, A4]
+  critical: true
+  agent: ai
+  check: Eval gate in force — golden, regression, red-team and performance sets versioned next to prompts; subset blocks PRs touching ai/; full suite passes G1 thresholds before release with zero critical red-team failures and 100% of regression cases
+  method: Read evals.yml and promptfooconfig; inspect latest eval runs
+  evidence: Config path and run links
+  notes: A1 features need a small eval set only (T1); score A1 against that
+
+- id: G4-06
+  gate: G4
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: main
+  check: Preview environments isolated — Vercel previews with Supabase branching, synthetic data only, previews access-protected, no production secrets or database access
+  method: Vercel Deployment Protection settings; preview env vars; seed files
+  evidence: Settings and paths
+
+- id: G4-07
+  gate: G4
+  pillar: S
+  area: security
+  min_tier: T3
+  agent: main
+  check: ASVS verification at the target level and an external penetration test, with findings resolved or accepted
+  method: Read pen-test report summary and remediation status
+  evidence: Report reference
+
+- id: G4-08
+  gate: G4
+  pillar: E
+  area: governance
+  min_tier: T2
+  applies_if: client engagement
+  agent: main
+  check: Client UAT sign-off recorded for the release
+  method: Read sign-off record
+  evidence: Record reference
+
+- id: G4-09
+  gate: G4
+  pillar: S
+  area: security
+  min_tier: T2
+  applies_if: Dockerfile or IaC present
+  agent: security
+  check: Images and IaC scanned with Trivy; no unaccepted high or critical findings
+  method: trivy fs --scanners vuln,misconfig,secret . --format json -o <report>/evidence/trivy.json
+  evidence: Report path
+
+- id: G4-10
+  gate: G4
+  pillar: R
+  area: reliability
+  min_tier: T3
+  agent: main
+  check: Failure injection exercised on staging for critical dependencies
+  method: Read experiment records
+  evidence: Record reference
+
+# ───────────────────────── G5 — Release and deploy ─────────────────────────
+- id: G5-01
+  gate: G5
+  pillar: S
+  area: pipeline
+  min_tier: T2
+  critical: true
+  agent: main
+  check: Production changes only through the pipeline — release.yml builds once and deploys the prebuilt output (vercel deploy --prebuilt); Vercel git auto-deploys to production disabled; GitHub production environment restricted to main with environment-scoped secrets; no manual production deploys in history; Cloud Run deployed by digest via OIDC
+  method: Read release.yml and vercel.json (git.deploymentEnabled); gh api repos/<o>/<r>/environments/production; vercel ls --prod and check each deployment's source; gcloud run revisions list
+  evidence: Config lines plus deployment list
+  notes: T1 allows manual deploys; score N/A below T2
+
+- id: G5-02
+  gate: G5
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: main
+  check: Health endpoint returns 200 and reports the deployed commit SHA; release verify step fails on mismatch
+  method: curl -s <prod>/api/health; read release.yml verify job
+  evidence: Response (no secrets) and job lines
+
+- id: G5-03
+  gate: G5
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: main
+  check: Post-deploy smoke tests run on production and a failure triggers automatic rollback (vercel rollback, Cloud Run previous revision); rollback verified at least once
+  method: Read release.yml smoke and rollback jobs; find a rollback rehearsal record
+  evidence: Job lines and record
+
+- id: G5-04
+  gate: G5
+  pillar: S
+  area: security
+  min_tier: T2
+  applies_if: web app
+  agent: main
+  check: Security headers delivered on the deployed URL, not only configured — CSP, HSTS, frame-ancestors or X-Frame-Options, X-Content-Type-Options nosniff
+  method: curl -sI <prod-url>; or /web-perf-audit
+  evidence: Header output
+  notes: Configured-but-not-delivered CSP was missed across three consecutive past audits; verify the response
+
+- id: G5-05
+  gate: G5
+  pillar: S
+  area: security
+  min_tier: T2
+  agent: security
+  check: Rate limits on public mutating endpoints and auth endpoints; for AI features, per-user rate limits, max tokens per request and per-user/day spend caps (LLM10)
+  method: Inspect proxy.ts, route handlers, Vercel Firewall rules, AI call wrappers
+  evidence: file:line and rule list
+
+- id: G5-06
+  gate: G5
+  pillar: R
+  area: reliability
+  min_tier: T1
+  agent: main
+  check: Production environment variables set per environment and match .env.example
+  method: vercel env ls production versus .env.example names
+  evidence: Name diff (no values)
+
+- id: G5-07
+  gate: G5
+  pillar: S
+  area: pipeline
+  min_tier: T2
+  applies_if: GCP services
+  agent: main
+  check: GCP accessed through Workload Identity Federation restricted to this repository; no exported service-account keys
+  method: gcloud iam service-accounts keys list --managed-by=user for each deploy and backup account; read provider attribute condition
+  evidence: Command output
+
+- id: G5-08
+  gate: G5
+  pillar: R
+  area: ai
+  min_tier: T1
+  ai_class: [A2, A3, A4]
+  agent: ai
+  check: Prompt, model, parameter and retrieval changes ship as releases with a passed eval run recorded; model swaps use shadow or canary at T3
+  method: Sample recent ai/ changes and their eval runs
+  evidence: PR and run links
+
+- id: G5-09
+  gate: G5
+  pillar: S
+  area: pipeline
+  min_tier: T3
+  agent: main
+  check: Canary or traffic-split releases with automated rollback on SLO breach; container images Cosign-signed with SLSA provenance
+  method: Read release workflow and registry signatures
+  evidence: Config and verification output
+
+# ───────────────────────── G6 — Operate and observe ─────────────────────────
+- id: G6-01
+  gate: G6
+  pillar: R
+  area: reliability
+  min_tier: T1
+  agent: main
+  check: Error monitoring live on client and server — Sentry with instrumentation-client.ts, sentry.server.config.ts, sentry.edge.config.ts and a root instrumentation.ts exporting onRequestError
+  method: Read files; confirm DSN set in production
+  evidence: Paths
+  notes: Flag the legacy single sentry.client.config.ts pattern without instrumentation.ts
+
+- id: G6-02
+  gate: G6
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: main
+  check: Uptime checks, centralized logs and alerting to the named owner with escalation to the client contact (Better Stack or equivalent)
+  method: Inspect monitor and alert policy configuration
+  evidence: Settings
+
+- id: G6-03
+  gate: G6
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: main
+  check: SLOs monitored and an error-budget policy written and followed (feature work pauses when the budget is spent)
+  method: Read policy and SLO dashboard
+  evidence: Paths
+
+- id: G6-04
+  gate: G6
+  pillar: R
+  area: reliability
+  min_tier: T2
+  agent: main
+  check: Runbooks for common incidents, an incident response plan and a postmortem template exist
+  method: Read docs/runbooks
+  evidence: Paths
+
+- id: G6-05
+  gate: G6
+  pillar: R
+  area: reliability
+  min_tier: T2
+  critical: true
+  agent: main
+  check: Backups working — Supabase daily backups plus a nightly encrypted off-site pg_dump with checksum verification and retention pruning; PITR at T3 or when RPO is under 24 h
+  method: Read backup.yml and its last runs; list the bucket's recent objects; confirm lifecycle rule
+  evidence: Run links and object listing
+  notes: Supabase PITR is a paid add-on on Pro and above, needs at least the Small compute add-on, and replaces daily backups — confirm that was intended
+
+- id: G6-06
+  gate: G6
+  pillar: S
+  area: security
+  min_tier: T2
+  agent: main
+  check: Scheduled jobs (weekly OSV scan, weekly eval drift, nightly backup) run and alert the owner on failure
+  method: Read scheduled workflow runs for the last 30 days
+  evidence: Run history
+
+- id: G6-07
+  gate: G6
+  pillar: R
+  area: ai
+  min_tier: T2
+  ai_class: [A2, A3, A4]
+  agent: ai
+  check: LLM tracing captures prompt version, model ID, inputs, outputs, tool calls, latency, tokens and user; quality feedback and safety signals alert on spikes
+  method: Inspect Langfuse (or alternative) instrumentation and alert rules
+  evidence: Config paths
+
+- id: G6-08
+  gate: G6
+  pillar: E
+  area: ai
+  min_tier: T1
+  ai_class: [A2, A3, A4]
+  critical: true
+  agent: ai
+  check: Token budgets enforced and monitored — max tokens per request, per-user and per-day spend caps, alert on daily spend over budget or sharp week-on-week rise in cost per request
+  method: Inspect AI call wrapper limits, provider spend caps, alert configuration
+  evidence: file:line and alert settings
+
+- id: G6-09
+  gate: G6
+  pillar: S
+  area: security
+  min_tier: T2
+  agent: main
+  check: Audit logs centralized and access reviewed periodically against the access register
+  method: Read last access-review record
+  evidence: Record reference
+
+- id: G6-10
+  gate: G6
+  pillar: E
+  area: efficiency
+  min_tier: T2
+  agent: main
+  check: DORA metrics (deployment frequency, lead time, change failure rate, failed-deployment recovery time) captured from pipeline history
+  method: Look for the metrics job or dashboard
+  evidence: Path or link
+
+# ───────────────────────── G7 — Maintain, evolve, retire ─────────────────────────
+- id: G7-01
+  gate: G7
+  pillar: S
+  area: security
+  min_tier: T2
+  agent: main
+  check: Patch SLAs by severity in force; dependency updates merged on cadence; runtime and library end-of-life tracked
+  method: Renovate dashboard age of open PRs; endoflife.date for Node, Next.js, Python, Postgres versions in use
+  evidence: Snapshot
+
+- id: G7-02
+  gate: G7
+  pillar: E
+  area: efficiency
+  min_tier: T2
+  agent: main
+  check: Tech-debt register maintained, including quarantined tests and baselined findings, with a share of each cycle reserved
+  method: Read register
+  evidence: Path
+
+- id: G7-03
+  gate: G7
+  pillar: R
+  area: ai
+  min_tier: T1
+  ai_class: [A1, A2, A3, A4]
+  agent: ai
+  check: Model deprecation dates tracked; eval sets maintained as production failures arrive
+  method: Read tracker; compare regression set growth with incident history
+  evidence: Paths
+
+- id: G7-04
+  gate: G7
+  pillar: E
+  area: governance
+  min_tier: T2
+  critical: true
+  applies_if: client engagement
+  agent: main
+  check: Handover pack current or assemblable on demand — as-built docs, runbooks, latest audit report, credential rotation list and Hayah-AI access revocation list
+  method: Check each item exists and is dated within the last release
+  evidence: Paths
+
+- id: G7-05
+  gate: G7
+  pillar: S
+  area: privacy
+  min_tier: T1
+  applies_if: system is being retired or contract is ending
+  agent: main
+  check: Data exported or deleted per retention policy (including embeddings, traces, prompt logs and backups); access, credentials, keys and DNS revoked; decommission record signed
+  method: Walk the retirement checklist against each store and platform
+  evidence: Decommission record

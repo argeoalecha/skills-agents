@@ -467,7 +467,7 @@ Every project specced here later passes through hard gates. A gap found at gate 
 
 | Downstream gate | What it will check | TDD/PRD section that must answer it |
 |---|---|---|
-| `/audit` Phase 3 | Env/secrets, monitoring, rate limits, security headers, backups, CI | Web TDD §7, §10 |
+| `/audit` gate G5 | Env/secrets, monitoring, rate limits, security headers, backups, CI (G3–G6 checks) | Web TDD §7, §10 |
 | `/web-perf-audit` | TTFB, CDN caching, delivered headers, JS/font budgets, DNS double-proxy | Web TDD §8, §10 (Domain & DNS) |
 | `/load-test` | p95/p99 vs. expected traffic, cost cap on AI endpoints | PRD §7 Scale + Web TDD §8; AI TDD §7 guardrails |
 | `/ux-review` | Loading/error/empty states, PH mobile resilience | Web TDD §9 + PRD personas |

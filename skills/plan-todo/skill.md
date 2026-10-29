@@ -15,6 +15,7 @@ Reads the project's PRD and TDD, cross-references the current codebase and any e
 |---|---|---|
 | `/brainstorm-ideas` | Diverge/converge ideation; ranks options (ICE/RICE/2×2) | Before docs exist, or to re-rank backlog scope |
 | `/graph-topology-planner` | Designs the execution **graph** — dependencies, what runs in parallel, where human gates sit | When the question is *shape* (order, parallelism, approval points), not *task list*. It hands its Nodes table here as supplementary ordering input; the PRD and TDD remain this skill's source of truth |
+| `/basis-interrogation` | Pressure-tests one chosen idea into a Concept Brief (`docs/concept.md`) with the project's foundation facts | Before `/project-init`, when the idea is still vague |
 | `/project-init` | Bootstraps skeleton + git, auto-runs `/prd-tdd-writer` then this skill | Before docs exist |
 | `/prd-tdd-writer` | Writes or reviews formal PRD and TDD documents | To spec or critique |
 | **`/plan-todo`** | **Reads PRD + TDD → ordered, refreshable TODO list** | **Any stage of development** |

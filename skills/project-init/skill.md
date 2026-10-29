@@ -1,6 +1,6 @@
 ---
 name: project-init
-description: Bootstrap a new Hayah-AI project from a concept. Reads the concept doc in the pre-created project folder (an /interrogate-me Concept Brief is the preferred input), checks it is concrete enough to spec, writes the universal skeleton (CLAUDE.md with Project Profile and Definition of Done, .gitignore, docs/concept.md), git-inits on main, registers the project in the workspace map, then auto-runs /prd-tdd-writer (PRD/TDD) followed by /plan-todo (TODO.md) and commits the result. Stack, theme, and deploy target are decided in the TDD — not here. Use when the user says "project init", "bootstrap this project", "start a new project", "scaffold a new project", or invokes /project-init. Named project-init so it does not collide with Claude Code's built-in /init.
+description: Bootstrap a new Hayah-AI project from a concept. Reads the concept doc in the pre-created project folder (a /basis-interrogation Concept Brief is the preferred input), checks it is concrete enough to spec, writes the universal skeleton (CLAUDE.md with Project Profile and Definition of Done, .gitignore, docs/concept.md), git-inits on main, registers the project in the workspace map, then auto-runs /prd-tdd-writer (PRD/TDD) followed by /plan-todo (TODO.md) and commits the result. Stack, theme, and deploy target are decided in the TDD — not here. Use when the user says "project init", "bootstrap this project", "start a new project", "scaffold a new project", or invokes /project-init. Named project-init so it does not collide with Claude Code's built-in /init.
 user-invocable: true
 ---
 
@@ -9,7 +9,7 @@ user-invocable: true
 Entry point of the project pipeline. Turns a concept doc sitting in a freshly-created folder into a git-tracked foundation, then hands straight off to `/prd-tdd-writer` and `/plan-todo`.
 
 ```
-/interrogate-me ── Concept Brief ──► docs/concept.md
+/basis-interrogation ── Concept Brief ──► docs/concept.md
                                           │
                                           ▼
 /project-init ── guard ─► concept check ─► skeleton + git ─► /prd-tdd-writer ─► close the loop ─► /plan-todo ─► commit
@@ -40,12 +40,12 @@ ls -A
 
 ### Find the concept doc, in this order
 
-1. `docs/concept.md` — where `/interrogate-me` writes its Concept Brief.
+1. `docs/concept.md` — where `/basis-interrogation` writes its Concept Brief.
 2. `concept.md`, `idea.md`, `brief.md`, `notes.md` at the root.
 3. `README.md`.
 4. Any other lone `.md`/`.txt`, or a single source file (`.py`/`.ts`/`.jsx`, etc.) the user dropped in as the seed idea.
 
-Take the first level that has a match. If one level has several candidates, ask which one is the concept. A `/brainstorm-ideas` Recommendation block or an `/interrogate-me` Concept Brief saved as a file counts as a concept doc.
+Take the first level that has a match. If one level has several candidates, ask which one is the concept. A `/brainstorm-ideas` Recommendation block or a `/basis-interrogation` Concept Brief saved as a file counts as a concept doc.
 
 If nothing is found, ask one question: "What's the concept? One or two lines is enough." Write the answer to `docs/concept.md`, then continue to Phase 1, where a one-liner will normally fail the concept check.
 
@@ -57,7 +57,7 @@ Do not ask for project type, theme variant, or deploy target. Those are decided 
 
 Read the concept doc fully. Extract:
 - **What the project is**: a one-line description for `CLAUDE.md` and the commit message.
-- **Foundation facts**: engagement (internal or client), tier, AI features and their class (A1–A4), personal data, market, scale. An `/interrogate-me` brief has these in its Foundation facts table. For any other doc, take only what it states explicitly and mark the rest `UNRESOLVED`.
+- **Foundation facts**: engagement (internal or client), tier, AI features and their class (A1–A4), personal data, market, scale. A `/basis-interrogation` brief has these in its Foundation facts table. For any other doc, take only what it states explicitly and mark the rest `UNRESOLVED`.
 - Other explicit signals (must-have features, named tools). These are notes for `/prd-tdd-writer`, not decisions for `/project-init`.
 
 **Concept check.** A concept is concrete enough to spec when it states all three of these:
@@ -65,8 +65,8 @@ Read the concept doc fully. Extract:
 - **User**: who, beyond "everyone".
 - **v1 scope**: at least what's in, ideally what's out.
 
-An `/interrogate-me` brief with `Status: Ready for /project-init` passes without further checking. A brief marked `Not ready`, or any doc missing one of the three, fails. On a failure, ask one question that names the gaps: "This concept doesn't settle <gaps>. Run /interrogate-me first (recommended), or proceed and let /prd-tdd-writer fill the gaps?"
-- **Interrogate**: invoke the `interrogate-me` skill. When it has written `docs/concept.md`, restart Phase 1 with that brief.
+A `/basis-interrogation` brief with `Status: Ready for /project-init` passes without further checking. A brief marked `Not ready`, or any doc missing one of the three, fails. On a failure, ask one question that names the gaps: "This concept doesn't settle <gaps>. Run /basis-interrogation first (recommended), or proceed and let /prd-tdd-writer fill the gaps?"
+- **Interrogate**: invoke the `basis-interrogation` skill. When it has written `docs/concept.md`, restart Phase 1 with that brief.
 - **Proceed**: continue, and pass the gaps to `/prd-tdd-writer` in Phase 4 as the things it must ask about.
 
 A PRD built on a one-line concept is the most expensive rework in the pipeline. That's why this is the one question worth asking.

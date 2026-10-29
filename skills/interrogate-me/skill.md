@@ -8,7 +8,7 @@ description: >
   Trigger on /interrogate-me [idea], "stress-test this concept", "interrogate this idea",
   "poke holes in this idea", "sharpen this idea", or when the user has ONE specific idea
   they already want to pursue and needs it made concrete. Writes a Concept Brief to
-  docs/concept.md that /init and /prd-tdd-writer consume directly. Use /brainstorm-ideas
+  docs/concept.md that /project-init and /prd-tdd-writer consume directly. Use /brainstorm-ideas
   instead when the user does not yet know what to build and needs options generated. Do
   NOT use for testing the user's factual or technical knowledge — this interrogates an
   idea, not a person.
@@ -33,7 +33,7 @@ These two sit next to each other and must not fight over the same prompt:
 
 Brainstorm diverges then converges on *which* idea. This skill takes one already-chosen
 idea and forces it into buildable specifics. If a brainstorm has already produced a top
-pick, this is the natural next step before `/init`.
+pick, this is the natural next step before `/project-init`.
 
 ## Scale to the Idea
 
@@ -138,17 +138,17 @@ rest of the pipeline reads:
 - Otherwise propose `~/projects-mvp/<kebab-case-name>/docs/concept.md` and ask once
   where it should go; projects on the external drive live under
   `/Volumes/1TB_SSD/projects-mvp-ext/`. Create the folder, write the brief, and tell the
-  user to `cd` there and run `/init`.
+  user to `cd` there and run `/project-init`.
 - For a small scoped idea, output the brief in chat; only write a file if asked.
 
-Set **Status** honestly. `Ready for /init` means Problem, User, Scope In/Out, Core
+Set **Status** honestly. `Ready for /project-init` means Problem, User, Scope In/Out, Core
 interaction and Tier are all settled. Anything less is `Not ready`, followed by what's
 missing.
 
 ```markdown
 # Concept: <name>
 
-**Status:** Interrogated YYYY-MM-DD · Ready for /init | Not ready — <what is missing>
+**Status:** Interrogated YYYY-MM-DD · Ready for /project-init | Not ready — <what is missing>
 
 **Problem** — <specific pain, who has it, how often, cost of not solving>
 **User** — <specific role/context, not "everyone"; current workaround>
@@ -186,7 +186,7 @@ missing.
 
 | Outcome of the interrogation | Hand off to |
 |---|---|
-| Concept is for a new product or project, Status `Ready for /init` | `/init` — the brief saved as `docs/concept.md` is its concept doc; it needs no further interview, and its Foundation facts become the Project Profile in the project's `CLAUDE.md` |
+| Concept is for a new product or project, Status `Ready for /project-init` | `/project-init` — the brief saved as `docs/concept.md` is its concept doc; it needs no further interview, and its Foundation facts become the Project Profile in the project's `CLAUDE.md` |
 | Concept is for a new product or project, Status `Not ready` | Don't hand off yet. Name what's missing and offer to keep interrogating; hand off only if the user chooses to proceed with the gaps marked `UNRESOLVED` |
 | Concept is sound and needs formal scoping in an existing project | `/prd-tdd-writer` — the brief is the seed input for the PRD |
 | Concept is a feature inside an existing project | `/feature-dev` — carry scope boundary and design intent into Phase 1 requirements |

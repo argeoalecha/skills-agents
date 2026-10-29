@@ -129,7 +129,7 @@ Load only the relevant reference file. Each defines suggested `type` values, a d
    leads to confirm, not facts. Keep it in sync when those change (see /okf-knowledge).
    ```
 
-   Insert near the top of `CLAUDE.md`, not buried after unrelated sections — an agent skimming for context should hit it early. If no `CLAUDE.md` exists yet, mention to the user that one should point at the bundle once created (don't create a bare `CLAUDE.md` yourself — that's `/init`'s job). This step is what makes the bundle load-bearing rather than orphaned documentation; skipping it is the most common way an OKF bundle goes stale unread.
+   Insert near the top of `CLAUDE.md`, not buried after unrelated sections — an agent skimming for context should hit it early. If no `CLAUDE.md` exists yet, mention to the user that one should point at the bundle once created (don't create a bare `CLAUDE.md` yourself — that's `/project-init`'s job). This step is what makes the bundle load-bearing rather than orphaned documentation; skipping it is the most common way an OKF bundle goes stale unread.
 8. **Validate** with `uv run scripts/validate.py <bundle-root>` before declaring done.
 9. **Report trust state.** Tell the user which concepts are unverified drafts you wrote, and that they can ask you to mark specific concepts `verified` by them once reviewed.
 

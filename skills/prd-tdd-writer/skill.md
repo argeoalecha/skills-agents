@@ -9,15 +9,15 @@ A skill for producing and reviewing lean, professional PRDs and TDDs for web app
 
 ---
 
-## Upstream: invoked by /init
+## Upstream: invoked by /project-init
 
 `/brainstorm-ideas` is another upstream: when a brainstorm ends with a build-worthy top pick, its Recommendation block (problem statement, constraints, top pick + rationale) is the seed input for the PRD — treat it like a mini concept doc and don't re-ask questions it already answers.
 
 `/interrogate-me` is the third upstream: its Concept Brief (problem, user, wedge, scope in/out, core interaction, design intent, market constraints, success signal, kill condition) is a stronger seed than a raw concept doc — it already represents decisions the user committed to under questioning. Do not re-litigate them. Anything the brief marks `UNRESOLVED` or lists under Open questions is genuinely still open and is the right thing to ask about.
 
-`/init` is the project bootstrapper and auto-runs this skill at the end of its chain. When invoked that way (or any time the cwd is a freshly-bootstrapped project), **a concept doc exists at `docs/concept.md`** — read it first (see Write Mode step 3). The skeleton's `CLAUDE.md` will say `Stack: TBD — decided in the TDD`; this skill's TDD is where stack, theme variant, and deploy target actually get pinned down. Treat that as a responsibility: the rest of the pipeline (`/company-site`, `/feature-dev`) reads the TDD to author framework files, so the TDD must state the chosen stack, the Hayah theme variant, and the deploy target explicitly.
+`/project-init` is the project bootstrapper and auto-runs this skill at the end of its chain. When invoked that way (or any time the cwd is a freshly-bootstrapped project), **a concept doc exists at `docs/concept.md`** — read it first (see Write Mode step 3). The skeleton's `CLAUDE.md` will say `Stack: TBD — decided in the TDD`; this skill's TDD is where stack, theme variant, and deploy target actually get pinned down. Treat that as a responsibility: the rest of the pipeline (`/company-site`, `/feature-dev`) reads the TDD to author framework files, so the TDD must state the chosen stack, the Hayah theme variant, and the deploy target explicitly.
 
-The skeleton's `CLAUDE.md` also has a **Project Profile** table: engagement, tier (T1–T3), AI features with class (A1–A4), personal data, market, storage. It is the tier and AI-class record `/audit` reads (G1-01). Carry it into PRD §7 Constraints: tier and rationale, AI class per feature, and Regulatory from personal data. Don't re-ask anything it already settles. Fields marked `UNRESOLVED` count toward the Write Mode step 4 questions: settle tier first if it's open, because it sets how deep the TDD's security and operations sections go. When invoked from `/init`, save the PRD and TDD in the project's own `docs/` folder (cwd), not a path built from `~/projects-mvp/`. Projects on the external drive live elsewhere.
+The skeleton's `CLAUDE.md` also has a **Project Profile** table: engagement, tier (T1–T3), AI features with class (A1–A4), personal data, market, storage. It is the tier and AI-class record `/audit` reads (G1-01). Carry it into PRD §7 Constraints: tier and rationale, AI class per feature, and Regulatory from personal data. Don't re-ask anything it already settles. Fields marked `UNRESOLVED` count toward the Write Mode step 4 questions: settle tier first if it's open, because it sets how deep the TDD's security and operations sections go. When invoked from `/project-init`, save the PRD and TDD in the project's own `docs/` folder (cwd), not a path built from `~/projects-mvp/`. Projects on the external drive live elsewhere.
 
 ---
 
@@ -38,7 +38,7 @@ If ambiguous, ask in one sentence before proceeding.
 
 1. **Identify doc type**: PRD (what + why), TDD (how), or both.
 2. **Identify project type**: web app, AI/agent/automation, or data product. This determines which TDD template to use.
-3. **Extract context.** First, if `docs/concept.md` exists in the project folder (it will when reached via `/init`), read it — it is the seed idea and the primary input. For an existing project being re-spec'd, also check for an OKF knowledge bundle (`okf/index.md`) — read it before drafting so the TDD doesn't contradict already-documented architecture/schema decisions. Then supplement from the conversation:
+3. **Extract context.** First, if `docs/concept.md` exists in the project folder (it will when reached via `/project-init`), read it — it is the seed idea and the primary input. For an existing project being re-spec'd, also check for an OKF knowledge bundle (`okf/index.md`) — read it before drafting so the TDD doesn't contradict already-documented architecture/schema decisions. Then supplement from the conversation:
    - Problem / goal
    - Target users / personas
    - Core features (MVP vs. later)
@@ -47,7 +47,7 @@ If ambiguous, ask in one sentence before proceeding.
    - Philippines market relevance (Y/N)
 4. **Fill gaps** — ask only what is missing, in a single block before drafting. Max 3 questions. Never ask follow-ups mid-draft.
 5. **Draft document** using the matching template below.
-6. **Offer follow-up**: companion doc (PRD → TDD or vice versa), task breakdown (`/plan-todo` — this skill does not write TODO.md itself; when invoked from `/init`, that chain auto-runs `/plan-todo` next), or save as `.md` file using Write tool at `~/projects-mvp/<project-name>/docs/`.
+6. **Offer follow-up**: companion doc (PRD → TDD or vice versa), task breakdown (`/plan-todo` — this skill does not write TODO.md itself; when invoked from `/project-init`, that chain auto-runs `/plan-todo` next), or save as `.md` file using Write tool at `~/projects-mvp/<project-name>/docs/`.
 
 ---
 

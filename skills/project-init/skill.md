@@ -1,10 +1,10 @@
 ---
-name: init
-description: Bootstrap a new Hayah-AI project from a concept. Reads the concept doc in the pre-created project folder (an /interrogate-me Concept Brief is the preferred input), checks it is concrete enough to spec, writes the universal skeleton (CLAUDE.md with Project Profile and Definition of Done, .gitignore, docs/concept.md), git-inits on main, registers the project in the workspace map, then auto-runs /prd-tdd-writer (PRD/TDD) followed by /plan-todo (TODO.md) and commits the result. Stack, theme, and deploy target are decided in the TDD — not here. Use when the user says "init", "bootstrap this project", "start a new project", "scaffold a new project", or invokes /init.
+name: project-init
+description: Bootstrap a new Hayah-AI project from a concept. Reads the concept doc in the pre-created project folder (an /interrogate-me Concept Brief is the preferred input), checks it is concrete enough to spec, writes the universal skeleton (CLAUDE.md with Project Profile and Definition of Done, .gitignore, docs/concept.md), git-inits on main, registers the project in the workspace map, then auto-runs /prd-tdd-writer (PRD/TDD) followed by /plan-todo (TODO.md) and commits the result. Stack, theme, and deploy target are decided in the TDD — not here. Use when the user says "project init", "bootstrap this project", "start a new project", "scaffold a new project", or invokes /project-init. Named project-init so it does not collide with Claude Code's built-in /init.
 user-invocable: true
 ---
 
-# /init — Project Bootstrapper
+# /project-init — Project Bootstrapper
 
 Entry point of the project pipeline. Turns a concept doc sitting in a freshly-created folder into a git-tracked foundation, then hands straight off to `/prd-tdd-writer` and `/plan-todo`.
 
@@ -12,10 +12,10 @@ Entry point of the project pipeline. Turns a concept doc sitting in a freshly-cr
 /interrogate-me ── Concept Brief ──► docs/concept.md
                                           │
                                           ▼
-/init ── guard ─► concept check ─► skeleton + git ─► /prd-tdd-writer ─► close the loop ─► /plan-todo ─► commit
+/project-init ── guard ─► concept check ─► skeleton + git ─► /prd-tdd-writer ─► close the loop ─► /plan-todo ─► commit
 ```
 
-`/init` does **not** choose a stack, write framework files, pick a theme, or configure a deploy target. The TDD decides the stack; framework files come later from `/company-site` (marketing site) or `/feature-dev` (app), driven by the TODO. Keep this skill thin — its job is a foundation every later skill can trust: a concept that is concrete, a profile `/audit` can read, docs that agree with each other, and a clean git history.
+`/project-init` does **not** choose a stack, write framework files, pick a theme, or configure a deploy target. The TDD decides the stack; framework files come later from `/company-site` (marketing site) or `/feature-dev` (app), driven by the TODO. Keep this skill thin — its job is a foundation every later skill can trust: a concept that is concrete, a profile `/audit` can read, docs that agree with each other, and a clean git history.
 
 ---
 
@@ -58,14 +58,14 @@ Do not ask for project type, theme variant, or deploy target. Those are decided 
 Read the concept doc fully. Extract:
 - **What the project is**: a one-line description for `CLAUDE.md` and the commit message.
 - **Foundation facts**: engagement (internal or client), tier, AI features and their class (A1–A4), personal data, market, scale. An `/interrogate-me` brief has these in its Foundation facts table. For any other doc, take only what it states explicitly and mark the rest `UNRESOLVED`.
-- Other explicit signals (must-have features, named tools). These are notes for `/prd-tdd-writer`, not decisions for `/init`.
+- Other explicit signals (must-have features, named tools). These are notes for `/prd-tdd-writer`, not decisions for `/project-init`.
 
 **Concept check.** A concept is concrete enough to spec when it states all three of these:
 - **Problem**: a specific pain for a specific person.
 - **User**: who, beyond "everyone".
 - **v1 scope**: at least what's in, ideally what's out.
 
-An `/interrogate-me` brief with `Status: Ready for /init` passes without further checking. A brief marked `Not ready`, or any doc missing one of the three, fails. On a failure, ask one question that names the gaps: "This concept doesn't settle <gaps>. Run /interrogate-me first (recommended), or proceed and let /prd-tdd-writer fill the gaps?"
+An `/interrogate-me` brief with `Status: Ready for /project-init` passes without further checking. A brief marked `Not ready`, or any doc missing one of the three, fails. On a failure, ask one question that names the gaps: "This concept doesn't settle <gaps>. Run /interrogate-me first (recommended), or proceed and let /prd-tdd-writer fill the gaps?"
 - **Interrogate**: invoke the `interrogate-me` skill. When it has written `docs/concept.md`, restart Phase 1 with that brief.
 - **Proceed**: continue, and pass the gaps to `/prd-tdd-writer` in Phase 4 as the things it must ask about.
 
@@ -230,10 +230,10 @@ Then report to the user:
 
 ## Rules
 
-- Never choose a stack, framework, theme, or deploy target — the TDD owns those. `/init` only copies the TDD's choices into `CLAUDE.md` in Phase 5.
+- Never choose a stack, framework, theme, or deploy target — the TDD owns those. `/project-init` only copies the TDD's choices into `CLAUDE.md` in Phase 5.
 - Never write framework files (`package.json`, `next.config`, `tailwind.config`, `vite.config`, etc.). `/company-site` and `/feature-dev` are the only authors of those.
 - Never run in a workspace root, `$HOME`, `~/.claude`, or inside an existing repo (Phase 0 guard).
 - Never guess a Project Profile value. Unknown is `UNRESOLVED` until the user or the PRD settles it.
-- `/init` asks at most two questions: which file or what concept (Phase 0, only when needed), and interrogate-or-proceed (Phase 1, only when the concept fails the check).
+- `/project-init` asks at most two questions: which file or what concept (Phase 0, only when needed), and interrogate-or-proceed (Phase 1, only when the concept fails the check).
 - Always create `CLAUDE.md` and always `git init -b main`, whatever the project's size.
-- Always auto-run `/prd-tdd-writer`, then `/plan-todo`, then the docs commit. `/init` never ends the chain early, and the TODO comes from `/plan-todo`, not `/prd-tdd-writer`.
+- Always auto-run `/prd-tdd-writer`, then `/plan-todo`, then the docs commit. `/project-init` never ends the chain early, and the TODO comes from `/plan-todo`, not `/prd-tdd-writer`.

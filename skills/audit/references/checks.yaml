@@ -146,7 +146,7 @@ checks:
   min_tier: T1
   agent: main
   check: Tier assigned with a one-line rationale; every AI feature assigned a class A1–A4
-  method: Look for the Project Profile table in the project CLAUDE.md (written by /init), PRD §7, docs/requirements or NFR spec; otherwise record the tier set in this audit's Scope step
+  method: Look for the Project Profile table in the project CLAUDE.md (written by /project-init), PRD §7, docs/requirements or NFR spec; otherwise record the tier set in this audit's Scope step
   evidence: Document path or report Scope section
 
 - id: G1-02

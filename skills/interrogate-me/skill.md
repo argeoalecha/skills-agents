@@ -79,9 +79,27 @@ Do not run the full surface on a small idea.
 
    **If the idea targets the Philippine market** (or the user's answers imply it), probe
    these before closing — they are design constraints, not TDD details, and settling them
-   late forces rework: primary channel (Viber / Messenger / SMS vs. in-app), payment
-   reality (COD vs. card vs. e-wallet), and whether the user is on a low-bandwidth mobile
-   connection. Ask as one targeted question each, only where relevant.
+   late forces rework: primary channel (Viber / Messenger / WhatsApp / SMS vs. in-app),
+   payment reality (COD vs. GCash/Maya vs. card), and whether the user is on a
+   low-bandwidth mobile connection. Ask as one targeted question each, only where relevant.
+
+   **Foundation facts.** Before closing a new product or project, settle these. They are
+   closed questions, not interrogation: ask each one only if earlier answers haven't
+   already settled it, one at a time, and accept a short answer. Downstream gates depend
+   on them: `/audit` reads tier and AI class as the G1-01 record, `/prd-tdd-writer` sizes
+   PRD §7 from them, and `/ph-dpa-compliance` triggers on personal data.
+   - **Engagement**: internal Hayah-AI product, or built for a client (name them)?
+   - **Personal data**: will it collect or process data about identifiable people? Which
+     fields? (Any yes means RA 10173 applies.)
+   - **AI in the product**: none, or per AI feature: A1 assistive internal · A2
+     customer-facing generation · A3 agentic with tools · A4 decisions about people.
+   - **Scale**: users or requests at launch, and at 6 months.
+   - **Hard constraints**: budget ceiling, deadline, and any platform or tech the user is
+     required to use.
+   - **Tier**: propose it yourself from the answers above and ask the user to confirm:
+     T1 prototype (no real users, no personal data) · T2 production (real users, personal
+     data, or a paying client) · T3 critical/regulated (finance, health, industrial/OT,
+     contractual compliance; any A4 feature). Give the one-line rationale.
 
 5. **Adaptive pressure**: If an answer is sharp and specific, escalate — ask for the edge
    case, the harder tradeoff, the thing they're avoiding. If the user is stuck or answers
@@ -94,27 +112,43 @@ Do not run the full surface on a small idea.
 7. **Tone**: Direct, curious, unimpressed by buzzwords, constructive. No flattery, no
    "great idea!" filler. Push until the answer is concrete, then move on.
 
-8. **Exit condition**: Continue until the user says "stop", "/stop", or asks for a
-   summary — OR you judge the concept surface (Rule 4) is sufficiently covered, in which
-   case ask if they want to wrap up.
+8. **Progress and budget.** Prefix each question with its number and area, e.g.
+   `Q7 · Scope boundary`. A full concept surface usually takes 10–15 questions. At
+   question 15, pause: list what's settled and what's still open, then ask whether to
+   keep going or wrap up. Don't drift past that point without asking.
 
-9. **Closing deliverable**: On exit, produce a **Concept Brief** using the template below.
+9. **Exit condition**: Continue until the user says "stop", "/stop", or asks for a
+   summary — OR you judge the concept surface (Rule 4, including Foundation facts) is
+   sufficiently covered, in which case ask if they want to wrap up.
+
+10. **Closing deliverable**: On exit, produce a **Concept Brief** using the template below.
    Use only what the user actually committed to in their answers — never invent a decision
    they didn't make. Mark anything still unresolved as `UNRESOLVED` rather than guessing;
-   downstream skills need to know what's still open.
+   downstream skills need to know what's still open. Any assumption the user kept after
+   you challenged it (Rule 6) goes in the brief. The one that would hurt most if wrong is
+   the **Riskiest assumption**.
 
 ## The Concept Brief
 
 For a new product or project, **write the brief to a file** — this is the artifact the
 rest of the pipeline reads:
 
-- If the cwd is already the project folder, write `docs/concept.md`.
-- If not, write it wherever the user wants it and tell them it belongs in the project
-  folder before `/init` runs.
+- If the cwd is a project folder (not `$HOME`, not `~/projects-mvp` itself, not
+  `~/.claude`), write `docs/concept.md` there.
+- Otherwise propose `~/projects-mvp/<kebab-case-name>/docs/concept.md` and ask once
+  where it should go; projects on the external drive live under
+  `/Volumes/1TB_SSD/projects-mvp-ext/`. Create the folder, write the brief, and tell the
+  user to `cd` there and run `/init`.
 - For a small scoped idea, output the brief in chat; only write a file if asked.
+
+Set **Status** honestly. `Ready for /init` means Problem, User, Scope In/Out, Core
+interaction and Tier are all settled. Anything less is `Not ready`, followed by what's
+missing.
 
 ```markdown
 # Concept: <name>
+
+**Status:** Interrogated YYYY-MM-DD · Ready for /init | Not ready — <what is missing>
 
 **Problem** — <specific pain, who has it, how often, cost of not solving>
 **User** — <specific role/context, not "everyone"; current workaround>
@@ -129,6 +163,20 @@ rest of the pipeline reads:
 **Market constraints** — <channel, payment, connectivity — if PH-targeted or otherwise relevant>
 **Success signal** — <observable behavior in week one>
 **Kill condition** — <what would say stop>
+**Riskiest assumption** — <the belief the concept depends on most, and how to test it cheaply>
+
+## Foundation facts
+| Fact | Value |
+|---|---|
+| Engagement | internal / client: <name> |
+| Tier | T1 / T2 / T3 — <one-line rationale> (confirmed by user) |
+| AI features | none / <feature>: A1–A4 — <rationale>, one row per feature |
+| Personal data | none / <fields> — RA 10173 applies |
+| Scale | <launch> → <6 months> |
+| Hard constraints | <budget, deadline, required platform or tech — or none> |
+
+## Accepted assumptions
+- <assumption the user held after challenge>
 
 ## Open questions
 - <anything marked UNRESOLVED>
@@ -138,7 +186,8 @@ rest of the pipeline reads:
 
 | Outcome of the interrogation | Hand off to |
 |---|---|
-| Concept is for a new product or project | `/init` — the brief saved as `docs/concept.md` is its concept doc; it needs no further interview |
+| Concept is for a new product or project, Status `Ready for /init` | `/init` — the brief saved as `docs/concept.md` is its concept doc; it needs no further interview, and its Foundation facts become the Project Profile in the project's `CLAUDE.md` |
+| Concept is for a new product or project, Status `Not ready` | Don't hand off yet. Name what's missing and offer to keep interrogating; hand off only if the user chooses to proceed with the gaps marked `UNRESOLVED` |
 | Concept is sound and needs formal scoping in an existing project | `/prd-tdd-writer` — the brief is the seed input for the PRD |
 | Concept is a feature inside an existing project | `/feature-dev` — carry scope boundary and design intent into Phase 1 requirements |
 | Interrogation exposed a real fork the user can't decide | `/brainstorm-ideas` — diverge on that specific tradeoff, then come back |

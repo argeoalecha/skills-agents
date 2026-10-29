@@ -17,6 +17,8 @@ A skill for producing and reviewing lean, professional PRDs and TDDs for web app
 
 `/init` is the project bootstrapper and auto-runs this skill at the end of its chain. When invoked that way (or any time the cwd is a freshly-bootstrapped project), **a concept doc exists at `docs/concept.md`** — read it first (see Write Mode step 3). The skeleton's `CLAUDE.md` will say `Stack: TBD — decided in the TDD`; this skill's TDD is where stack, theme variant, and deploy target actually get pinned down. Treat that as a responsibility: the rest of the pipeline (`/company-site`, `/feature-dev`) reads the TDD to author framework files, so the TDD must state the chosen stack, the Hayah theme variant, and the deploy target explicitly.
 
+The skeleton's `CLAUDE.md` also has a **Project Profile** table: engagement, tier (T1–T3), AI features with class (A1–A4), personal data, market, storage. It is the tier and AI-class record `/audit` reads (G1-01). Carry it into PRD §7 Constraints: tier and rationale, AI class per feature, and Regulatory from personal data. Don't re-ask anything it already settles. Fields marked `UNRESOLVED` count toward the Write Mode step 4 questions: settle tier first if it's open, because it sets how deep the TDD's security and operations sections go. When invoked from `/init`, save the PRD and TDD in the project's own `docs/` folder (cwd), not a path built from `~/projects-mvp/`. Projects on the external drive live elsewhere.
+
 ---
 
 ## Mode Detection
@@ -188,6 +190,7 @@ Output format: same structure as PRD review, adapted to TDD dimensions.
 - **Technical:** <known limitations>
 - **Scale:** <expected users / requests at launch and at 6 months — sizes /load-test thresholds and the TDD rendering/caching strategy>
 - **Regulatory:** Philippines DPA (RA 10173) — <required / not required>
+- **Tier / AI class:** <T1–T3 + rationale; each AI feature A1–A4 — from the Project Profile, audit G1-01>
 
 ## 8. Open Questions
 - <question that must be answered before building begins>

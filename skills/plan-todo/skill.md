@@ -146,6 +146,8 @@ Based on: PRD (<Status field value>), TDD (<Status field value>)
 - [x] Set up Supabase project and local dev
 - [ ] Run /ui-builder — lock theme, logo + tagline, component conventions (produces BRAND.md and/or tailwind.config.js with theme tokens)
 - [ ] Configure error monitoring (Sentry)
+- [ ] `.env.example` lists every required variable with placeholder values (audit G0-06)
+- [ ] README.md — setup, env vars, deploy (audit G0-08)
 
 ## Phase 2: Database & Auth
 - [x] <table> migration with RLS policy
@@ -203,6 +205,8 @@ Based on: PRD (<Status>), TDD (<Status>)
 - [ ] Finalize agent flow diagram (trigger → decision → output)
 - [ ] Define all tool schemas
 - [ ] Write and lock system prompt
+- [ ] `.env.example` lists every required variable with placeholder values (audit G0-06)
+- [ ] README.md — setup, env vars, deploy (audit G0-08)
 
 ## Phase 2: Tool Implementation
 - [ ] Implement <tool_name> — schema: <input/output>

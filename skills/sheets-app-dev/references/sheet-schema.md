@@ -2,7 +2,7 @@
 
 The Sheet is the database; the header row is the schema. Reference example:
 the 4-tab ISP billing Sheet documented in
-`~/projects-mvp/isp-billing/sheets-version/okf/tables/`.
+`/Volumes/1TB_SSD/projects-mvp-ext/sic-isp-billing/sheets-version/okf/tables/`.
 
 ## Tabs
 
@@ -56,4 +56,4 @@ That's a feature (hand-seed catalogs, fix typos in place) and a hazard:
 Low tens-to-hundreds of rows per tab. Past ~1k rows per tab, high write
 concurrency, real relational integrity needs, or real customer PII at scale
 (PH DPA obligations) — graduate to the Supabase/Next.js track. Keep the two
-tracks' docs separate from day one (the `isp-billing/` two-folder precedent).
+tracks' docs separate from day one (the `sic-isp-billing/` two-folder precedent).

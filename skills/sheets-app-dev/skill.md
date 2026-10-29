@@ -20,7 +20,7 @@ Google Sheet — one tab per "table", header row = schema
 
 This skill is the **pattern and template layer** for the stack — scaffolds,
 platform facts, and phase process. The **canonical reference implementation**
-is `~/projects-mvp/isp-billing/sheets-version/` (live in production): its
+is `/Volumes/1TB_SSD/projects-mvp-ext/sic-isp-billing/sheets-version/` (live in production): its
 `Code.gs`, `.jsx`/`.html` pair, `SETUP.md`, and OKF bundle (`okf/`) are the
 ground truth every template here was extracted from. When a pattern question
 isn't answered in `references/`, read the reference implementation.
@@ -44,7 +44,7 @@ External anchors:
 
 | Path | What it is |
 |---|---|
-| `~/projects-mvp/isp-billing/sheets-version/` | Reference implementation — production Code.gs (9 write actions + `getAll`), SPA pair, OKF bundle |
+| `/Volumes/1TB_SSD/projects-mvp-ext/sic-isp-billing/sheets-version/` | Reference implementation — production Code.gs (9 write actions + `getAll`), SPA pair, OKF bundle |
 | `~/.claude/skills/theme-hayahai/hayahai-design/project/themes/hayah-console.json` | Console theme tokens the app template implements |
 
 ---
@@ -74,7 +74,7 @@ multi-user with real auth/roles, real customer PII at scale (PH DPA
 obligations), >~1k rows per tab or high write concurrency, relational
 integrity needs, sub-second latency (Apps Script cold starts are seconds). If
 the app may graduate later, keep this track's docs separate from the future
-track's from day one (the `isp-billing/` two-folder precedent).
+track's from day one (the `sic-isp-billing/` two-folder precedent).
 
 ---
 

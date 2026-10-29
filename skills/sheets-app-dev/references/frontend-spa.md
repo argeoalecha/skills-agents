@@ -1,6 +1,6 @@
 # Frontend SPA — Pattern Reference
 
-Extracted from `~/projects-mvp/isp-billing/sheets-version/isp-billing-app-sheets.{jsx,html}`
+Extracted from `/Volumes/1TB_SSD/projects-mvp-ext/sic-isp-billing/sheets-version/isp-billing-app-sheets.{jsx,html}`
 (the SILAGO ISP billing console). The console-styled skeleton is
 `assets/app-template.html`.
 

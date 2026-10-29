@@ -1,7 +1,7 @@
 /**
  * <APP NAME> — Apps Script backend
  * Generic scaffold for the Sheets-backed app pattern. Derived from the proven
- * implementation at ~/projects-mvp/isp-billing/sheets-version/Code.gs — see
+ * implementation at /Volumes/1TB_SSD/projects-mvp-ext/sic-isp-billing/sheets-version/Code.gs — see
  * that file for production examples of bulk generation, credit ledgers,
  * payment idempotency, and id migrations.
  *

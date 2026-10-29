@@ -1,7 +1,7 @@
 # Apps Script Backend (Code.gs) — Pattern Reference
 
 Extracted from the proven implementation at
-`~/projects-mvp/isp-billing/sheets-version/Code.gs` (9 write actions + `getAll`,
+`/Volumes/1TB_SSD/projects-mvp-ext/sic-isp-billing/sheets-version/Code.gs` (9 write actions + `getAll`,
 live in production for the SILAGO ISP billing console). The generic scaffold is
 `assets/Code.gs.template` — start there; consult the reference impl for the
 concrete versions of every pattern below.

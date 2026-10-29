@@ -1,6 +1,6 @@
 # Deploy & Redeploy — Runbook
 
-Condensed from `~/projects-mvp/isp-billing/sheets-version/okf/runbooks/` and
+Condensed from `/Volumes/1TB_SSD/projects-mvp-ext/sic-isp-billing/sheets-version/okf/runbooks/` and
 `SETUP.md` there.
 
 ## First deploy (backend)

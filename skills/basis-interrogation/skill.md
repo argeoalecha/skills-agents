@@ -193,6 +193,7 @@ missing.
 | Concept is for a new product or project, Status `Not ready` | Don't hand off yet. Name what's missing and offer to keep interrogating; hand off only if the user chooses to proceed with the gaps marked `UNRESOLVED` |
 | Concept is sound and needs formal scoping in an existing project | `/prd-tdd-writer` — the brief is the seed input for the PRD |
 | Concept is a feature inside an existing project | `/feature-dev` — carry scope boundary and design intent into Phase 1 requirements |
+| Interrogation was started from `/graph-topology-planner` | Back to `/graph-topology-planner` — the brief is its scoped input for Step 1 |
 | Interrogation exposed a real fork the user can't decide | `/brainstorm-ideas` — diverge on that specific tradeoff, then come back |
 
 Offer the handoff; don't auto-run it.

@@ -48,6 +48,8 @@ For complex features where scope needs formal alignment, use `/prd-tdd-writer` t
 
 If the approach itself is genuinely open-ended — multiple viable architectures or product directions with no clear winner — run `/brainstorm-ideas` first and carry its Recommendation (top pick, constraints, rationale) into this phase as settled input.
 
+If the direction is chosen but vague on problem, user, or scope, run `/basis-interrogation` first. Its Concept Brief is settled input for this phase: carry the scope boundary (In/Out) and design intent into the requirements and don't re-ask them. Anything it marks `UNRESOLVED` is still open.
+
 ---
 
 ## Phase 2 — Architecture Design

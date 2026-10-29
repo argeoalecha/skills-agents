@@ -59,7 +59,7 @@ Record in the report before running anything:
 
 1. **Project facts:** name, client (or internal), repos, environments, data stores, hosting, owner.
 2. **Project type:** web app (Next.js/React, `app/` or `src/`), AI (model SDK imports, prompt files, tool definitions), Python service (`pyproject.toml`, FastAPI), or a mix. Checks with `applies_if` that don't match are N/A.
-3. **Tier with a one-line rationale.** Read it from the G1 record if one exists; otherwise derive it — real users, personal data or a paying client means at least T2; finance, health, industrial/OT or contractual compliance means T3 — and confirm with the user in one question.
+3. **Tier with a one-line rationale.** Read it from the G1 record if one exists (the Project Profile in the project `CLAUDE.md`, or PRD §7); otherwise derive it — real users, personal data or a paying client means at least T2; finance, health, industrial/OT or contractual compliance means T3 — and confirm with the user in one question.
 4. **AI class per AI feature** (A1–A4) with a one-line rationale. A feature that gained tools or now decides about people moves class.
 5. **Operating mode:** team or solo. Solo enables the recorded-substitute rule on G3-61 and related checks.
 6. **Lifecycle phase now:** which gate the project is working toward (used for follow-ups in Step 9).

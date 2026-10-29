@@ -15,7 +15,7 @@ Reads the project's PRD and TDD, cross-references the current codebase and any e
 |---|---|---|
 | `/brainstorm-ideas` | Diverge/converge ideation; ranks options (ICE/RICE/2×2) | Before docs exist, or to re-rank backlog scope |
 | `/graph-topology-planner` | Designs the execution **graph** — dependencies, what runs in parallel, where human gates sit | When the question is *shape* (order, parallelism, approval points), not *task list*. It hands its Nodes table here as supplementary ordering input; the PRD and TDD remain this skill's source of truth |
-| `/init` | Bootstraps skeleton + git, auto-runs `/prd-tdd-writer` then this skill | Before docs exist |
+| `/project-init` | Bootstraps skeleton + git, auto-runs `/prd-tdd-writer` then this skill | Before docs exist |
 | `/prd-tdd-writer` | Writes or reviews formal PRD and TDD documents | To spec or critique |
 | **`/plan-todo`** | **Reads PRD + TDD → ordered, refreshable TODO list** | **Any stage of development** |
 | `/ui-builder` | Locks theme, logo + tagline, component conventions | Phase 1 Foundation — web app projects only |
@@ -146,6 +146,8 @@ Based on: PRD (<Status field value>), TDD (<Status field value>)
 - [x] Set up Supabase project and local dev
 - [ ] Run /ui-builder — lock theme, logo + tagline, component conventions (produces BRAND.md and/or tailwind.config.js with theme tokens)
 - [ ] Configure error monitoring (Sentry)
+- [ ] `.env.example` lists every required variable with placeholder values (audit G0-06)
+- [ ] README.md — setup, env vars, deploy (audit G0-08)
 
 ## Phase 2: Database & Auth
 - [x] <table> migration with RLS policy
@@ -203,6 +205,8 @@ Based on: PRD (<Status>), TDD (<Status>)
 - [ ] Finalize agent flow diagram (trigger → decision → output)
 - [ ] Define all tool schemas
 - [ ] Write and lock system prompt
+- [ ] `.env.example` lists every required variable with placeholder values (audit G0-06)
+- [ ] README.md — setup, env vars, deploy (audit G0-08)
 
 ## Phase 2: Tool Implementation
 - [ ] Implement <tool_name> — schema: <input/output>

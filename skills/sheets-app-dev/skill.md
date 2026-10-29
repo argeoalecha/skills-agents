@@ -54,7 +54,7 @@ External anchors:
 | If the task is… | Skill that owns it |
 |---|---|
 | Building/extending/debugging a Sheets-backed app | **This skill** — templates + references here |
-| Project bootstrap (skeleton, PRD/TDD, TODO) | `/init` → `/prd-tdd-writer` → `/plan-todo` |
+| Project bootstrap (skeleton, PRD/TDD, TODO) | `/project-init` → `/prd-tdd-writer` → `/plan-todo` |
 | Theme tokens, logo, component specs | `/theme-hayahai` (**hayah-console** for app screens) or `/theme-client` for client brands |
 | Composing a new dashboard layout from scratch | `/ui-builder` (calls into theme skills) |
 | Static hosting of the .html | `/netlify-deploy` or `/vercel-deploy` |
@@ -96,7 +96,7 @@ track's from day one (the `isp-billing/` two-folder precedent).
 ## Phases
 
 ### Phase 0 — Bootstrap (delegate, don't reinvent)
-New project: `/init` (skeleton + git) → auto-chains `/prd-tdd-writer` →
+New project: `/project-init` (skeleton + git) → auto-chains `/prd-tdd-writer` →
 `/plan-todo`; record the Sheets-over-Supabase decision in the TDD with
 trade-offs (no RLS, no FK enforcement, quotas) and the graduation trigger.
 Existing prototype folder: just add `CLAUDE.md` + `.gitignore` + `git init`.

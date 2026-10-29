@@ -1,6 +1,6 @@
 ---
 name: web-rebuild
-description: Orchestrator for rebuilding a poor-performing website into a high-performance one. Runs the full pipeline — measured baseline of the old site (/web-perf-audit + /ux-review + optional /web-research), rebuild spec with performance budget, brand/theme setup (/theme-client or /theme-hayahai via /ui-builder), rebuild (/company-site for marketing sites, /feature-dev for apps), quality gates (/ux-review, /audit, /e2e-test), deploy (/vercel-deploy or /netlify-deploy), and a measured before/after verification against the baseline. Preserves SEO equity across the cutover (URL map, 301 redirects, metadata parity). Produces REBUILD.md with the before/after scorecard. Use when the user says "rebuild this site", "this site is slow, redo it", "modernize this website", "migrate this site to Next.js", "replatform", "site revamp", "make this site fast", or invokes /web-rebuild. NOT for auditing without rebuilding (use /web-perf-audit or /ux-review alone), NOT for building a brand-new site with no predecessor (use /company-site or /init).
+description: Orchestrator for rebuilding a poor-performing website into a high-performance one. Runs the full pipeline — measured baseline of the old site (/web-perf-audit + /ux-review + optional /web-research), rebuild spec with performance budget, brand/theme setup (/theme-client or /theme-hayahai via /ui-builder), rebuild (/company-site for marketing sites, /feature-dev for apps), quality gates (/ux-review, /audit, /e2e-test), deploy (/vercel-deploy or /netlify-deploy), and a measured before/after verification against the baseline. Preserves SEO equity across the cutover (URL map, 301 redirects, metadata parity). Produces REBUILD.md with the before/after scorecard. Use when the user says "rebuild this site", "this site is slow, redo it", "modernize this website", "migrate this site to Next.js", "replatform", "site revamp", "make this site fast", or invokes /web-rebuild. NOT for auditing without rebuilding (use /web-perf-audit or /ux-review alone), NOT for building a brand-new site with no predecessor (use /company-site or /project-init).
 ---
 
 # Web Rebuild — Poor-Performer to High-Performer Orchestrator
@@ -209,6 +209,6 @@ Suggested follow-ups by situation: `/load-test` if traffic is expected to spike 
 ## Boundaries
 
 - Not an audit-only skill — if the user wants findings without a rebuild, hand off to /web-perf-audit or /ux-review and stop.
-- Not for greenfield sites — no predecessor means no baseline; use /company-site or /init.
+- Not for greenfield sites — no predecessor means no baseline; use /company-site or /project-init.
 - Never cut over (Phase 9) without explicit user approval, a passing /audit, and a verified budget table.
 - Never drop the redirect map "to clean up later" — SEO loss from a rebuild is usually permanent.

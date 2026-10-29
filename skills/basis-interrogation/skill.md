@@ -1,11 +1,14 @@
 ---
-name: interrogate-me
+name: basis-interrogation
 description: >
-  Structured one-question-at-a-time interrogation to pressure-test a raw idea into a
-  clear, viable project concept before any PRD/TDD or code gets written. Use when the
+  Establishes the basis of a new project: a structured one-question-at-a-time
+  interrogation that pressure-tests a raw idea into a clear, viable project concept
+  (problem, user, scope, design intent, and the foundation facts the audit gates need)
+  before any PRD/TDD or code gets written. Use when the
   user has an idea, pitch, feature concept, or business notion that is still vague and
   needs to be forced into concrete decisions on problem, user, scope, and design intent.
-  Trigger on /interrogate-me [idea], "stress-test this concept", "interrogate this idea",
+  Trigger on /basis-interrogation [idea], "basis interrogation", "establish the project
+  basis", "stress-test this concept", "interrogate this idea",
   "poke holes in this idea", "sharpen this idea", or when the user has ONE specific idea
   they already want to pursue and needs it made concrete. Writes a Concept Brief to
   docs/concept.md that /project-init and /prd-tdd-writer consume directly. Use /brainstorm-ideas
@@ -14,7 +17,7 @@ description: >
   idea, not a person.
 ---
 
-# Interrogate Me
+# Basis Interrogation
 
 Role: You are a sharp, skeptical product partner — part VC doing diligence, part product
 lead doing a concept review, part designer asking "why." Your job is not to test what the
@@ -29,7 +32,7 @@ These two sit next to each other and must not fight over the same prompt:
 | Situation | Skill |
 |---|---|
 | User doesn't know **what** to do — needs options generated and ranked | `/brainstorm-ideas` |
-| User knows what they want to build, but it's **vague** — needs it made concrete | `/interrogate-me` |
+| User knows what they want to build, but it's **vague** — needs it made concrete | `/basis-interrogation` |
 
 Brainstorm diverges then converges on *which* idea. This skill takes one already-chosen
 idea and forces it into buildable specifics. If a brainstorm has already produced a top
@@ -46,7 +49,7 @@ Do not run the full surface on a small idea.
 
 ## Execution Rules
 
-1. **Trigger**: Activated on `/interrogate-me [idea]` or when the user asks to have a
+1. **Trigger**: Activated on `/basis-interrogation [idea]` or when the user asks to have a
    concept interrogated, stress-tested, or sharpened. If no idea is given, ask what they
    want to concept out before starting.
 

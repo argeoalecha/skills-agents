@@ -42,8 +42,8 @@ Determine where the project stands before decomposing:
 | State | Action |
 |---|---|
 | Fuzzy problem, the set of options is still open — no chosen direction yet | Hand off to `/brainstorm-ideas` first. Return here once it produces a Recommendation block. |
-| A single direction is already chosen but vague on problem, user, or scope | Hand off to `/interrogate-me` first — it sharpens one idea into a Concept Brief. Return here once the brief exists. Do **not** route this case to `/brainstorm-ideas`; there is nothing left to diverge on. |
-| Objective, constraints, and deliverable are already clear (from a brainstorm Recommendation, an `/interrogate-me` Concept Brief, a client brief, or a spec) | Proceed to Step 1 directly. |
+| A single direction is already chosen but vague on problem, user, or scope | Hand off to `/basis-interrogation` first — it sharpens one idea into a Concept Brief. Return here once the brief exists. Do **not** route this case to `/brainstorm-ideas`; there is nothing left to diverge on. |
+| Objective, constraints, and deliverable are already clear (from a brainstorm Recommendation, an `/basis-interrogation` Concept Brief, a client brief, or a spec) | Proceed to Step 1 directly. |
 
 If genuinely unsure which state applies, ask **one** clarifying question rather than
 guessing at scope.

@@ -76,6 +76,9 @@ integrity needs, sub-second latency (Apps Script cold starts are seconds). If
 the app may graduate later, keep this track's docs separate from the future
 track's from day one (the `sic-isp-billing/` two-folder precedent).
 
+**Not this skill:** a one-off or recurring offline .xlsx/.docx report generated
+from data → `/python-office-builds`.
+
 ---
 
 ## When Invoked

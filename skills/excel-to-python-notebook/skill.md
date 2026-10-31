@@ -169,6 +169,9 @@ export_with_formulas("source.xlsx", "scenario.xlsx", inputs={("CL-Weibull", "D2"
 It refuses to overwrite a formula cell and raises if any formula changed on the way
 out. The export holds no cached values until Excel or LibreOffice opens it.
 
+A *new* styled workbook or Word report built from the converted Python results is
+`/python-office-builds` territory (its `verify.py` recalcs and scans for errors).
+
 ### 6. Validate
 
 Copy `scripts/validate_conversion.py` and `scripts/formula_fidelity.py` into the project

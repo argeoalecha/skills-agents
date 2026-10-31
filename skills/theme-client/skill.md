@@ -35,6 +35,7 @@ Output is written to **`<project-root>/brand/`**, not into this skill folder.
 | `/ui-builder` Phase 1 | Routes "External client" requests here instead of an ad-hoc "Custom" path. |
 | `/company-site` Phase 0 | Reads `<project-root>/brand/theme.json` instead of a Hayah variant when the project is client work. |
 | `/auth-page-scaffold` | Reads the same brand spec when generating auth pages. |
+| `/python-office-builds` | Maps `theme.json` colors/fonts into an `officekit` theme dict for client .docx/.xlsx deliverables. |
 
 ---
 

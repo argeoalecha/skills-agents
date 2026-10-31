@@ -221,6 +221,8 @@ Title → Overview → Concept 1 (markdown + code example) → Concept 2
 
 ## Excel Export Pattern (common companion to notebooks)
 
+For a client-facing .xlsx/.docx (themed, live formulas, recalc-verified), import `officekit` from `/python-office-builds` instead of this pattern. This one is for quick internal exports.
+
 ```python
 cells.append(code("""from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.utils import get_column_letter

@@ -27,7 +27,7 @@ ax.set_ylabel("kWh / day"); fig.tight_layout(); fig.savefig(OUT + "trend.png")
 
 # ── DOCX ──
 doc = new_document(T, paper="A4")
-set_core_props(doc, "October Energy Report", subject="SISC power monitoring")
+set_core_props(doc, "October Energy Report", subject="Campus power monitoring")
 add_header_footer(doc, "Hayah-AI · Energy Report", "October 2026", footer_left="Confidential")
 add_title(doc, "October 2026 Energy Report", "Campus power monitoring — monthly summary",
           f"Prepared {dt.date(2026,10,31):%d %B %Y}")

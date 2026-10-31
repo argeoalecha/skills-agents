@@ -445,6 +445,59 @@ def add_hyperlink(paragraph, text: str, url: str, color: str = "1E6E66"):
     return h
 
 
+def merge_runs(doc) -> int:
+    """Merge adjacent text-only runs with identical formatting (rsids ignored) in the
+    body and unlinked headers/footers, and drop proofErr/lastRenderedPageBreak noise.
+    Run this before editing a client .docx in place: Word splits one visible phrase
+    across many runs, so writing into runs[0] and blanking the rest leaves fragments
+    behind. Idempotent. Returns the number of runs merged."""
+    from lxml import etree
+    d = _docx()
+    qn = d["qn"]
+    R, T, RPR = qn("w:r"), qn("w:t"), qn("w:rPr")
+
+    def key(r):
+        rpr = r.find(RPR)
+        if rpr is None:
+            return b""
+        rpr = deepcopy(rpr)
+        for e in rpr.iter():
+            for a in [a for a in e.attrib if "rsid" in a]:
+                del e.attrib[a]
+        return etree.tostring(rpr)
+
+    roots = {id(doc.element.body): doc.element.body}
+    for s in doc.sections:
+        for part in (s.header, s.footer, s.first_page_header, s.first_page_footer,
+                     s.even_page_header, s.even_page_footer):
+            if not part.is_linked_to_previous:
+                roots[id(part._element)] = part._element
+    merged = 0
+    for root in roots.values():
+        for e in list(root.iter(qn("w:proofErr"), qn("w:lastRenderedPageBreak"))):
+            e.getparent().remove(e)
+        for p in root.iter(qn("w:p")):
+            prev = None
+            for child in list(p):
+                if (child.tag != R or child.find(T) is None
+                        or any(c.tag not in (RPR, T) for c in child)):
+                    prev = None
+                    continue
+                ts = child.findall(T)
+                ts[0].text = "".join(t.text or "" for t in ts)
+                ts[0].set(qn("xml:space"), "preserve")
+                for t in ts[1:]:
+                    child.remove(t)
+                if prev is not None and key(prev) == key(child):
+                    pt = prev.find(T)
+                    pt.text = (pt.text or "") + ts[0].text
+                    p.remove(child)
+                    merged += 1
+                else:
+                    prev = child
+    return merged
+
+
 def set_core_props(doc_or_wb, title: str, author: str = "Hayah-AI", subject: str = "",
                    keywords: str = ""):
     """Works for python-docx Document and openpyxl Workbook."""
@@ -503,6 +556,7 @@ def new_workbook(theme: dict | None = None, first_sheet: str = "Summary"):
     x = _xl()
     wb = x["Workbook"]()
     wb.active.title = first_sheet
+    wb.calculation.fullCalcOnLoad = True  # Excel recomputes on open even if recalc was skipped
     wb._officekit_theme = theme or get_theme()  # type: ignore[attr-defined]
     return wb
 

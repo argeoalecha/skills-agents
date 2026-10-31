@@ -5,6 +5,8 @@
   python verify.py out.xlsx              # lint + LibreOffice recalc (in place) + error scan
   python verify.py out.xlsx --render     # also render sheets to PNG
   python verify.py out.xlsx --no-recalc  # lint only (file untouched)
+  python verify.py out.docx --baseline=client_source.docx   # issues also in the source → "inherited"
+  python verify.py out.docx --pages=17-22                   # render a page range (default: first 12)
 
 Exit code: 0 clean, 1 problems found, 2 tool failure. Never treat "rendered"
 as "correct" — open the PNGs and look.
@@ -89,19 +91,18 @@ def to_pdf(path: Path, outdir: Path) -> Path:
     return pdf
 
 
-def pdf_to_png(pdf: Path, outdir: Path, dpi: int = 80, max_pages: int = 12) -> list[str]:
+def pdf_to_png(pdf: Path, outdir: Path, dpi: int = 80, first: int = 1, last: int = 12) -> list[str]:
     outdir.mkdir(parents=True, exist_ok=True)
     if shutil.which("pdftoppm"):
-        subprocess.run(["pdftoppm", "-png", "-r", str(dpi), "-l", str(max_pages), str(pdf),
+        subprocess.run(["pdftoppm", "-png", "-r", str(dpi), "-f", str(first), "-l", str(last), str(pdf),
                         str(outdir / "page")], check=True, capture_output=True)
     else:
         try:
             import fitz  # PyMuPDF
             doc = fitz.open(pdf)
-            for i, page in enumerate(doc):
-                if i >= max_pages:
-                    break
-                page.get_pixmap(dpi=dpi).save(outdir / f"page-{i + 1}.png")
+            for i, page in enumerate(doc, start=1):
+                if first <= i <= last:
+                    page.get_pixmap(dpi=dpi).save(outdir / f"page-{i}.png")
         except ImportError:
             return []
     return sorted(str(p) for p in outdir.glob("page-*.png"))
@@ -116,7 +117,27 @@ def pdf_pages(pdf: Path) -> int | None:
 
 
 # ─────────────────────────────────── DOCX ───────────────────────────────────
-def verify_docx(path: Path, render: bool = True) -> dict:
+def _render_range(rep: dict, pdf: Path, outdir: Path, pages: tuple[int, int] | None):
+    total = pdf_pages(pdf)
+    first, last = pages or (1, 12)
+    rep["png"] = pdf_to_png(pdf, outdir, first=first, last=last)
+    if total and (first > 1 or last < total):
+        rep["rendered"] = f"pages {first}-{min(last, total)} of {total} — use --pages=A-B for the rest"
+
+
+def verify_docx(path: Path, render: bool = True, baseline: Path | None = None,
+                pages: tuple[int, int] | None = None) -> dict:
+    rep = lint_docx(path)
+    if baseline:  # editing a client file: don't fail on layout it already had
+        base = set(lint_docx(baseline)["issues"])
+        rep["inherited"] = [i for i in rep["issues"] if i in base]
+        rep["issues"][:] = [i for i in rep["issues"] if i not in base]
+    if render:
+        _render_docx(path, rep, pages)
+    return rep
+
+
+def lint_docx(path: Path) -> dict:
     from docx import Document
     from docx.oxml.ns import qn
     doc = Document(path)
@@ -156,26 +177,26 @@ def verify_docx(path: Path, render: bool = True) -> dict:
             if shd is not None and shd.get(qn("w:val")) == "solid":
                 issues.append(f"table {ti + 1}: w:shd val=solid renders black — use clear")
                 break
-    rep = {"file": str(path), "type": "docx", "info": info, "issues": issues}
-    if render:  # NB: `issues` list is shared with rep, appends below still land
-        outdir = path.with_name(path.stem + "_pages")
-        shutil.rmtree(outdir, ignore_errors=True)
-        outdir.mkdir()
-        src = path
-        if doc.element.body.xpath(".//w:instrText[contains(., 'TOC')]"):
-            src = outdir / path.name  # preview copy; the deliverable keeps Word's updateFields
-            shutil.copy(path, src)
-            res = run_macro(src, "UpdateIndexesAndSave")
-            if "error" in res:
-                rep_note = "TOC refresh failed; preview shows an empty TOC (Word fills it on open)"
-                issues.append(rep_note)
-        pdf = to_pdf(src, outdir)
-        if src != path:
-            src.unlink()
-        rep["pdf"] = str(pdf)
-        rep["pages"] = pdf_pages(pdf)
-        rep["png"] = pdf_to_png(pdf, outdir)
-    return rep
+    return {"file": str(path), "type": "docx", "info": info, "issues": issues}
+
+
+def _render_docx(path: Path, rep: dict, pages: tuple[int, int] | None):
+    from docx import Document
+    outdir = path.with_name(path.stem + "_pages")
+    shutil.rmtree(outdir, ignore_errors=True)
+    outdir.mkdir()
+    src = path
+    if Document(path).element.body.xpath(".//w:instrText[contains(., 'TOC')]"):
+        src = outdir / path.name  # preview copy; the deliverable keeps Word's updateFields
+        shutil.copy(path, src)
+        if "error" in run_macro(src, "UpdateIndexesAndSave"):
+            rep["issues"].append("TOC refresh failed; preview shows an empty TOC (Word fills it on open)")
+    pdf = to_pdf(src, outdir)
+    if src != path:
+        src.unlink()
+    rep["pdf"] = str(pdf)
+    rep["pages"] = pdf_pages(pdf)
+    _render_range(rep, pdf, outdir, pages)
 
 
 # ─────────────────────────────────── XLSX ───────────────────────────────────
@@ -202,7 +223,8 @@ def recalc(path: Path, timeout: int = 90) -> dict:
     return res if "error" in res else {"recalculated": True}
 
 
-def verify_xlsx(path: Path, do_recalc: bool = True, render: bool = False) -> dict:
+def verify_xlsx(path: Path, do_recalc: bool = True, render: bool = False,
+                pages: tuple[int, int] | None = None) -> dict:
     from openpyxl import load_workbook
     issues, info = [], {}
     wbf = load_workbook(path)  # formulas
@@ -268,23 +290,29 @@ def verify_xlsx(path: Path, do_recalc: bool = True, render: bool = False) -> dic
         shutil.copy(path, tmp)
         pdf = to_pdf(tmp, outdir)
         tmp.unlink()
-        rep["png"] = pdf_to_png(pdf, outdir)
+        _render_range(rep, pdf, outdir, pages)
     return rep
 
 
 def main() -> int:
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    flags = {a for a in sys.argv[1:] if a.startswith("--")}
+    flags = {a for a in sys.argv[1:] if a.startswith("--") and "=" not in a}
+    opts = dict(a[2:].split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
     if not args:
         print(__doc__)
         return 2
     path = Path(args[0]).resolve()
+    pages = None
+    if "pages" in opts:
+        a, _, b = opts["pages"].partition("-")
+        pages = (int(a), int(b or a))
+    baseline = Path(opts["baseline"]).resolve() if "baseline" in opts else None
     t0 = time.time()
     try:
         if path.suffix.lower() == ".docx":
-            rep = verify_docx(path, render="--no-render" not in flags)
+            rep = verify_docx(path, render="--no-render" not in flags, baseline=baseline, pages=pages)
         elif path.suffix.lower() in (".xlsx", ".xlsm"):
-            rep = verify_xlsx(path, do_recalc="--no-recalc" not in flags, render="--render" in flags)
+            rep = verify_xlsx(path, do_recalc="--no-recalc" not in flags, render="--render" in flags, pages=pages)
         else:
             print(json.dumps({"error": f"unsupported: {path.suffix}"}))
             return 2

@@ -45,7 +45,9 @@ names, unless the procurement comparison table shows a genuine sole-source case.
 
 - Client-facing formatting → `document-skills:docx`. Keep the markdown source as
   the editable master; the .docx is a render, not the source of truth.
-- Instrument schedules and BOQ tables → `document-skills:xlsx`.
+- Instrument schedules and BOQ tables → `document-skills:xlsx`; when they are
+  generated from calc data with live formulas (and re-issued per revision), use
+  `/python-office-builds` so the build script is the reproducible source.
 - Cross-check against sibling deliverables before issue → `/ee-audit`.
 
 ## Revision drift

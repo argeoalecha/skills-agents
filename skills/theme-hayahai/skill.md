@@ -1,6 +1,7 @@
 ---
 name: theme-hayahai
-description: Hayah-AI design system — six branded theme variants sharing one ocean-teal + coral palette. Use for landing pages, dashboards, SaaS, auth pages, presentations, or any branded UI. Variants — hayah-classic (refined SaaS, DM Serif), hayah-midnight (dark AI/fintech, Syne), hayah-coral (warm consumer/marketplace, Fraunces), hayah-editorial (bold B2B text-led, Clash Display), hayah-bento (modern grid AI, Space Grotesk), hayah-console (dense app UI — CRM/dashboard/admin, status colors + data-viz + tables). Outputs: HTML artifacts, production CSS/React, or Tailwind token configs.
+description: >-
+  Hayah-AI design system — six branded theme variants sharing one ocean-teal + coral palette. Use for landing pages, dashboards, SaaS, auth pages, presentations, or any branded UI. Variants — hayah-classic (refined SaaS, DM Serif), hayah-midnight (dark AI/fintech, Syne), hayah-coral (warm consumer/marketplace, Fraunces), hayah-editorial (bold B2B text-led, Clash Display), hayah-bento (modern grid AI, Space Grotesk), hayah-console (dense app UI — CRM/dashboard/admin, status colors + data-viz + tables). Outputs: HTML artifacts, production CSS/React, or Tailwind token configs.
 user-invocable: true
 ---
 

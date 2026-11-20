@@ -168,6 +168,7 @@ The source (a signed-off FINAL, a client template) is the layout; the script onl
 |---|---|
 | `document-skills:docx` / `document-skills:xlsx` | Plugin skills, not Python build scripts. Use them for tracked changes, comments, redlines, and raw-XML surgery on existing files. This skill owns reproducible Python-generated deliverables. |
 | `/excel-to-python-notebook` | Reverse direction: an existing formula workbook → validated Python. This skill goes Python/data → workbook. A converted notebook that must hand results back as a styled .xlsx calls `officekit` for the export. |
+| `/ee-procedure` | Electrical procedures, field forms and execution plans. Its `procbuild.py` sits on `officekit` (house style: Letter, Arial, grey table headers, forms in their own sections) and its `validate.py` adds structure and cross-reference checks on top of `verify.py`. A PEMP's tracker workbook is still built here. |
 | `/jupyter-notebook` | Notebooks are the analysis; when a notebook's output is a client .docx/.xlsx, its export cell imports `officekit` instead of hand-styling openpyxl. |
 | `/sheets-app-dev` | Google Sheets as a live database. This skill produces offline .xlsx files; Google Sheets/Docs are out of scope. |
 | `/ee-spec-writer`, `/ee-load-calc` | Markdown spec / calc output is the source; instrument schedules, BOQs, and load schedules with live formulas are built here. |

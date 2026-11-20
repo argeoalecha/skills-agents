@@ -49,6 +49,10 @@ names, unless the procurement comparison table shows a genuine sole-source case.
   generated from calc data with live formulas (and re-issued per revision), use
   `/python-office-builds` so the build script is the reproducible source.
 - Cross-check against sibling deliverables before issue → `/ee-audit`.
+- Test, inspection and commissioning **procedures** that verify this spec →
+  `/ee-procedure`. The spec sets the acceptance values (Part 3 Field Quality Control);
+  the procedure says how they are tested and recorded, and cites the spec clause for
+  every limit rather than restating a number.
 
 ## Revision drift
 

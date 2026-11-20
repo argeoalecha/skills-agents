@@ -151,10 +151,19 @@ def lint_docx(path: Path) -> dict:
     sec = doc.sections[0]
     info["page_in"] = [round(sec.page_width / 914400, 2), round(sec.page_height / 914400, 2)]
 
+    # Count blank runs in body order: a table between two empty paragraphs resets the run
+    # (Word needs a paragraph to separate adjacent tables), and a section-break paragraph
+    # is structure, not spacing.
     run = blanks = 0
-    for p in paras:
-        run = run + 1 if not p.text.strip() and not p._p.xpath(".//w:drawing|.//w:br") else 0
+    for el in doc.element.body.iterchildren():
+        if el.tag != qn("w:p"):
+            run = 0
+            continue
+        empty = not "".join(t.text or "" for t in el.iter(qn("w:t"))).strip()
+        structural = el.xpath(".//w:drawing|.//w:br|./w:pPr/w:sectPr")
+        run = run + 1 if empty and not structural else 0
         blanks = max(blanks, run)
+    for p in paras:
         if "\n" in p.text:
             issues.append(f"literal newline inside paragraph: {p.text[:50]!r} — use separate paragraphs")
         if re.match(r"^\s*[•\-\*]\s", p.text) and not p.style.name.startswith("List"):

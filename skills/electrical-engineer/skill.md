@@ -1,6 +1,6 @@
 ---
 name: electrical-engineer
-description: Entry point for electrical engineering consulting work — power system studies, load calculations, as-built documentation, technical specifications, instrumentation procurement, standards compliance, and digital-twin/SCADA mimic dashboards. Routes to the electrical-agency subagents and the /ee-* skills, and hands the software layer off to the web stack (/theme-hayahai, /db-migrate, /audit, /vercel-deploy). Philippines-first — PEC 2017, RA 7920, PEE stamping. Use when the user mentions an electrical engagement, SOW, RFP, panel schedule, single-line diagram, load study, breaker/conductor sizing, voltage drop, fault current, arc flash, protection coordination, CT/PT/power meter selection, as-built drawings, SLD/riser/DXF drafting, a mimic or digital twin of a power system, or asks "what do I run for this electrical job". Triggers on /electrical-engineer, "electrical project", "EE work", "power system study".
+description: Entry point for electrical engineering consulting work — power system studies, load calculations, as-built documentation, technical specifications, instrumentation procurement, standards compliance, and digital-twin/SCADA mimic dashboards. Routes to the electrical-agency subagents and the /ee-* skills, and hands the software layer off to the web stack (/theme-hayahai, /db-migrate, /audit, /vercel-deploy). Philippines-first — PEC 2017, RA 7920, PEE stamping. Use when the user mentions an electrical engagement, SOW, RFP, panel schedule, single-line diagram, load study, breaker/conductor sizing, voltage drop, fault current, arc flash, protection coordination, CT/PT/power meter selection, as-built drawings, SLD/riser/DXF drafting, a survey/test procedure, field forms or project execution plan, a mimic or digital twin of a power system, or asks "what do I run for this electrical job". Triggers on /electrical-engineer, "electrical project", "EE work", "power system study".
 ---
 
 # Electrical Engineering — Engagement Router
@@ -23,6 +23,7 @@ rules — do not restate or override them here.
 | Audit an existing SLD (client/vendor-supplied or as-built-produced) for compliance/completeness gaps | `elektra-sld-audit` |
 | Selecting CTs, PTs, meters, sensors, gateways | `instrumentation-procurement-agent` |
 | Formal spec sections (General/Products/Execution) | `/ee-spec-writer` |
+| Procedure and field forms (survey, inspection, test, labelling), method statement for a PEE-attended session, or project execution and management plan | `/ee-procedure` |
 | Field-data ingestion pipeline for a monitoring platform (protocol gateways, topic contract, time-series storage, alarm engine) | `elektra-scada-retrofit` |
 | Mimic / digital-twin dashboard of the power system | `digital-twin-agent` |
 | Final cross-check before client delivery | `/ee-audit` |
@@ -64,7 +65,9 @@ standards-compliance ──┬─→ /ee-load-calc ──┬─→ as-built (rep
 **Field site survey has no agent owner.** If the engagement involves documenting an
 existing installation, someone has to physically visit the site before as-built or
 load-calc can use real (not stated/assumed) data. Flag this as a client/field-engineer
-deliverable in the task queue, not a silent gap.
+deliverable in the task queue, not a silent gap. The survey is governed by a procedure
+and field forms from `/ee-procedure`, checked by the PEE before the survey starts (a hold
+point); the forms' fields are what `as-built-agent` later turns into topology data.
 
 **Breaker interrupting rating (AIC) is a separate blocker from `/ee-load-calc`.** It
 depends on the utility's available fault current at the service point (e.g. Meralco,
@@ -107,6 +110,8 @@ build is a normal web project:
 ## Document deliverables
 
 - Spec sections and basis-of-design → `document-skills:docx` for client-facing format.
+- Procedures, field forms and execution plans → `/ee-procedure` (house-style .docx from a
+  build script, with its own validator).
 - Instrument comparison tables, BOQ, load lists → `document-skills:xlsx`.
 - Proposals → `/proposal-tech` and `/proposal-comm` (Philippines variant).
 

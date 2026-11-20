@@ -15,7 +15,8 @@ description: >-
   DWG/DXF needs to be produced or regenerated. Triggers on /ee-drafting, "draw the
   single-line diagram", "draft the SLD", "one-line drawing", "riser diagram",
   "electrical drawing", "DWG of the one-line", "CAD drawing", "regenerate the as-built
-  drawing".
+  drawing", "print the drawing", "plot the SLD", "send to the print shop", "PDF for
+  plotting".
 ---
 
 # Electrical Drafting — One-Line and Riser Diagrams
@@ -96,6 +97,41 @@ DWG is written through the free ODA File Converter (opendesign.com), via ezdxf's
 `/Applications/ODAFileConverter.app`. If it is absent, `--format dwg` fails with exit
 3 and an explanation — it never renames a DXF to `.dwg`. Alternative: open the DXF in
 AutoCAD/BricsCAD/DraftSight and `SAVEAS` DWG (the DXF is R2018 and complete).
+
+## Printing at a plot shop
+
+Send the shop a full-size PDF, never the DXF/DWG. A shop opening CAD files in its own
+AutoCAD can substitute fonts, apply its own plot style, fit-to-page, or drop
+lineweights. A PDF locks all of that in. Keep the DXF as the CAD deliverable.
+
+1. **Make the PDF from the DXF, one per layout**, with QCAD (no AutoCAD needed):
+   ```bash
+   Q=/Applications/QCAD.app/Contents/Resources
+   $Q/dwg2pdf -f -block=E-001    -paper=762x508 -scale=1 -monochrome -o E-001.pdf    E-001.dxf
+   $Q/dwg2pdf -f -block=E-001-FS -paper=762x508 -scale=1 -monochrome -o E-001-FS.pdf E-001.dxf
+   ```
+   `-block` is the layout name (the second command only when the CLI listed an `-FS`
+   layout). `-paper` is the full sheet in mm (762x508 for 20 x 30 in; use the ISO size
+   for A-series sheets). Use `-scale=1`, never `-auto-fit`.
+2. **No trial watermark.** `dwg2pdf` is a QCAD Pro tool; the trial stamps "QCAD.org
+   Trial Version" across the diagram. A watermarked PDF is review-only. For issue, use a
+   licensed QCAD Pro, or QCAD Community Edition's GUI print to PDF (paper 762 x 508 mm,
+   scale 1:1, black/white).
+3. **Check the PDF before sending.** Page is 2160 x 1440 pt for 20 x 30 in
+   (`grep -a -o "/MediaBox *\[[^]]*\]" E-001.pdf`). Arial is embedded, there's no
+   watermark, lineweights are visible, and the dashed assumed/unknown linetypes and the
+   NOT SEALED seal are present. Read the PDF before handing it over.
+4. **Instructions to the shop:**
+   - Full size: plot at 100% / actual size on 20 x 30 in bond, never fit-to-page.
+   - Reduced sets: print the same PDF on A3 with fit-to-page. The lettering was sized
+     for that reduction (55%; smallest text about 1.8 mm).
+   - Black and white only.
+5. **Edit the spec, not the DXF.** A change made in QCAD is lost on the next render and
+   breaks the recorded geometry digest. Change the spec/topology JSON, re-render, and
+   re-export the PDF. Use QCAD to view, check, and export.
+
+Every printed sheet still carries the DRAFT FOR PEE REVIEW stamp and an empty seal
+until the PEE completes it (see "Licensure boundary").
 
 ## Sheet size and reduction
 

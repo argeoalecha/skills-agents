@@ -55,6 +55,8 @@ already done downstream:
 - `digital-twin-agent` derives alarm and warning thresholds from breaker ratings and the
   80% continuous flag.
 - `/ee-spec-writer` traces every numeric spec requirement back to these results.
+- `/ee-drafting` copies breaker and conductor ratings verbatim onto the replacement
+  single-line diagram.
 
 If a calc changes after those ran, say so explicitly so the affected deliverables get
 re-issued. `/ee-audit` checks for exactly this drift.

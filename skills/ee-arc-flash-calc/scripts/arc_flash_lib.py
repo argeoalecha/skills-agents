@@ -1,7 +1,7 @@
 """
-Arc-flash workplace-safety workflow layer — PPE category banding, governing-case
-selection, and safety-critical-flag logic per NFPA 70E (2024) Article 130.5 and the
-IEEE 1584-2018 assessment process.
+Arc-flash workplace-safety workflow layer — governing-case selection, minimum arc-rated
+PPE from incident energy, arc-flash-boundary and control-required flagging, per the
+NFPA 70E (2024) incident energy analysis method and the IEEE 1584-2018 assessment process.
 
 This module deliberately does NOT implement the IEEE 1584-2018 arcing-current or
 incident-energy equations themselves. That calculation requires either a licensed
@@ -12,34 +12,32 @@ numerous, revised substantially between the 2002 and 2018 editions (results can 
 double for the same equipment across that revision), and are not something to trust from
 an LLM's training-data recall for a safety deliverable that determines what protective
 equipment a worker relies on. Supply incident energy (cal/cm^2) per bus, per case,
-computed externally; this module handles everything downstream of that number:
-governing-case selection, PPE banding, boundary/control flagging, and report structuring.
+computed externally; this module handles everything downstream of that number.
 
-PPE category bands, the arc-flash-boundary threshold, valid conductor-gap ranges, and
-working-distance conventions below are cited directly from NFPA 70E (2024) Article 130.5
-/ IEEE 1584-2018 as retrieved from a governing procedure document for a prior campus
-engagement — not recalled from training data.
+Incident energy analysis vs. PPE category method: NFPA 70E (2024) gives two separate PPE
+selection methods — the incident energy analysis method (130.5(G)) and the PPE category
+method (Table 130.7(C)(15)(c), driven by task/equipment tables, not by a calculated
+energy). The standard does not permit using incident-energy results to pick a PPE
+category, and both methods may not be applied to the same equipment. This module
+implements the incident energy method only: the result is a minimum arc rating
+(cal/cm^2) that the selected PPE must meet or exceed at the stated working distance.
+Confirm clause numbers against the physical 2024 edition before citing them in a report.
+
+The 1.2 cal/cm^2 arc-flash-boundary threshold, valid conductor-gap ranges, and typical
+working distances below were taken from NFPA 70E (2024) / IEEE 1584-2018 as reproduced
+in a governing procedure document for a prior campus engagement and cross-checked
+against secondary reproductions of IEEE 1584-2018's typical working distance table.
 """
 from dataclasses import dataclass, field
 from typing import Optional
 
-# NFPA 70E (2024) Article 130.5 — onset of a second-degree burn; defines the arc flash
-# boundary distance.
+# NFPA 70E (2024) — onset of a second-degree burn; defines the arc flash boundary distance.
 ARC_FLASH_BOUNDARY_THRESHOLD_CAL_CM2 = 1.2
 
-# NFPA 70E (2024) Article 130.5 PPE category bands, incident energy in cal/cm^2 (upper
-# bound of each band).
-PPE_CATEGORY_BANDS = [
-    (4.0, 1),
-    (8.0, 2),
-    (25.0, 3),
-    (40.0, 4),
-]
-
-# Above this: arc blast becomes a pressure/shrapnel hazard independent of the thermal
-# one. The only correct control is de-energizing or engineering the energy down — not a
-# heavier suit. Never silently band a result above this threshold into "Category 4".
-NO_PRACTICAL_PPE_THRESHOLD_CAL_CM2 = 40.0
+# Engineering-practice threshold, not an NFPA 70E requirement: above this, arc blast
+# becomes a pressure/shrapnel hazard independent of the thermal one, and the correct
+# control is de-energizing or engineering the energy down — not a heavier suit.
+CONTROL_REQUIRED_THRESHOLD_CAL_CM2 = 40.0
 
 # IEEE 1584-2018 valid conductor-gap ranges, voltage-dependent. Do not apply the wrong
 # band for the voltage class.
@@ -48,12 +46,17 @@ VALID_GAP_RANGE_MM = {
     "mv": (19.05, 254.0),   # 0.75-10 in, 601 V - 15 kV
 }
 
-# IEEE 1584-2018 default working distance. Confirm against the actual task distance
-# where a worker's hands are closer than the standard convention assumes.
-WORKING_DISTANCE_DEFAULT_MM = {
-    "lv": 455,       # 18 in
-    "mv_min": 610,   # 24 in
-    "mv_max": 914,   # 36 in
+# IEEE 1584-2018 typical working distances by equipment class. These are defaults for
+# when the actual task distance is unknown; use the real task distance where a worker's
+# hands are closer than the convention assumes.
+TYPICAL_WORKING_DISTANCE_MM = {
+    "15kv_switchgear": 914,
+    "15kv_mcc": 914,
+    "5kv_switchgear": 914,
+    "5kv_mcc": 914,
+    "lv_switchgear": 610,
+    "lv_mcc_panelboard": 455,
+    "cable_junction_box": 455,
 }
 
 ELECTRODE_CONFIGS = {
@@ -65,26 +68,32 @@ ELECTRODE_CONFIGS = {
 }
 
 
-def ppe_category(incident_energy_cal_cm2: float) -> int:
+def typical_working_distance_mm(equipment_class: str) -> int:
+    """IEEE 1584-2018 typical working distance for an equipment class key in
+    TYPICAL_WORKING_DISTANCE_MM. Raises on an unknown class rather than guessing — a
+    panelboard default applied to LV switchgear understates the distance's effect."""
+    if equipment_class not in TYPICAL_WORKING_DISTANCE_MM:
+        raise ValueError(f"unknown equipment class {equipment_class!r}; use one of: "
+                         f"{', '.join(TYPICAL_WORKING_DISTANCE_MM)}")
+    return TYPICAL_WORKING_DISTANCE_MM[equipment_class]
+
+
+def minimum_arc_rating(incident_energy_cal_cm2: float) -> Optional[float]:
     """
-    PPE category from incident energy, per NFPA 70E (2024) Article 130.5 bands.
-    Returns 0 below the 1.2 cal/cm^2 arc-flash-boundary threshold (no category
-    triggered), 1-4 per the standard bands. Raises above 40 cal/cm^2 — that case has
-    no practical PPE answer and must be reported as a control-required finding, never
-    silently banded into "Category 4".
+    Incident energy analysis method: the arc rating of the selected PPE must be at least
+    the incident energy at the working distance. Returns None below the 1.2 cal/cm^2
+    arc-flash-boundary threshold (arc-rated PPE not triggered by the thermal hazard).
+    Raises above the control-required threshold — that case is reported as a
+    control-required finding, never as a PPE rating to buy.
     """
-    if incident_energy_cal_cm2 > NO_PRACTICAL_PPE_THRESHOLD_CAL_CM2:
+    if incident_energy_cal_cm2 > CONTROL_REQUIRED_THRESHOLD_CAL_CM2:
         raise ValueError(
             f"{incident_energy_cal_cm2:.2f} cal/cm^2 exceeds "
-            f"{NO_PRACTICAL_PPE_THRESHOLD_CAL_CM2} cal/cm^2 — no practical PPE category "
-            "applies. Report as a control-required finding (de-energize or engineer the "
-            "energy down), not a PPE band.")
+            f"{CONTROL_REQUIRED_THRESHOLD_CAL_CM2} cal/cm^2 — report as a control-required "
+            "finding (de-energize or engineer the energy down), not a PPE arc rating.")
     if incident_energy_cal_cm2 < ARC_FLASH_BOUNDARY_THRESHOLD_CAL_CM2:
-        return 0
-    for threshold, category in PPE_CATEGORY_BANDS:
-        if incident_energy_cal_cm2 <= threshold:
-            return category
-    raise AssertionError("unreachable — band table and NO_PRACTICAL_PPE_THRESHOLD disagree")
+        return None
+    return incident_energy_cal_cm2
 
 
 def electrode_config_risk_note(config: str) -> str:
@@ -166,16 +175,16 @@ def governing_case(bus: BusAssessment) -> ArcFlashCase:
 
 def assess_bus(bus: BusAssessment) -> dict:
     """
-    Full per-bus assessment: governing case, PPE category (or control-required flag),
-    electrode-config risk note, and traceability of the fault-current basis back to
-    ee-short-circuit (never an assumed value).
+    Full per-bus assessment: governing case, minimum arc rating (or control-required
+    flag), electrode-config risk note, and traceability of the fault-current basis back
+    to ee-short-circuit (never an assumed value).
     """
     if bus.bolted_i3p_ka is None:
         raise ValueError(
             f"bus {bus.bus}: no bolted fault current supplied. Run ee-short-circuit "
             "first — never assume or estimate a fault current for an arc-flash study.")
     gov = governing_case(bus)
-    control_required = gov.incident_energy_cal_cm2 > NO_PRACTICAL_PPE_THRESHOLD_CAL_CM2
+    control_required = gov.incident_energy_cal_cm2 > CONTROL_REQUIRED_THRESHOLD_CAL_CM2
     result = {
         "bus": bus.bus,
         "electrode_config": bus.electrode_config,
@@ -186,21 +195,23 @@ def assess_bus(bus: BusAssessment) -> dict:
         "arcing_current_ka": gov.arcing_current_ka,
         "clearing_time_s": gov.clearing_time_s,
         "working_distance_mm": gov.working_distance_mm,
+        "within_arc_flash_boundary": gov.incident_energy_cal_cm2 >= ARC_FLASH_BOUNDARY_THRESHOLD_CAL_CM2,
         "control_required": control_required,
-        "ppe_category": None if control_required else ppe_category(gov.incident_energy_cal_cm2),
+        "min_arc_rating_cal_cm2": None if control_required else minimum_arc_rating(gov.incident_energy_cal_cm2),
     }
     if control_required:
         result["control_note"] = (
             f"{gov.incident_energy_cal_cm2:.1f} cal/cm^2 exceeds "
-            f"{NO_PRACTICAL_PPE_THRESHOLD_CAL_CM2} cal/cm^2 — no PPE category applies. "
-            "Arc blast is a pressure/shrapnel hazard independent of the thermal one; the "
-            "only correct control is de-energizing or engineering the energy down.")
+            f"{CONTROL_REQUIRED_THRESHOLD_CAL_CM2} cal/cm^2 — do not specify PPE for "
+            "energized work. Arc blast is a pressure/shrapnel hazard independent of the "
+            "thermal one; the only correct control is de-energizing or engineering the "
+            "energy down.")
     return result
 
 
 def assessment_report(results: list) -> str:
     """
-    Plain-text summary table: incident energy, governing case, PPE category (or
+    Plain-text summary table: incident energy, governing case, minimum arc rating (or
     control-required flag) per bus, and a rollup of buses needing a control other than
     PPE.
     """
@@ -209,22 +220,28 @@ def assessment_report(results: list) -> str:
     lines.append("=" * w)
     lines.append("ARC FLASH / INCIDENT ENERGY ASSESSMENT — PRELIMINARY, FOR PEE REVIEW")
     lines.append("=" * w)
-    lines.append(f"{'BUS':14s}{'CONFIG':8s}{'GOVERNS':10s}{'IE cal/cm2':12s}{'PPE CAT':14s}NOTE")
+    lines.append(f"{'BUS':14s}{'CONFIG':8s}{'GOVERNS':10s}{'IE cal/cm2':12s}{'MIN ARC RATING':16s}NOTE")
     lines.append("-" * w)
     flagged = []
     for r in results:
-        cat = "CONTROL REQ'D" if r["ppe_category"] is None else str(r["ppe_category"])
-        note = "" if r["ppe_category"] is not None else "exceeds 40 cal/cm^2"
-        lines.append(f"{r['bus']:14s}{r['electrode_config']:8s}{r['governing_case']:10s}"
-                      f"{r['incident_energy_cal_cm2']:<12.2f}{cat:14s}{note}")
-        if r["ppe_category"] is None:
+        if r["control_required"]:
+            rating, note = "CONTROL REQ'D", f"exceeds {CONTROL_REQUIRED_THRESHOLD_CAL_CM2:.0f} cal/cm^2"
             flagged.append(r["bus"])
+        elif r["min_arc_rating_cal_cm2"] is None:
+            rating, note = "not triggered", "below 1.2 cal/cm^2"
+        else:
+            rating, note = f">= {r['min_arc_rating_cal_cm2']:.1f}", ""
+        lines.append(f"{r['bus']:14s}{r['electrode_config']:8s}{r['governing_case']:10s}"
+                      f"{r['incident_energy_cal_cm2']:<12.2f}{rating:16s}{note}")
     lines.append("-" * w)
     if flagged:
         lines.append(f"BUSES REQUIRING A CONTROL OTHER THAN PPE: {', '.join(flagged)}")
     lines.append("")
     lines.append("Incident energy for each bus is the HIGHER of the average- and minimum-")
     lines.append("arcing-current cases (IEEE 1584-2018 Sec. 6.4) — never the average case alone.")
+    lines.append("PPE arc rating must meet or exceed the incident energy at the working distance")
+    lines.append("(NFPA 70E incident energy analysis method). Do not convert these results into a")
+    lines.append("PPE category — that is a separate method NFPA 70E does not permit mixing in.")
     lines.append("Electrode configuration is the single largest source of error in this table;")
     lines.append("confirm every 'conservative-default' source against a drawing or field survey")
     lines.append("before this is issued.")

@@ -1,6 +1,6 @@
 ---
 name: electrical-engineer
-description: Entry point for electrical engineering consulting work — power system studies, load calculations, as-built documentation, technical specifications, instrumentation procurement, standards compliance, and digital-twin/SCADA mimic dashboards. Routes to the electrical-agency subagents and the /ee-* skills, and hands the software layer off to the web stack (/theme-hayahai, /db-migrate, /audit, /vercel-deploy). Philippines-first — PEC 2017, RA 7920, PEE stamping. Use when the user mentions an electrical engagement, SOW, RFP, panel schedule, single-line diagram, load study, breaker/conductor sizing, voltage drop, fault current, arc flash, protection coordination, CT/PT/power meter selection, as-built drawings, a mimic or digital twin of a power system, or asks "what do I run for this electrical job". Triggers on /electrical-engineer, "electrical project", "EE work", "power system study".
+description: Entry point for electrical engineering consulting work — power system studies, load calculations, as-built documentation, technical specifications, instrumentation procurement, standards compliance, and digital-twin/SCADA mimic dashboards. Routes to the electrical-agency subagents and the /ee-* skills, and hands the software layer off to the web stack (/theme-hayahai, /db-migrate, /audit, /vercel-deploy). Philippines-first — PEC 2017, RA 7920, PEE stamping. Use when the user mentions an electrical engagement, SOW, RFP, panel schedule, single-line diagram, load study, breaker/conductor sizing, voltage drop, fault current, arc flash, protection coordination, CT/PT/power meter selection, as-built drawings, SLD/riser/DXF drafting, a mimic or digital twin of a power system, or asks "what do I run for this electrical job". Triggers on /electrical-engineer, "electrical project", "EE work", "power system study".
 ---
 
 # Electrical Engineering — Engagement Router
@@ -17,8 +17,9 @@ rules — do not restate or override them here.
 | Need to know which codes govern before anything else | `standards-compliance-agent` |
 | Panel schedule, breaker/conductor sizing, VD, single-point fault current estimate | `/ee-load-calc` |
 | Multi-bus short-circuit study, coordination study, device duty/interrupting-rating check | `/ee-short-circuit` |
-| Arc flash / PPE category / incident-energy assessment (requires `/ee-short-circuit` first) | `elektra-arc-flash` |
-| Site survey → SLD, panel schedules, riser diagrams | `as-built-agent` |
+| Arc flash / incident-energy assessment, arc-rated PPE, labels (requires `/ee-short-circuit` first) | `elektra-arc-flash` |
+| Site survey → topology data, existing-conditions panel schedules | `as-built-agent` |
+| Draw or regenerate a single-line or riser diagram (DXF/SVG) from topology data | `/ee-drafting` |
 | Audit an existing SLD (client/vendor-supplied or as-built-produced) for compliance/completeness gaps | `elektra-sld-audit` |
 | Selecting CTs, PTs, meters, sensors, gateways | `instrumentation-procurement-agent` |
 | Formal spec sections (General/Products/Execution) | `/ee-spec-writer` |
@@ -46,11 +47,12 @@ in parallel.
 standards-compliance ──┬─→ /ee-load-calc ──┬─→ as-built (replacement schedule)
         │              │                   ├─→ instrumentation (CT/meter sizing)
         │              │                   ├─→ /ee-spec-writer (Products: sizing)
+        │              │                   ├─→ /ee-drafting (replacement SLD ratings)
         │              │                   └─→ digital-twin (threshold values)
         │              │
         ├─→ field survey (external owner — no agent performs this)
         │      │
-        │      └─→ as-built (existing-conditions doc) ─┐
+        │      └─→ as-built (existing-conditions doc) ─┬─→ /ee-drafting (SLD/riser DXF+SVG)
         │                                               ├─→ digital-twin (topology/schema)
         ├─→ instrumentation (standard/protocol) ────────┘
         │

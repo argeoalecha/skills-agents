@@ -1,12 +1,12 @@
 ---
 name: ee-arc-flash-calc
-description: Arc-flash workplace-safety workflow — electrode-configuration risk flagging, governing-case selection (average vs. minimum arcing current per IEEE 1584-2018 Sec. 6.4), NFPA 70E (2024) PPE category banding, and the 40 cal/cm2 control-required flag. Requires bolted fault current from /ee-short-circuit and incident-energy figures computed externally (commercial tool or your own IEEE 1584-2018 copy) — does NOT implement the IEEE 1584 arcing-current/incident-energy equations itself. Use once electrode configuration, enclosure data, and both arcing-current cases' incident energy are available per bus. Triggers on "arc flash study", "incident energy", "PPE category", "IEEE 1584", "arc flash boundary", "40 cal", "electrode configuration".
+description: Arc-flash workplace-safety workflow — electrode-configuration risk flagging, governing-case selection (average vs. minimum arcing current per IEEE 1584-2018 Sec. 6.4), minimum arc-rated PPE per the NFPA 70E (2024) incident energy analysis method (never converted to a PPE category), and the 40 cal/cm2 control-required flag. Requires bolted fault current from /ee-short-circuit and incident-energy figures computed externally (commercial tool or your own IEEE 1584-2018 copy) — does NOT implement the IEEE 1584 arcing-current/incident-energy equations itself. Use once electrode configuration, enclosure data, and both arcing-current cases' incident energy are available per bus. Triggers on "arc flash study", "incident energy", "PPE category", "IEEE 1584", "arc flash boundary", "40 cal", "electrode configuration".
 ---
 
 # Arc Flash / Incident Energy — Safety Workflow Layer
 
 Deterministic workflow procedure. This skill governs the arc-flash assessment
-*process* — governing-case selection, PPE banding, boundary and control flagging — and
+*process* — governing-case selection, minimum arc rating, boundary and control flagging — and
 does **not** perform the IEEE 1584-2018 arcing-current or incident-energy calculation
 itself. See "What this skill does not do" below before assuming otherwise.
 
@@ -60,11 +60,24 @@ Once you have incident energy (cal/cm²) for both cases at each bus, this skill'
 2. **Run `assess_bus()`** — this selects the governing case (the higher of the two
    incident energies, per IEEE 1584-2018 Sec. 6.4; it raises if only one case was
    supplied, because silently defaulting to the average case is the exact mistake this
-   step exists to catch), bands the result into a PPE category via
-   `ppe_category()` (NFPA 70E (2024) Article 130.5 bands), and flags anything above 40
-   cal/cm² as **control-required** rather than banding it — above that threshold arc
-   blast is a pressure/shrapnel hazard independent of the thermal one, and the only
-   correct answer is de-energizing or engineering the energy down, not a heavier suit.
+   step exists to catch), reports the **minimum arc rating** the PPE must meet or exceed
+   at the working distance via `minimum_arc_rating()` (NFPA 70E (2024) incident energy
+   analysis method, 130.5(G)), and flags anything above 40 cal/cm² as
+   **control-required** instead — above that engineering-practice threshold arc blast is a
+   pressure/shrapnel hazard independent of the thermal one, and the only correct answer
+   is de-energizing or engineering the energy down, not a heavier suit.
+
+   **Never convert an incident-energy result into a PPE category.** NFPA 70E keeps the
+   incident energy method and the PPE category method (Table 130.7(C)(15)(c)) separate:
+   incident-energy results may not be used to select a category, and both methods may
+   not be applied to the same equipment. Confirm both clause numbers against the
+   physical 2024 edition before citing them.
+
+   **Working distance:** use the actual task distance where known. Otherwise use
+   `typical_working_distance_mm()` with the equipment class (IEEE 1584-2018 typical
+   values: 914 mm for 5/15 kV switchgear and MCCs, 610 mm for LV switchgear, 455 mm for
+   LV MCCs, panelboards and cable junction boxes). A single "LV = 455 mm" default
+   understates the distance for LV switchgear.
 3. **Confirm or correct any standing hypothesis about the worst-case bus** if one exists
    from an earlier design review (e.g. "the transformer secondary main is probably
    worst-case") — state explicitly whether the calculation confirmed or corrected it,
@@ -75,7 +88,8 @@ Once you have incident energy (cal/cm²) for both cases at each bus, this skill'
    conservative-default) — a result sourced from a conservative default is weaker
    evidence than a field-confirmed one, and the report should say which is which.
 6. **Field labels** (ANSI Z535): nominal voltage, arc flash boundary, incident energy at
-   the stated working distance, and PPE category, matching the sealed report exactly. A
+   the stated working distance, and the minimum arc rating of required PPE (not a PPE
+   category — the label reports the method actually used), matching the sealed report exactly. A
    label reprinted after a settings change without updating the underlying study is a
    compliance gap, not a paperwork detail.
 
@@ -89,27 +103,30 @@ addition all trigger an update regardless of where the facility sits in the cycl
 ## Files
 
 - `scripts/arc_flash_lib.py` — `BusAssessment`/`ArcFlashCase` data structures,
-  `governing_case()`, `ppe_category()`, `electrode_config_risk_note()`, `assess_bus()`,
-  `assessment_report()`. PPE bands, the arc-flash-boundary threshold, valid conductor-gap
-  ranges, and working-distance conventions are cited directly from NFPA 70E (2024)
-  Article 130.5 / IEEE 1584-2018 as retrieved from a governing procedure document for a
-  prior campus engagement — not recalled from training data. The arcing-current/
-  incident-energy arithmetic itself is deliberately not implemented here; see above.
+  `governing_case()`, `minimum_arc_rating()`, `typical_working_distance_mm()`,
+  `electrode_config_risk_note()`, `check_gap_range()`, `assess_bus()`,
+  `assessment_report()`. The arc-flash-boundary threshold, valid conductor-gap ranges, and
+  typical working distances come from NFPA 70E (2024) / IEEE 1584-2018 as reproduced in a
+  governing procedure document for a prior campus engagement, cross-checked against
+  secondary reproductions of the IEEE 1584-2018 working-distance table — not recalled from
+  training data. The arcing-current/incident-energy arithmetic itself is deliberately not
+  implemented here; see above.
 
 ## Governing standards
 
 | Standard | Governs |
 |---|---|
 | IEEE 1584-2018 | The calculation method itself (not implemented here — see above) |
-| NFPA 70E (2024), Article 130.5 | Requires the assessment; review interval; PPE category bands |
+| NFPA 70E (2024), Article 130.5 | Requires the assessment; review interval; incident energy analysis method for PPE selection (130.5(G)) |
+| NFPA 70E (2024), Table 130.7(C)(15)(c) | PPE category method — a separate method, not used by this skill and not to be mixed with incident-energy results |
 | ANSI Z535 | Physical format of the arc-flash label |
 | DOLE OSHS Rule 1210 | Philippine enforceable local anchor |
 
 ## Roles and scope boundary — the single most consequence-bearing deliverable in this pipeline
 
-Electrode-configuration selection, incident-energy calculation, and PPE-category
-determination are safety-critical engineering judgments, not measurements against a
-published table. Interpretation of results and the PPE category determination are the
+Electrode-configuration selection, incident-energy calculation, and PPE selection
+are safety-critical engineering judgments, not measurements against a
+published table. Interpretation of results and the PPE selection are the
 retained PEE's call, not a finding to leave to a draft-and-review workflow. Hold the
 review discipline here at least as strictly as anywhere else in this pipeline — an
 underestimated incident energy translates directly into undersized PPE for whoever is

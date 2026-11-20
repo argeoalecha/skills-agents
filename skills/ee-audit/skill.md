@@ -42,7 +42,13 @@ this one on the engineering deliverables, `/audit` on the dashboard software.
    fault-current basis actually trace to an `ee-short-circuit` solve — not an assumed or
    inline-estimated value? And does every bus report both the average- and minimum-
    arcing-current cases, with the higher (governing) incident energy carried forward —
-   not the average case alone?
+   not the average case alone? Are results reported as a minimum arc rating, not
+   converted into a PPE category (NFPA 70E does not permit mixing the two methods)?
+10. Was every SLD/riser drawing (`/ee-drafting`) regenerated after the last change to its
+    topology or calc inputs? Compare the drawing's revision and recorded geometry
+    digest against the current input. Does every ASSUMED/UNKNOWN status in the
+    topology still appear as dashed/dotted with its tag on the drawing — none drawn
+    solid?
 
 ## Output format
 

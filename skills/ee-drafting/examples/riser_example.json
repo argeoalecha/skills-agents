@@ -1,0 +1,43 @@
+{
+  "title_block": {
+    "project": "SYNTHETIC EXAMPLE - 4-STOREY COMMERCIAL BUILDING",
+    "client": "EXAMPLE CLIENT (NOT A REAL PROJECT)",
+    "owner": "EXAMPLE OWNER (NOT A REAL PROJECT)",
+    "location": "EXAMPLE CITY, METRO MANILA (SYNTHETIC)",
+    "pee": {"name": "", "prc": "", "ptr": "", "tin": ""},
+    "drawing_title": "POWER RISER DIAGRAM",
+    "drawing_no": "E-002",
+    "revision": "A",
+    "date": "2026-11-20",
+    "survey_date": null,
+    "scale": "NTS",
+    "drawn_by": "ee-drafting",
+    "checked_by": "UNSIGNED"
+  },
+  "revisions": [
+    {"rev": "A", "date": "2026-11-20", "description": "DRAFT FOR PEE REVIEW - SYNTHETIC EXAMPLE", "by": "ee-drafting"}
+  ],
+  "layout": "riser",
+  "floors": ["GF", "2F", "3F", "RF"],
+  "nodes": [
+    {"id": "MSB", "type": "bus", "floor": "GF", "lines": ["MAIN SWITCHBOARD", "400/230 V, 1600 A", "FED FROM TX-1, SEE E-001"], "status": "verified"},
+    {"id": "GND-1", "type": "ground", "floor": "GF", "lines": ["GROUNDING ELECTRODE SYSTEM"], "status": "assumed"},
+    {"id": "LP-2", "type": "panel", "floor": "2F", "lines": ["LIGHTING PANEL", "225 A, 3PH, 4W"], "status": "verified"},
+    {"id": "PP-2", "type": "panel", "floor": "2F", "lines": ["POWER PANEL", "400 A, 3PH, 4W"], "status": "verified"},
+    {"id": "LP-3", "type": "panel", "floor": "3F", "lines": ["LIGHTING PANEL", "225 A, 3PH, 4W"], "status": "verified"},
+    {"id": "PP-3", "type": "panel", "floor": "3F", "lines": ["POWER PANEL", "400 A, 3PH, 4W"], "status": "assumed"},
+    {"id": "ACU-1", "type": "motor", "floor": "RF", "lines": ["CHILLER, 90 kW"], "status": "assumed"}
+  ],
+  "edges": [
+    {"from": "MSB", "to": "GND-1", "kind": "ground", "label": "GEC 70 mm2 Cu", "status": "assumed"},
+    {"from": "MSB", "to": "LP-2", "label": "4-1/C 100 mm2", "device": {"type": "breaker", "label": "225AF/200AT 3P"}},
+    {"from": "MSB", "to": "PP-2", "label": "2 SETS 4-1/C 150 mm2", "device": {"type": "breaker", "label": "400AF/400AT 3P"}},
+    {"from": "MSB", "to": "LP-3", "label": "4-1/C 100 mm2", "device": {"type": "breaker", "label": "225AF/200AT 3P"}},
+    {"from": "MSB", "to": "PP-3", "label": "2 SETS 4-1/C 150 mm2", "device": {"type": "breaker", "label": "400AF/400AT 3P"}, "status": "assumed"},
+    {"from": "MSB", "to": "ACU-1", "label": "3-1/C 70 mm2", "device": {"type": "breaker", "label": "250AF/225AT 3P"}, "status": "assumed"}
+  ],
+  "notes": [
+    "SYNTHETIC EXAMPLE. NO FIELD SURVEY PERFORMED; ITEMS MARKED ASSUMED OR UNKNOWN MUST BE FIELD-VERIFIED BEFORE ISSUE.",
+    "SERVICE ENTRANCE, TRANSFORMER, AND STANDBY POWER ARE SHOWN ON THE SINGLE-LINE DIAGRAM E-001."
+  ]
+}

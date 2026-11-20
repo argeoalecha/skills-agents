@@ -1,0 +1,52 @@
+{
+  "title_block": {
+    "project": "SYNTHETIC EXAMPLE - 4-STOREY COMMERCIAL BUILDING",
+    "client": "EXAMPLE CLIENT (NOT A REAL PROJECT)",
+    "owner": "EXAMPLE OWNER (NOT A REAL PROJECT)",
+    "location": "EXAMPLE CITY, METRO MANILA (SYNTHETIC)",
+    "pee": {"name": "", "prc": "", "ptr": "", "tin": ""},
+    "drawing_title": "SINGLE-LINE DIAGRAM - NORMAL AND STANDBY POWER",
+    "drawing_no": "E-001",
+    "revision": "A",
+    "date": "2026-11-20",
+    "survey_date": null,
+    "scale": "NTS",
+    "drawn_by": "ee-drafting",
+    "checked_by": "UNSIGNED"
+  },
+  "revisions": [
+    {"rev": "A", "date": "2026-11-20", "description": "DRAFT FOR PEE REVIEW - SYNTHETIC EXAMPLE", "by": "ee-drafting"}
+  ],
+  "nodes": [
+    {"id": "UTIL", "type": "utility", "lines": ["13.8 kV, 3PH, 3W", "FAULT MVA: UNKNOWN"], "status": "unknown"},
+    {"id": "TX-1", "type": "transformer", "connection": "Dyn11", "lines": ["750 kVA, 13.8 kV - 400/230 V", "Dyn11, %Z 5.75"], "status": "assumed"},
+    {"id": "MSB", "type": "bus", "lines": ["MAIN SWITCHBOARD", "400/230 V, 3PH, 4W, 1600 A BUS"], "status": "verified"},
+    {"id": "GEN-1", "type": "generator", "lines": ["500 kVA STANDBY", "400/230 V, 3PH, 4W"], "status": "verified"},
+    {"id": "ATS-1", "type": "ats", "lines": ["800 A, 4-POLE"], "status": "verified"},
+    {"id": "EMB", "type": "bus", "lines": ["EMERGENCY BUS", "400/230 V, 800 A"], "status": "verified"},
+    {"id": "LP-1", "type": "panel", "lines": ["LIGHTING PANEL", "225 A, 3PH, 4W"], "status": "verified"},
+    {"id": "PP-1", "type": "panel", "lines": ["POWER PANEL", "400 A, 3PH, 4W"], "status": "verified"},
+    {"id": "ACU-1", "type": "motor", "lines": ["CHILLER, 90 kW"], "status": "assumed"},
+    {"id": "ELP-1", "type": "panel", "lines": ["EMERGENCY LIGHTING", "100 A, 3PH, 4W"], "status": "verified"},
+    {"id": "FP-1", "type": "load", "lines": ["FIRE PUMP CONTROLLER"], "status": "verified"},
+    {"id": "GND-1", "type": "ground", "lines": ["GROUNDING ELECTRODE SYSTEM"], "status": "assumed"}
+  ],
+  "edges": [
+    {"from": "UTIL", "to": "TX-1", "kind": "service", "label": "3-1/C 35 mm2 15 kV XLPE", "device": {"type": "fuse", "label": "UTILITY CUTOUT, 40 A"}},
+    {"from": "TX-1", "to": "MSB", "label": "4 SETS 4-1/C 300 mm2 THHN", "device": {"type": "breaker", "label": "1600AF/1250AT 3P, 50 kAIC"}},
+    {"from": "MSB", "to": "LP-1", "label": "4-1/C 100 mm2", "device": {"type": "breaker", "label": "225AF/200AT 3P"}},
+    {"from": "MSB", "to": "PP-1", "label": "2 SETS 4-1/C 150 mm2", "device": {"type": "breaker", "label": "400AF/400AT 3P"}},
+    {"from": "MSB", "to": "ACU-1", "label": "3-1/C 70 mm2", "device": {"type": "breaker", "label": "250AF/225AT 3P"}, "status": "assumed"},
+    {"from": "MSB", "to": "ATS-1", "label": "NORMAL - 2 SETS 4-1/C 185 mm2", "device": {"type": "breaker", "label": "800AF/700AT 3P"}},
+    {"from": "MSB", "to": "GND-1", "kind": "ground", "label": "GEC 70 mm2 Cu", "status": "assumed"},
+    {"from": "GEN-1", "to": "ATS-1", "label": "EMERGENCY - 2 SETS 4-1/C 185 mm2", "device": {"type": "breaker", "label": "800AF/700AT 3P"}},
+    {"from": "ATS-1", "to": "EMB", "label": "2 SETS 4-1/C 185 mm2"},
+    {"from": "EMB", "to": "ELP-1", "label": "4-1/C 38 mm2", "device": {"type": "breaker", "label": "100AF/100AT 3P"}},
+    {"from": "EMB", "to": "FP-1", "label": "3-1/C 60 mm2", "device": {"type": "disconnect", "label": "200 A FUSED DISCONNECT"}}
+  ],
+  "notes": [
+    "SYNTHETIC EXAMPLE. NO FIELD SURVEY PERFORMED; ITEMS MARKED ASSUMED OR UNKNOWN MUST BE FIELD-VERIFIED BEFORE ISSUE.",
+    "UTILITY AVAILABLE FAULT MVA AND X/R TO BE OBTAINED IN WRITING FROM THE DISTRIBUTION UTILITY.",
+    "CONDUCTOR AND BREAKER SIZES SHOWN ARE TOPOLOGY INPUTS, NOT ee-load-calc RESULTS."
+  ]
+}

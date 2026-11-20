@@ -2,17 +2,15 @@
 name: ee-procedure
 description: >-
   Writes electrical engineering procedures and execution plans as issued .docx
-  deliverables in the house style: field-survey and assessment procedures with field
-  forms (F-01..F-nn), method statements for PEE-attended sessions, test, inspection and
+  deliverables in the house style: survey and assessment procedures with field forms
+  (F-01..F-nn), method statements for PEE-attended sessions, test, inspection and
   labelling procedures, and project execution and management plans (PEMP). Cover with
-  control block, approval and revision history; numbered sections; hold points; captioned
-  tables; reserved entries and source codes; observation categories; acceptance criteria;
-  forms in their own portrait or landscape sections with Feeds / Form rev / sign-off.
-  Built by a reproducible Python script and checked by a validator. Every document is
-  Rev A Issued for Review to the PEE under RA 7920. Use when an electrical engagement
-  needs a procedure, work method, field forms, survey forms, checklist set, or execution
-  plan. Triggers on /ee-procedure, "write a procedure", "assessment procedure", "survey
-  procedure and forms", "field forms", "method statement", "test procedure",
+  control block, approval and revision history; numbered sections; hold points;
+  captioned tables; reserved entries and source codes; acceptance criteria; forms in
+  their own sections with Feeds / Form rev / sign-off. Built by a Python script and
+  checked by a validator; every document is Rev A Issued for Review to the PEE under
+  RA 7920. Triggers on /ee-procedure, "write a procedure", "assessment procedure",
+  "survey procedure and forms", "field forms", "method statement", "test procedure",
   "commissioning procedure", "inspection procedure", "execution plan", "PEMP",
   "project management plan".
 ---
@@ -64,19 +62,25 @@ owner and a "needed by". Do not fill it with a plausible guess.
 3. **Write the build script** `build_<ref>.py` in the project's `build/` folder, modelled on
    `examples/build_example_procedure.py`:
    ```python
-   import sys; sys.path.insert(0, "/Users/<user>/.claude/skills/ee-procedure/scripts")
+   import os, sys; sys.path.insert(0, os.path.expanduser("~/.claude/skills/ee-procedure/scripts"))
    from procbuild import ProcDoc, opts
    d = ProcDoc(META)                       # project, title, ref, rev, status, date, header_title
    d.cover(control, approval, revisions); d.contents()
    d.h1("Purpose"); d.para("... **Governing principle: ...**")
    d.table(header, rows, "References", widths)          # caption numbered Table n.m
    d.hold_points([("HP-1", "No ... until ...")])
-   d.appendix("Field forms", new_section=False); d.form_index(INDEX)
-   f = d.form("F-01", "Title", "When and how used.", "Feeds", landscape=True)
+   FORMS = [dict(group="Section A - ...", code="F-01", title="...", purpose="When and how used.",
+                 feeds="<deliverables>", orientation="Landscape", completed="Per board"), ...]
+   d.appendix("Field forms"); d.form_index(FORMS)   # the one list behind the index and every form
+   f = d.form("F-01")                                # section, heading, Feeds / Form rev from FORMS
    f.grid([...]); f.fields([("group", "Part A - ..."), "Field", ("Field", opts([...]))]); f.signoff([...])
+   d.appendix("Forms"); t = d.appendix_form("Transmittal")   # plan-style G.1 form, no section break
+   t.entries([("Transmittal no.", "TR-<sender>-<nnn>"), ("Date", "")])
    d.save("out/<Ref>_<Short-title>_RevA.docx")
    ```
    Widths are in twips (portrait text width 9360, landscape 12960). `**bold**` works in any text.
+   The builder refuses a form missing from `FORMS`, a form built twice, and (at `save`) a form
+   listed in `FORMS` but never built, so the index cannot drift from the forms.
 4. **Build and validate** in an environment with python-docx (on macOS create a venv:
    `python3 -m venv .venv && .venv/bin/pip install python-docx`):
    ```bash
@@ -86,8 +90,9 @@ owner and a "needed by". Do not fill it with a plausible guess.
    ```
    `validate.py` checks house style, cover blocks, section / sub-section / caption numbering,
    that every body table is captioned or labelled, every form's Feeds / Form rev / own
-   section / index entry / signature block, and that every HP-n, F-nn, Table n.m and Section n
-   referenced exists. `verify.py` renders the PDF and page images. Exit 0 from both, then
+   section / index entry / signature block, and that every HP-n, F-nn, Table n.m, Section n and
+   Section n.m referenced exists. Citations of external codes (PEC 2017 Table 3.10.16, NEC
+   Section 110.26, NFPA 70E Table 130.4, "Section 7.3 of the PEMP") are recognised and skipped. `verify.py` renders the PDF and page images. Exit 0 from both, then
    **look at the pages**: forms that split badly, landscape logs that overflow, orphan headings.
 5. **Report** what the PEE must check: the hold points, the safety boundaries, every open
    item, and anything you could not source.
@@ -138,12 +143,13 @@ compliance finding.
 ## Files
 
 - `scripts/procbuild.py` - `ProcDoc` (cover, contents, h1/h2/h3, para, bullets, steps,
-  hold_points, table, appendix, form_index, form, save) and `Form` (grid, fields, log, checks,
-  continued, note, signoff); `opts()` for tick boxes. Builds on
+  hold_points, table, appendix, form_index, form, appendix_form, save) and `Form` (grid,
+  fields, entries, log, checks, continued, note, signoff); `opts()` for tick boxes. Builds on
   `python-office-builds/scripts/officekit.py`.
 - `scripts/validate.py` - document checks (`validate.py <file.docx>`) or self-test (no argument:
   builds the example, checks it, tests that bad input is rejected).
-- `examples/build_example_procedure.py` - synthetic panelboard survey procedure with four forms.
+- `examples/build_example_procedure.py` - synthetic panelboard survey procedure with four
+  F-nn forms and one appendix (plan-style) transmittal form.
 - `reference/procedure-anatomy.md` - section models for procedures and execution plans.
 - `reference/forms-and-recording.md` - form anatomy, reserved entries, source codes,
   observation categories, IDs, review codes, hold points.

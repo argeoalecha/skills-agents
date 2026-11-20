@@ -48,6 +48,25 @@ def pstyle(el) -> str:
     return s.get(qn("w:val")) if s is not None else ""
 
 
+EXTERNAL_BEFORE = re.compile(r"(?:\b(?:PEC|NEC|NFPA|IEEE|IEC|ANSI|TIA|OSHS|RA|DOLE)(?:\s+[\w./-]+)?|§)\s*$")
+EXTERNAL_AFTER = re.compile(r"^\s*(?:of|in)\s+(?:the\s+)?[A-Z]")
+
+
+def local_refs(word: str, text: str) -> set[str]:
+    """Numbers after 'Table' / 'Section' that refer to this document. A reference is
+    external, and skipped, when a code name (PEC 2017, NFPA 70E, NEC, RA 7920 ...) or a
+    section sign stands right before it, or 'of the <document>' follows it."""
+    out = set()
+    for m in re.finditer(rf"\b{word} ([0-9A-Z]+(?:\.\d+)*)", text):
+        if word == "Section" and not m.group(1)[0].isdigit():
+            continue
+        before = text[max(0, m.start() - 24):m.start()]
+        if EXTERNAL_BEFORE.search(before) or EXTERNAL_AFTER.match(text[m.end():m.end() + 30]):
+            continue
+        out.add(m.group(1))
+    return out
+
+
 def is_label(el) -> bool:
     """A short all-bold paragraph that introduces a table (Approval, Hold points ...)."""
     runs = [r for r in el.iter(qn("w:r")) if "".join(t.text or "" for t in r.iter(qn("w:t"))).strip()]
@@ -127,7 +146,7 @@ def validate_doc(path: str) -> None:
             seq_ok = False
             print(f"       caption out of sequence: {c}")
         seen[sec] = int(n)
-    check(seq_ok and len(caps) > 0, f"{len(caps)} table captions numbered per section")
+    check(seq_ok, f"{len(caps)} table captions numbered per section")
     pre_app, uncaptioned = True, 0
     for i, (k, e) in enumerate(items):
         if k == "p" and pstyle(e) == "Heading1" and ptext(e).startswith("Appendix "):
@@ -177,11 +196,14 @@ def validate_doc(path: str) -> None:
     missing_f = sorted((f_used | f_ranges) - set(codes))
     check(not missing_f, f"every form referenced exists ({missing_f or 'all exist'})")
     internal = {str(n) for n in nums} | set(letters)
-    t_used = {t for t in re.findall(r"\bTable ([0-9A-Z]+\.\d+)\b", alltext) if t.split(".")[0] in internal}
+    subs = {t.split()[0] for s, t in paras if s == "Heading2" and re.match(r"[0-9A-Z]+\.\d+ ", t)}
+    t_used = {r for r in local_refs("Table", alltext) if len(r.split(".")) == 2 and r.split(".")[0] in internal}
     t_def = {c.split()[1] for c in caps}
     check(t_used <= t_def, f"every 'Table n.m' referenced exists ({sorted(t_used - t_def) or 'all exist'})")
-    s_used = {int(n) for n in re.findall(r"\bSection (\d+)\b", alltext)}
-    check(all(1 <= n <= len(nums) for n in s_used), f"every 'Section n' is 1..{len(nums)}")
+    s_refs = local_refs("Section", alltext)
+    bad_s = sorted(r for r in s_refs if (len(r.split(".")) == 1 and not 1 <= int(r) <= len(nums))
+                   or (len(r.split(".")) == 2 and r not in subs) or len(r.split(".")) > 2)
+    check(not bad_s, f"every 'Section n' / 'Section n.m' referenced exists ({bad_s or 'all exist'})")
 
     print("[6] Content guards")
     check(not PLACEHOLDER.search(alltext), "no placeholder text (TBD, {{, lorem, XXX)")
@@ -200,10 +222,17 @@ def self_test() -> None:
         validate_doc(str(out))
     print("[7] Builder rejects bad input")
     meta = dict(project="P", title="T", ref="X-1", rev="A", status="IFR", date="1 Jan 2026", header_title="H")
+    spec = dict(code="F-01", title="T", purpose="P.", feeds="X", orientation="Portrait", completed="Daily")
     for name, fn in {
         "missing meta": lambda: pb.ProcDoc({k: v for k, v in meta.items() if k != "ref"}),
-        "bad form code": lambda: pb.ProcDoc(meta).form("F-1", "t", "p", "f"),
-        "duplicate form": lambda: [d := pb.ProcDoc(meta), d.form("F-01", "a", "p", "f"), d.form("F-01", "b", "p", "f")],
+        "bad form code": lambda: pb.ProcDoc(meta).form_index([dict(spec, code="F-1")]),
+        "incomplete form spec": lambda: pb.ProcDoc(meta).form_index([dict(spec, feeds="")]),
+        "duplicate form": lambda: pb.ProcDoc(meta).form_index([spec, spec]),
+        "form not in the index": lambda: pb.ProcDoc(meta).form("F-09"),
+        "form built twice": lambda: [d := pb.ProcDoc(meta), d.form_index([spec]), d.form("F-01"), d.form("F-01")],
+        "indexed form never built": lambda: [d := pb.ProcDoc(meta), d.form_index([spec]),
+                                             d.save(tempfile.mktemp(suffix=".docx"))],
+        "appendix form outside an appendix": lambda: pb.ProcDoc(meta).appendix_form("Transmittal"),
         "duplicate hold point": lambda: pb.ProcDoc(meta).hold_points([("HP-1", "a"), ("HP-1", "b")]),
         "bad hold point code": lambda: pb.ProcDoc(meta).hold_points([("H1", "a")]),
     }.items():

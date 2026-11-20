@@ -21,6 +21,11 @@
    State what a signature means when it is not technical acceptance ("the escort's
    signature confirms the survey took place as recorded").
 
+Plan-style forms (an execution plan's appendix: transmittal, comment response sheet,
+change request) are lighter: numbered as appendix sub-sections (`G.1 Transmittal`), no
+section break and no Feeds line, built with `appendix_form()` and a label / value
+`entries()` table or a `log()`.
+
 Form design rules:
 
 - Field names are the database column names. Write them so they can be: one value each,

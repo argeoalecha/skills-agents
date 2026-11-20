@@ -28,7 +28,7 @@ from docx.enum.table import WD_TABLE_ALIGNMENT  # noqa: E402
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT  # noqa: E402
 from docx.oxml import OxmlElement  # noqa: E402
 from docx.oxml.ns import qn  # noqa: E402
-from docx.shared import Pt, RGBColor, Twips  # noqa: E402
+from docx.shared import Twips  # noqa: E402
 
 FONT = "Arial"
 GREY_HDR, GREY_GRP, BORDER = "D9D9D9", "F2F2F2", "808080"
@@ -38,8 +38,7 @@ TEXT_W_LAND = 12960    # Letter landscape
 BOX = "☐"         # ☐
 STATUS = {"IFR": "Issued for Review", "IFA": "Issued for Acceptance", "IFU": "Issued for Use",
           "IFC": "Issued for Comment"}
-RESERVED = ("NV", "ILL", "UNK", "NA", "NONE")
-PLACEHOLDER = re.compile(r"\bTBD\b|\{\{|lorem|XXX", re.I)
+FORM_KEYS = ("code", "title", "purpose", "feeds", "orientation", "completed")
 
 
 def opts(choices: Sequence[str]) -> str:
@@ -85,8 +84,8 @@ class ProcDoc:
         self.h1_no, self.h2_no, self.appendix_no = 0, 0, 0
         self.table_no = 0
         self.in_appendix = False
-        self.forms: list[dict] = []
-        self.captions: list[str] = []
+        self.form_specs: dict[str, dict] = {}
+        self.built_forms: list[str] = []
         self.hp_codes: list[str] = []
         self.landscape = False
 
@@ -237,7 +236,6 @@ class ProcDoc:
         text = f"Table {n}.{self.table_no} - {title}"
         p = _runs(self.doc.add_paragraph(), text, 9, italic=True, color=MUTED)
         _spacing(p, 60, 200)
-        self.captions.append(text)
         return text
 
     def table(self, header: Sequence[str], rows: Sequence, caption: str | None,
@@ -338,32 +336,56 @@ class ProcDoc:
             self._new_section(landscape)
         return self.doc.add_heading(f"Appendix {self.appendix_letter} - {title}", 1)
 
-    def form(self, code: str, title: str, purpose: str, feeds: str, rev: str = "A",
-             landscape: bool = False, completed: str = "", group: str = "") -> "Form":
-        if not re.fullmatch(r"F-\d{2}", code):
-            raise ValueError(f"form code {code!r}: use F-nn")
-        if any(f["code"] == code for f in self.forms):
-            raise ValueError(f"duplicate form {code}")
-        self._new_section(landscape)
-        self.forms.append(dict(code=code, title=title, feeds=feeds, rev=rev, landscape=landscape,
-                               completed=completed, group=group, signoff=False))
-        self.doc.add_heading(f"{code} - {title}", 2)
-        p = _runs(self.doc.add_paragraph(),
-                  f"{purpose} **Feeds:** {feeds}. **Form rev:** {rev}", 9)
-        _spacing(p, 0, 120)
-        return Form(self, self.forms[-1])
-
     def form_index(self, forms: Sequence[dict]):
-        """Index table of forms, grouped. forms: [{"group": ..., "code", "title", "orientation", "completed"}]."""
+        """Register the field forms and draw their index. Each spec: code (F-nn), title,
+        purpose, feeds, orientation (Portrait|Landscape), completed, optional group and rev.
+        This list is the single source for the index and for every form() section."""
         rows, last = [], None
         for f in forms:
+            missing = [k for k in FORM_KEYS if not f.get(k)]
+            if missing:
+                raise ValueError(f"form spec {f.get('code', '?')}: missing {', '.join(missing)}")
+            if not re.fullmatch(r"F-\d{2}", f["code"]):
+                raise ValueError(f"form code {f['code']!r}: use F-nn")
+            if f["code"] in self.form_specs:
+                raise ValueError(f"duplicate form {f['code']}")
+            if f["orientation"] not in ("Portrait", "Landscape"):
+                raise ValueError(f"form {f['code']}: orientation must be Portrait or Landscape")
+            self.form_specs[f["code"]] = dict(f)
             if f.get("group") and f["group"] != last:
                 rows.append(("group", f["group"])); last = f["group"]
             rows.append([f["code"], f["title"], f["orientation"], f["completed"]])
+        w = self.width
         return self.table(["Form", "Title", "Orientation", "Completed"], rows, None,
-                          [900, 4660, 1400, 2400])
+                          [900, w - 4700, 1400, 2400])
+
+    def form(self, code: str) -> "Form":
+        """Start form `code` from its form_index spec, in its own section."""
+        spec = self.form_specs.get(code)
+        if spec is None:
+            raise ValueError(f"form {code} is not in the form index")
+        if code in self.built_forms:
+            raise ValueError(f"form {code} built twice")
+        self.built_forms.append(code)
+        self._new_section(spec["orientation"] == "Landscape")
+        self.doc.add_heading(f"{code} - {spec['title']}", 2)
+        p = _runs(self.doc.add_paragraph(),
+                  f"{spec['purpose']} **Feeds:** {spec['feeds']}. **Form rev:** {spec.get('rev', 'A')}", 9)
+        _spacing(p, 0, 120)
+        return Form(self, code)
+
+    def appendix_form(self, title: str) -> "Form":
+        """A lightweight form inside the current appendix, numbered like a sub-section
+        (G.1 Transmittal), with no section break or Feeds line - the execution-plan style."""
+        if not self.in_appendix:
+            raise ValueError("appendix_form() belongs inside an appendix")
+        h = self.h2(title)
+        return Form(self, h.text.split()[0])
 
     def save(self, path: str, author: str = ""):
+        unbuilt = [c for c in self.form_specs if c not in self.built_forms]
+        if unbuilt:
+            raise ValueError(f"forms in the index but never built: {', '.join(unbuilt)}")
         ok.set_core_props(self.doc, f"{self.meta['ref']} {self.meta['title']}", author=author or "")
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         self.doc.save(path)
@@ -371,10 +393,10 @@ class ProcDoc:
 
 
 class Form:
-    """Body of one F-nn form. Call grid(), then fields()/log()/checks(), then signoff()."""
+    """Body of one form. Call grid(), then fields()/entries()/log()/checks(), then signoff()."""
 
-    def __init__(self, pd: ProcDoc, rec: dict):
-        self.pd, self.rec = pd, rec
+    def __init__(self, pd: ProcDoc, code: str):
+        self.pd, self.code = pd, code
 
     @property
     def w(self) -> int:
@@ -411,6 +433,11 @@ class Form:
                 out.append([r, ""] + ([""] if src else []))
         return self._table(head, out, widths, size=8, label_col_shade=True)
 
+    def entries(self, rows: Sequence[tuple[str, str]], label_w: int = 3200):
+        """Two-column label / value table with no header and bold labels; values may be
+        preset guidance ("TR-<sender>-<nnn>", "Rev __ | IFR / ...")."""
+        return self._table(None, [[f"**{k}**", v] for k, v in rows], [label_w, self.w - label_w], size=9)
+
     def log(self, header: Sequence[str], n_rows: int, widths: Sequence[int] | None = None,
             preset: Sequence[Sequence[str]] | None = None):
         """Multi-row register/log: header row, preset rows (e.g. a checklist), then blank rows."""
@@ -435,11 +462,10 @@ class Form:
 
     def continued(self, labels: Sequence[str]):
         """Continuation sheet header for a long form."""
-        _spacing(_runs(self.pd.doc.add_paragraph(), f"**{self.rec['code']} (continued)**", 10), 200, 80)
+        _spacing(_runs(self.pd.doc.add_paragraph(), f"**{self.code} (continued)**", 10), 200, 80)
         return self.grid(labels)
 
     def signoff(self, roles: Sequence[str]):
-        self.rec["signoff"] = True
         w = self.w
         return self._table(["Role", "Name", "Signature", "Date"], [[r, "", "", ""] for r in roles],
                                   [int(w * 0.29), int(w * 0.29), int(w * 0.25), w - int(w * 0.29) * 2 - int(w * 0.25)],

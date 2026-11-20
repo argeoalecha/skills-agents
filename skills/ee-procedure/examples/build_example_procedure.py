@@ -145,26 +145,33 @@ d.table(["Board no.", "Building", "Board name (as found)", "Fed from", "Location
          "Planned date", "Actual date", "F-04 signed", "Remarks"],
         [[""] * 9 for _ in range(10)], None, [1200, 1300, 1900, 1300, 1700, 1300, 1300, 1100, 1860])
 
-d.appendix("Field forms", new_section=False)
+d.appendix("Field forms")
 d.para("Every field takes a value or a reserved entry (NV, ILL, UNK, NA, NONE) and, where a Src "
        "column is shown, a source code (N, L, O, M, D, S).")
-INDEX = [
-    dict(group="Section A - Preparation", code="F-01", title="Document intake register", orientation="Landscape", completed="Stage 1 onward"),
-    dict(group="Section B - Survey", code="F-02", title="Board record", orientation="Portrait", completed="Per board"),
-    dict(group="Section C - Close-out", code="F-03", title="Observation log", orientation="Landscape", completed="As found"),
-    dict(group="Section C - Close-out", code="F-04", title="Board survey completion and sign-off", orientation="Portrait", completed="Per board"),
+FORMS = [
+    dict(group="Section A - Preparation", code="F-01", title="Document intake register",
+         purpose="Every existing drawing or record received, whatever its condition.",
+         feeds="EX-1.04", orientation="Landscape", completed="Stage 1 onward"),
+    dict(group="Section B - Survey", code="F-02", title="Board record",
+         purpose="One per board. Doors opened by the Owner's electrician; dead-front in place.",
+         feeds="EX-1.06", orientation="Portrait", completed="Per board"),
+    dict(group="Section C - Close-out", code="F-03", title="Observation log",
+         purpose="Each observation as found, categorised under Section 8.",
+         feeds="EX-1.06, Owner and PEE", orientation="Landscape", completed="As found"),
+    dict(group="Section C - Close-out", code="F-04", title="Board survey completion and sign-off",
+         purpose="Signed when every item is done or not applicable. The escort's signature "
+                 "confirms the survey took place as recorded, not technical acceptance.",
+         feeds="Physical progress", orientation="Portrait", completed="Per board"),
 ]
-d.form_index(INDEX)
+d.form_index(FORMS)
 
-f = d.form("F-01", "Document intake register", "Every existing drawing or record received, "
-           "whatever its condition.", "EX-1.04", landscape=True)
+f = d.form("F-01")
 f.grid(["Building", "Received from", "Recorded by", "Sheet ___ of ___"])
 f.log(["Doc no. (DOC-nnn)", "Title / description", "Type", "Provided by", "Doc date / rev",
        "Format", "Condition", "Date received", "Remarks"], 10,
       [1500, 2600, 1200, 1300, 1300, 1100, 1300, 1300, 1360])
 
-f = d.form("F-02", "Board record", "One per board. Doors opened by the Owner's electrician; "
-           "dead-front in place.", "EX-1.06")
+f = d.form("F-02")
 f.grid(["Building", "Board no.", "Location", "Date", "Recorded by", "Sheet ___ of ___"])
 f.fields([("group", "Part A - Identification"), "Board name as found", "Fed from (board / way)",
           ("group", "Part B - Nameplate"), "Manufacturer", "Rated voltage (as marked)",
@@ -175,20 +182,24 @@ f.fields([("group", "Part A - Identification"), "Board name as found", "Fed from
           "Observation refs (F-03)"])
 f.signoff(["Recorded by (Consultant)", "Owner escort"])
 
-f = d.form("F-03", "Observation log", "Each observation as found, categorised under Section 8.",
-           "EX-1.06, Owner and PEE", landscape=True)
+f = d.form("F-03")
 f.grid(["Building", "Recorded by"])
 f.log(["Obs. no. (OBS-nnn)", "Date / time", "Board no.", "Cat.", "Description (what was seen)",
        "Photo refs", "Notified to / when", "Status"], 10,
       [1500, 1300, 1200, 700, 4000, 1300, 1660, 1300])
 
-f = d.form("F-04", "Board survey completion and sign-off", "Signed when every item is done or "
-           "not applicable. The escort's signature confirms the survey took place as recorded, "
-           "not technical acceptance.", "Physical progress")
+f = d.form("F-04")
 f.grid(["Building", "Board no.", "Survey date", "Board name"])
 f.checks([("group", "Records"), "F-02 board record complete", "Directory recorded verbatim",
           ("group", "Quality"), "No blank fields; reserved entries used",
           "Fed-from recorded, or UNK with a D observation", "All category S observations notified"])
 f.signoff(["Consultant", "Owner escort (witness)"])
+
+d.appendix("Issue forms")
+t = d.appendix_form("Transmittal")
+t.entries([("Transmittal no.", "TR-<sender>-<nnn> (e.g. TR-CONS-001)"), ("Date", ""),
+           ("From / To / Copy", ""), ("Deliverable ref. and title", ""),
+           ("Revision / Purpose", "Rev __ | For review (IFR) / For acceptance / For information"),
+           ("Files", "File names and formats"), ("Remarks", "")])
 
 print(d.save(OUT))

@@ -29,31 +29,38 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-SHEETS_MM = {"A3": (420.0, 297.0), "A2": (594.0, 420.0), "A1": (841.0, 594.0),
-             "A0": (1189.0, 841.0), "20X30IN": (762.0, 508.0)}
-AUTO_SHEETS = ("A3", "A2", "A1", "A0")
+SHEETS_MM = {"20X30IN": (762.0, 508.0), "A3": (420.0, 297.0), "A2": (594.0, 420.0),
+             "A1": (841.0, 594.0), "A0": (1189.0, 841.0)}
+DEFAULT_SHEET = "20X30IN"
+DEFAULT_REDUCTIONS = {"20X30IN": ["A3"]}
 
-# name: (ACI colour, lineweight in 1/100 mm, plots)
+# Legibility floor on the SMALLEST plot (the A3 reduction of a 20x30 sheet): drawing
+# text >= 1.8 mm (ISO 3098 practice), title-strip captions >= 1.6 mm. The sheet is laid
+# out at that smallest size and scaled up exactly, so the full-size plot is larger
+# still. Lineweights below are full-size pens chosen so they survive a ~55% reduction.
+
+# name: (ACI colour, full-size lineweight in 1/100 mm, plots)
 LAYERS = {
-    "E-ONEL-EQPM": (7, 35, True),
-    "E-ONEL-DEVC": (5, 35, True),
-    "E-ONEL-COND": (7, 35, True),
-    "E-ONEL-BUSS": (7, 70, True),
-    "E-ONEL-GRND": (3, 25, True),
-    "E-ANNO-TEXT": (7, 25, True),
-    "E-ANNO-RISR": (8, 18, True),
-    "E-ANNO-LGND": (7, 25, True),
-    "E-ANNO-STMP": (1, 35, True),
+    "E-ONEL-EQPM": (7, 50, True),
+    "E-ONEL-DEVC": (5, 50, True),
+    "E-ONEL-COND": (7, 50, True),
+    "E-ONEL-BUSS": (7, 100, True),
+    "E-ONEL-GRND": (3, 35, True),
+    "E-ANNO-TEXT": (7, 35, True),
+    "E-ANNO-RISR": (8, 25, True),
+    "E-ANNO-LGND": (7, 35, True),
+    "E-ANNO-STMP": (1, 50, True),
     "G-ANNO-TTLB": (7, 35, True),
-    "G-ANNO-BRDR": (7, 70, True),
+    "G-ANNO-BRDR": (7, 100, True),
     "G-ANNO-VPRT": (8, 18, False),
 }
 SVG_COLOR = {1: "#c62828", 3: "#1d7a2e", 5: "#1f4fbf", 7: "#111111", 8: "#888888"}
 
-# Linetypes in millimetres: (DXF pattern [total, dash, gap...], SVG dasharray).
+# Linetypes in full-size millimetres: (DXF pattern [total, dash, gap...], SVG dasharray).
+# At a 55% reduction the assumed dash prints ~3.3 mm and the unknown dash ~0.55 mm.
 LINETYPES = {
-    "E-ASSUMED": ([6.0, 4.0, -2.0], "4 2", "Assumed data ____  ____  ____"),
-    "E-UNKNOWN": ([1.6, 0.4, -1.2], "0.4 1.2", "Unknown data - - - - - - - -"),
+    "E-ASSUMED": ([9.0, 6.0, -3.0], "6 3", "Assumed data ____  ____  ____"),
+    "E-UNKNOWN": ([3.0, 1.0, -2.0], "1 2", "Unknown data - - - - - - - -"),
 }
 STATUS_LINETYPE = {"verified": "CONTINUOUS", "assumed": "E-ASSUMED", "unknown": "E-UNKNOWN"}
 TEXT_STYLE = "E-TEXT"
@@ -69,9 +76,14 @@ SYMBOL_LABEL = {
     "disconnect": "DISCONNECT SWITCH", "motor": "MOTOR", "load": "LOAD", "ground": "GROUND",
 }
 MAX_DESC = 6
+MAX_WRAPPED = 10
+DESC_WRAP = 20
+LEVEL_H_TAGGED = 30.0
+TAG_R = 2.6
 
 TXT = 2.5
 TXT_SMALL = 1.8
+TXT_CAPTION = 1.6
 CHAR_W = 0.72
 LEVEL_H = 48.0
 NODE_GAP = 6.0
@@ -92,6 +104,11 @@ class Attr:
     height: float
     layer: str
     align: str = "left"
+    invisible: bool = False
+
+    def moved(self, f=1.0, dx=0.0, dy=0.0):
+        return Attr(self.tag, self.text, self.x * f + dx, self.y * f + dy, self.height * f,
+                    self.layer, self.align, self.invisible)
 
 
 @dataclass
@@ -111,8 +128,8 @@ class Prim:
     def key(self):
         return (self.kind, self.layer, tuple(round(p, 3) for p in self.pts), self.text,
                 round(self.height, 3), self.align, self.linetype, self.closed, self.block,
-                tuple((a.tag, a.text, round(a.x, 3), round(a.y, 3), a.height, a.layer, a.align)
-                      for a in self.attribs), self.space)
+                tuple((a.tag, a.text, round(a.x, 3), round(a.y, 3), round(a.height, 3), a.layer,
+                       a.align, a.invisible) for a in self.attribs), self.space)
 
 
 @dataclass
@@ -125,6 +142,15 @@ class Drawing:
     prims: List[Prim] = field(default_factory=list)
     blocks: Dict[str, List[Prim]] = field(default_factory=dict)
     warnings: List[str] = field(default_factory=list)
+    reductions: Tuple[str, ...] = ()
+    min_plot_scale: float = 1.0
+    label_mode: str = "inline"
+    sheets: Tuple[str, ...] = ()          # layout names; prims with space "paper<i>" belong to sheets[i]
+    schedule_rows: int = 0
+
+
+class DoesNotFit(ValueError):
+    """The diagram cannot be drawn legibly on the requested sheet and reductions."""
 
 
 _FONT_CACHE: Dict[float, object] = {}
@@ -266,9 +292,13 @@ def load_drawing_spec(spec: dict) -> dict:
             raise ValueError(f"node {n['id']}: unknown type {n['type']!r}")
         if n["id"] in nodes:
             raise ValueError(f"duplicate node id {n['id']!r}")
-        lines = list(n.get("lines", []))
-        if len(lines) > MAX_DESC:
-            raise ValueError(f"node {n['id']}: {len(lines)} description lines; max {MAX_DESC}")
+        raw = list(n.get("lines", []))
+        if len(raw) > MAX_DESC:
+            raise ValueError(f"node {n['id']}: {len(raw)} description lines; max {MAX_DESC}")
+        lines = [w for line in raw for w in (textwrap.wrap(str(line), DESC_WRAP) or [""])]
+        if len(lines) > MAX_WRAPPED:
+            raise ValueError(f"node {n['id']}: description wraps to {len(lines)} lines; shorten it "
+                             f"(max {MAX_WRAPPED} at {DESC_WRAP} characters)")
         conn = n.get("connection", "")
         if conn and (n["type"] != "transformer" or not VECTOR_GROUP.match(conn)):
             raise ValueError(f"node {n['id']}: connection {conn!r} must be an IEC vector group "
@@ -292,12 +322,31 @@ def load_drawing_spec(spec: dict) -> dict:
     if not re.match(r"^[A-Za-z0-9._-]+$", tb["drawing_no"]):
         raise ValueError("title_block.drawing_no may contain only letters, digits, '.', '_', '-' "
                          "(it names the paper-space layout)")
-    sheet = spec.get("sheet")
-    if sheet is not None and sheet not in SHEETS_MM:
+    sheet = spec.get("sheet") or DEFAULT_SHEET
+    if sheet not in SHEETS_MM:
         raise ValueError(f"sheet {sheet!r}; use one of {', '.join(SHEETS_MM)}")
+    reductions = spec.get("reduce_to", DEFAULT_REDUCTIONS.get(sheet, []))
+    for r in reductions:
+        if r not in SHEETS_MM:
+            raise ValueError(f"reduce_to {r!r}; use one of {', '.join(SHEETS_MM)}")
     return {"nodes": nodes, "edges": edges, "title_block": tb,
             "revisions": spec.get("revisions", []), "notes": spec.get("notes", []),
-            "layout": spec.get("layout", "sld"), "floors": spec.get("floors"), "sheet": sheet}
+            "layout": spec.get("layout", "sld"), "floors": spec.get("floors"), "sheet": sheet,
+            "reductions": list(reductions), "label_mode": _label_mode(spec.get("label_mode", "auto"))}
+
+
+def _label_mode(mode: str) -> str:
+    if mode not in ("auto", "inline", "tagged"):
+        raise ValueError(f"label_mode {mode!r}; use auto, inline, or tagged")
+    return mode
+
+
+def plot_scale(sheet: str, reductions) -> float:
+    """Smallest plot scale across the reductions (1.0 if none). A 20x30 in sheet reduced
+    to A3 plots at min(420/762, 297/508) = 0.551."""
+    W, H = SHEETS_MM[sheet]
+    scales = [min(SHEETS_MM[r][0] / W, SHEETS_MM[r][1] / H) for r in reductions]
+    return min([1.0] + scales)
 
 
 TOPOLOGY_TYPE_MAP = {
@@ -400,15 +449,34 @@ def _label_texts(n):
     return texts
 
 
-def _extents(n, in_edge, out_secondary):
-    """(left, right) space a node column needs around its conductor centreline: the
-    label block and device labels to the right, conductor labels to the left — so
+def _label_place(n, has_children, has_sec_out, tagged, riser):
+    """Where a node's label block goes. Inline mode keeps every label to the right.
+    Tagged mode centres a leaf's label below it on a one-line (above it on a riser,
+    where the feeder enters from below), so a column is only as wide as its label."""
+    if n["type"] == "bus" or not tagged or has_children or has_sec_out:
+        return "right"
+    return "above" if riser else "below"
+
+
+def _extents(n, in_edge, out_secondary, place, tagged):
+    """(left, right) space a node column needs around its conductor centreline, so
     neighbouring columns never collide."""
     if n["type"] == "bus":
         return 6.0, 6.0
-    right = SYM * 1.6 + max(text_width(s, h) for s, h in _label_texts(n))
-    left = SYM * 1.4
-    for e in ([in_edge] if in_edge else []) + out_secondary:
+    label_w = max(text_width(s, h) for s, h in _label_texts(n))
+    tag_w = SYM * 0.9 + 2 * TAG_R + 1.0
+    min_left = SYM * 0.8 if tagged else SYM * 1.4
+    if place in ("below", "above"):
+        half = label_w / 2 + 1.0
+        left, right = max(min_left, half), max(min_left, half)
+    else:
+        left, right = min_left, SYM * 1.6 + label_w
+    edges = ([in_edge] if in_edge else []) + out_secondary
+    if tagged:
+        if any(e.get("device") or e.get("label") for e in edges):
+            right = max(right, tag_w)
+        return left + 1.0, right + 1.0
+    for e in edges:
         dev = e.get("device")
         if dev and dev.get("label"):
             right = max(right, SYM * 0.9 + text_width(dev["label"], TXT_SMALL))
@@ -420,23 +488,27 @@ def _extents(n, in_edge, out_secondary):
     return left + 1.0, right + 1.0
 
 
-def _layout_positions(spec):
+def _layout_positions(spec, tagged):
     nodes = spec["nodes"]
+    riser = spec["layout"] == "riser"
+    level_h = LEVEL_H_TAGGED if tagged else LEVEL_H
     parent, children, roots, secondary = _tree(spec)
     sec_out = {nid: [e for e in secondary if e["from"] == nid] for nid in nodes}
+    sec_in = {e["to"] for e in secondary}
+    place_of = {nid: _label_place(nodes[nid], bool(children[nid]), bool(sec_out[nid]) or nid in sec_in,
+                                  tagged, riser)
+                for nid in nodes}
     rel: Dict[str, float] = {}
-    ext: Dict[str, Tuple[float, float]] = {}
     depth: Dict[str, int] = {}
 
     def measure(n, d):
         """Pack children left to right using their real extents; centre the parent over
         them. Returns the subtree's (left, right) extents relative to n."""
         depth[n] = d
-        own_l, own_r = _extents(nodes[n], parent.get(n), sec_out[n])
+        own_l, own_r = _extents(nodes[n], parent.get(n), sec_out[n], place_of[n], tagged)
         kids = children[n]
         if not kids:
-            ext[n] = (own_l, own_r)
-            return ext[n]
+            return own_l, own_r
         kid_ext = [measure(c, d + 1) for c in kids]
         pos = [0.0]
         for i in range(1, len(kids)):
@@ -446,8 +518,7 @@ def _layout_positions(spec):
             rel[c] = p - centre
         left = max([own_l] + [kl - rel[c] for c, (kl, _) in zip(kids, kid_ext)])
         right = max([own_r] + [kr + rel[c] for c, (_, kr) in zip(kids, kid_ext)])
-        ext[n] = (left, right)
-        return ext[n]
+        return left, right
 
     xpos: Dict[str, float] = {}
 
@@ -472,7 +543,7 @@ def _layout_positions(spec):
         cursor += left + right + NODE_GAP * 2
 
     floor_y = None
-    if spec["layout"] == "riser":
+    if riser:
         floors = spec["floors"] or sorted({n.get("floor") for n in nodes.values() if n.get("floor")})
         if not floors:
             raise ValueError("riser layout needs 'floor' on nodes or a 'floors' list")
@@ -483,14 +554,14 @@ def _layout_positions(spec):
         for f in floors:
             members = [nid for nid, n in nodes.items() if n["floor"] == f]
             ranks = {d: i for i, d in enumerate(sorted({depth[m] for m in members}))}
-            floor_y[f] = base - LEVEL_H * 0.4
+            floor_y[f] = base - level_h * 0.4
             for m in members:
-                ypos[m] = base + ranks[depth[m]] * LEVEL_H
-            base += max(1, len(ranks)) * LEVEL_H
+                ypos[m] = base + ranks[depth[m]] * level_h
+            base += max(1, len(ranks)) * level_h
     else:
         maxd = max(depth.values())
-        ypos = {nid: (maxd - d) * LEVEL_H for nid, d in depth.items()}
-    return xpos, ypos, parent, children, secondary, floor_y
+        ypos = {nid: (maxd - d) * level_h for nid, d in depth.items()}
+    return xpos, ypos, parent, children, secondary, floor_y, place_of
 
 
 # ---------------------------------------------------------------- diagram assembly
@@ -500,42 +571,57 @@ def _insert(sym: _Symbols, kind, variant, x, y, layer, lt, attrs):
     return [Prim("insert", layer, (x, y), block=name, linetype=lt, attribs=tuple(attrs))], y + top, y + bot
 
 
-def _node_attrs(n, x, y, bus_left=None):
-    attrs = []
-    if bus_left is not None:
-        tx = bus_left - 2.0
-        attrs.append(Attr("TAG", n["id"], tx, y + 1.0, TXT, "E-ANNO-TEXT", "right"))
-        ty = y - 2.4
-        for i, line in enumerate(n["lines"], 1):
-            attrs.append(Attr(f"DESC{i}", line, tx, ty, TXT_SMALL, "E-ANNO-TEXT", "right"))
-            ty -= TXT_SMALL * 1.5
-        if n["status"] != "verified":
-            attrs.append(Attr("STATUS", f"({n['status'].upper()})", tx, ty, TXT_SMALL, "E-ANNO-STMP", "right"))
-        return attrs
-    tx = x + SYM * 1.6
-    attrs.append(Attr("TAG", n["id"], tx, y + 1.0, TXT, "E-ANNO-TEXT"))
-    ty = y - 2.4
-    for i, line in enumerate(n["lines"], 1):
-        attrs.append(Attr(f"DESC{i}", line, tx, ty, TXT_SMALL, "E-ANNO-TEXT"))
-        ty -= TXT_SMALL * 1.5
+def _node_attrs(n, x, y, place="right", top=0.0, bot=0.0, bus_left=None):
+    texts = [("TAG", n["id"], TXT, "E-ANNO-TEXT")]
+    texts += [(f"DESC{i}", line, TXT_SMALL, "E-ANNO-TEXT") for i, line in enumerate(n["lines"], 1)]
     if n["status"] != "verified":
-        attrs.append(Attr("STATUS", f"({n['status'].upper()})", tx, ty, TXT_SMALL, "E-ANNO-STMP"))
+        texts.append(("STATUS", f"({n['status'].upper()})", TXT_SMALL, "E-ANNO-STMP"))
+    if bus_left is not None:
+        tx, ty, align = bus_left - 2.0, y + 1.0, "right"
+    elif place == "below":
+        tx, ty, align = x, bot - 1.5 - TXT, "center"
+    elif place == "above":
+        tx, align = x, "center"
+        ty = top + 1.5 + sum(h * 1.5 for _, _, h, _ in texts[1:])
+    else:
+        tx, ty, align = x + SYM * 1.6, y + 1.0, "left"
+    attrs = []
+    for i, (tag, s, h, layer) in enumerate(texts):
+        if i == 1:
+            ty -= 3.4 if align != "center" else TXT_SMALL * 1.6
+        elif i > 1:
+            ty -= TXT_SMALL * 1.5
+        attrs.append(Attr(tag, s, tx, ty, h, layer, align))
     return attrs
 
 
-def _edge_prims(sym, e, x1, y_from, x2, y_to):
+def _tag_bubble(tag, x, y):
+    return (_circle(x, y, TAG_R, "E-ANNO-TEXT")
+            + _text(x, y - TXT_SMALL / 2, tag, TXT_SMALL, align="center"))
+
+
+def _edge_prims(sym, e, x1, y_from, x2, y_to, tag=None):
     layer = "E-ONEL-GRND" if e["kind"] == "ground" else "E-ONEL-COND"
     lt = STATUS_LINETYPE[e["status"]]
     out: List[Prim] = []
+    sgn = 1.0 if y_to > y_from else -1.0
     ymid = y_from + (y_to - y_from) * 0.35
+    if e["kind"] == "ground":
+        ymid += sgn * 3.0
     bend = abs(x1 - x2) >= 0.01
     dev = e.get("device")
     dy = None
     if dev:
-        dy = (ymid + y_to) / 2 if bend else (y_from + y_to) / 2
-        attrs = [Attr("TAG", dev.get("tag", ""), x2 + SYM * 0.9, dy + 1.0, TXT_SMALL, "E-ANNO-TEXT")] if dev.get("tag") else []
+        if not bend and abs(y_to - y_from) > LEVEL_H_TAGGED * 1.2:
+            dy = y_from + sgn * 12.0
+        else:
+            dy = (ymid + y_to) / 2 if bend else (y_from + y_to) / 2
+        lx = x2 + SYM * 0.9
+        attrs = [Attr("TAG", tag or dev.get("tag", ""), lx, dy + 1.0, TXT_SMALL, "E-ANNO-TEXT",
+                      invisible=True)] if (tag or dev.get("tag")) else []
         if dev.get("label"):
-            attrs.append(Attr("DESC1", dev["label"], x2 + SYM * 0.9, dy - 0.8, TXT_SMALL, "E-ANNO-TEXT"))
+            attrs.append(Attr("DESC1", dev["label"], lx, dy - 0.8, TXT_SMALL, "E-ANNO-TEXT",
+                              invisible=bool(tag)))
         ins, dtop, dbot = _insert(sym, dev["type"], "", x2, dy, "E-ONEL-DEVC", lt, attrs)
         near, far = (dbot, dtop) if y_to > y_from else (dtop, dbot)
         seg = [(x1, y_from), (x1, ymid), (x2, ymid), (x2, near)] if bend else [(x2, y_from), (x2, near)]
@@ -543,40 +629,51 @@ def _edge_prims(sym, e, x1, y_from, x2, y_to):
     else:
         seg = [(x1, y_from), (x1, ymid), (x2, ymid), (x2, y_to)] if bend else [(x1, y_from), (x2, y_to)]
         out += _poly(seg, layer, lt, closed=False)
-    if e.get("label"):
+    if tag:
+        by = dy if dev else ((ymid + y_to) / 2 if bend else (y_from + y_to) / 2)
+        out += _tag_bubble(tag, x2 + SYM * 0.9 + TAG_R, by)
+    elif e.get("label"):
         ly = (y_to + dy) / 2 if dev else (ymid + y_to) / 2
         out += _text(x2 - 1.5, ly, e["label"], TXT_SMALL, align="right")
     return out
 
 
-def _secondary_edge_prims(sym, e, x1, y_from, x2, y_to, same_level=False, y_floor=0.0):
+def _secondary_edge_prims(sym, e, x1, y_from, x2, y_to, same_level=False, y_floor=0.0, tag=None):
     """Second feed into a node that already has a primary feed (ATS emergency side, a
     tie). The device sits at the source, where an SLD shows the source breaker; a tie
-    between two nodes on one level runs underneath both, clear of the feeder junction."""
+    between two nodes on one level runs clear of the feeder junction."""
     layer = "E-ONEL-GRND" if e["kind"] == "ground" else "E-ONEL-COND"
     lt = STATUS_LINETYPE[e["status"]]
     out: List[Prim] = []
     if same_level:
         y_run = y_floor - 10.0 if y_floor <= y_from else y_floor + 10.0
         out += _poly([(x1, y_from), (x1, y_run), (x2, y_run), (x2, y_to)], layer, lt, closed=False)
-        if e.get("label"):
+        if tag:
+            out += _tag_bubble(tag, (x1 + x2) / 2, y_run + TAG_R + 0.8)
+        elif e.get("label"):
             out += _text((x1 + x2) / 2, y_run + 1.2, e["label"], TXT_SMALL, align="center")
         return out
     up = y_to > y_from
     sgn = 1.0 if up else -1.0
-    y_run = y_to - sgn * 8.0
+    y_run = y_to - sgn * 6.0
     x_drop = x2 + SYM * 0.6
     y_cur = y_from
     dev = e.get("device")
+    dy = (y_from + y_run) / 2
     if dev:
-        dy = y_from + sgn * 10.0
-        attrs = [Attr("DESC1", dev["label"], x1 + SYM * 0.9, dy - 0.8, TXT_SMALL, "E-ANNO-TEXT")] if dev.get("label") else []
+        lx = x1 + SYM * 0.9
+        attrs = [Attr("TAG", tag, lx, dy + 1.0, TXT_SMALL, "E-ANNO-TEXT", invisible=True)] if tag else []
+        if dev.get("label"):
+            attrs.append(Attr("DESC1", dev["label"], lx, dy - 0.8, TXT_SMALL, "E-ANNO-TEXT",
+                              invisible=bool(tag)))
         ins, dtop, dbot = _insert(sym, dev["type"], "", x1, dy, "E-ONEL-DEVC", lt, attrs)
         near, far = (dbot, dtop) if up else (dtop, dbot)
         out += _line(x1, y_from, x1, near, layer, lt) + ins
         y_cur = far
     out += _poly([(x1, y_cur), (x1, y_run), (x_drop, y_run), (x_drop, y_to)], layer, lt, closed=False)
-    if e.get("label"):
+    if tag:
+        out += _tag_bubble(tag, x1 + SYM * 0.9 + TAG_R, dy)
+    elif e.get("label"):
         out += _text(x1 + 1.5, (y_cur + y_run) / 2, e["label"], TXT_SMALL, align="left")
     return out
 
@@ -603,6 +700,8 @@ def _bbox(prims, blocks):
             xs += [p.pts[0] + bx0, p.pts[0] + bx1]
             ys += [p.pts[1] + by0, p.pts[1] + by1]
             for a in p.attribs:
+                if a.invisible:
+                    continue
                 b = _text_box(a.x, a.y, a.text, a.height, a.align)
                 xs += [b[0], b[2]]
                 ys += [b[1], b[3]]
@@ -619,17 +718,93 @@ def _translate(prims, dx, dy):
             pts = (p.pts[0] + dx, p.pts[1] + dy, p.pts[2])
         else:
             pts = tuple(v + (dx if i % 2 == 0 else dy) for i, v in enumerate(p.pts))
-        attrs = tuple(Attr(a.tag, a.text, a.x + dx, a.y + dy, a.height, a.layer, a.align) for a in p.attribs)
         out.append(Prim(p.kind, p.layer, pts, p.text, p.height, p.align, p.linetype, p.closed,
-                        p.block, attrs, p.space))
+                        p.block, tuple(a.moved(1.0, dx, dy) for a in p.attribs), p.space))
     return out
 
 
-def build_drawing(spec_in: dict) -> Drawing:
-    spec = load_drawing_spec(spec_in)
+def _scale(prims, f):
+    """Uniform scale about the origin: coordinates, radii, text and attribute heights."""
+    if f == 1.0:
+        return list(prims)
+    out = []
+    for p in prims:
+        if p.kind == "circle":
+            pts = (p.pts[0] * f, p.pts[1] * f, p.pts[2] * f)
+        else:
+            pts = tuple(v * f for v in p.pts)
+        out.append(Prim(p.kind, p.layer, pts, p.text, p.height * f, p.align, p.linetype, p.closed,
+                        p.block, tuple(a.moved(f) for a in p.attribs), p.space))
+    return out
+
+
+def _respace(prims, space):
+    return [Prim(p.kind, p.layer, p.pts, p.text, p.height, p.align, p.linetype, p.closed,
+                 p.block, p.attribs, space) for p in prims]
+
+
+def _feeder_tags(spec, parent, secondary):
+    """Stable feeder tags (F1, F2, ...) in spec edge order, for every edge that carries a
+    device or a conductor label. An explicit edge 'tag' wins."""
+    tags, i = {}, 0
+    for e in spec["edges"]:
+        if e.get("device") or e.get("label"):
+            i += 1
+            tags[id(e)] = e.get("tag") or f"F{i}"
+    return tags
+
+
+def _schedule_rows(spec, tags):
+    rows = []
+    for e in spec["edges"]:
+        if id(e) not in tags:
+            continue
+        dev = e.get("device") or {}
+        prot = dev.get("label") or (dev.get("type", "").upper() if dev else "-")
+        rows.append((tags[id(e)], e["from"], e["to"], prot, e.get("label") or "-",
+                     "" if e["status"] == "verified" else e["status"].upper()))
+    return rows
+
+
+SCHEDULE_HEAD = ("TAG", "FROM", "TO", "PROTECTION", "CONDUCTOR", "STATUS")
+
+
+def _schedule_size(rows):
+    cols = [max([text_width(h, TXT_CAPTION)] + [text_width(r[i], TXT_SMALL) for r in rows]) + 3.0
+            for i, h in enumerate(SCHEDULE_HEAD)]
+    return cols, sum(cols), 6.0 + 5.0 * (len(rows) + 1)
+
+
+def _schedule_prims(rows, x0, ytop, space):
+    """FEEDER SCHEDULE table with its top-left corner at (x0, ytop)."""
+    cols, w, h = _schedule_size(rows)
+    p = _text(x0, ytop - 4.0, "FEEDER SCHEDULE", TXT, "E-ANNO-LGND", space=space)
+    y = ytop - 6.0
+    row_h = 5.0
+    p += _poly([(x0, y), (x0 + w, y), (x0 + w, y - row_h * (len(rows) + 1)), (x0, y - row_h * (len(rows) + 1))],
+               "G-ANNO-TTLB", space=space)
+    for r_i, row in enumerate([SCHEDULE_HEAD] + rows):
+        ry = y - row_h * (r_i + 1)
+        if r_i:
+            p += _line(x0, ry + row_h, x0 + w, ry + row_h, "G-ANNO-TTLB", space=space)
+        cx = x0
+        for c_i, v in enumerate(row):
+            layer = "E-ANNO-STMP" if (c_i == 5 and r_i and v) else "E-ANNO-LGND"
+            p += _text(cx + 1.5, ry + 1.5, v, TXT_CAPTION if r_i == 0 else TXT_SMALL, layer, space=space)
+            cx += cols[c_i]
+    cx = x0
+    for c in cols[:-1]:
+        cx += c
+        p += _line(cx, y, cx, y - row_h * (len(rows) + 1), "G-ANNO-TTLB", space=space)
+    return p
+
+
+def _assemble(spec, tagged) -> Tuple[List[Prim], Dict[str, List[Prim]], dict]:
+    """Model-space diagram at design (smallest-plot) size, origin arbitrary."""
     nodes = spec["nodes"]
-    xpos, ypos, parent, children, secondary, floor_y = _layout_positions(spec)
-    riser = floor_y is not None
+    riser = spec["layout"] == "riser"
+    xpos, ypos, parent, children, secondary, floor_y, place_of = _layout_positions(spec, tagged)
+    tags = _feeder_tags(spec, parent, secondary) if tagged else {}
     sym = _Symbols()
     body: List[Prim] = []
     ports = {}
@@ -641,14 +816,17 @@ def build_drawing(spec_in: dict) -> Drawing:
             x0, x1, y = min(xs) - 6, max(xs) + 6, ypos[nid]
             body += _line(x0, y, x1, y, "E-ONEL-BUSS", lt)
             body += [Prim("text", a.layer, (a.x, a.y), text=a.text, height=a.height, align=a.align)
-                     for a in _node_attrs(n, 0, y, x0)]
+                     for a in _node_attrs(n, 0, y, bus_left=x0)]
             ports[nid] = (y, y)
             continue
         layer = "E-ONEL-GRND" if n["type"] == "ground" else "E-ONEL-EQPM"
-        ins, top, bot = _insert(sym, n["type"], n["connection"], xpos[nid], ypos[nid], layer, lt,
-                                _node_attrs(n, xpos[nid], ypos[nid]))
+        _, top_off, bot_off = sym.get(n["type"], n["connection"])
+        y = ypos[nid]
+        ins, top, bot = _insert(sym, n["type"], n["connection"], xpos[nid], y, layer, lt,
+                                _node_attrs(n, xpos[nid], y, place_of[nid], y + top_off, y + bot_off))
         body += ins
         ports[nid] = (top, bot)
+
     def out_port(nid):
         if nodes[nid]["type"] == "bus":
             return ypos[nid]
@@ -660,55 +838,112 @@ def build_drawing(spec_in: dict) -> Drawing:
     for child, e in parent.items():
         src = e["from"]
         x_from = xpos[child] if nodes[src]["type"] == "bus" else xpos[src]
-        body += _edge_prims(sym, e, x_from, out_port(src), xpos[child], in_port(child))
+        body += _edge_prims(sym, e, x_from, out_port(src), xpos[child], in_port(child), tags.get(id(e)))
     for e in secondary:
         src, dst = e["from"], e["to"]
+        tag = tags.get(id(e))
         if abs(ypos[src] - ypos[dst]) < 0.01:
             if riser:
                 y_edge = max(ports[src][0], ports[dst][0], ypos[src] + TXT + 2.0)
                 body += _secondary_edge_prims(sym, e, xpos[src], ports[src][0], xpos[dst], ports[dst][0],
-                                              same_level=True, y_floor=y_edge)
+                                              same_level=True, y_floor=y_edge, tag=tag)
             else:
                 n_lines = max(len(_label_texts(nodes[src])), len(_label_texts(nodes[dst])))
                 text_floor = ypos[src] - 2.4 - TXT_SMALL * 1.5 * n_lines
                 y_edge = min(ports[src][1], ports[dst][1], text_floor)
                 body += _secondary_edge_prims(sym, e, xpos[src], ports[src][1], xpos[dst], ports[dst][1],
-                                              same_level=True, y_floor=y_edge)
+                                              same_level=True, y_floor=y_edge, tag=tag)
         else:
-            body += _secondary_edge_prims(sym, e, xpos[src], out_port(src), xpos[dst], in_port(dst))
+            body += _secondary_edge_prims(sym, e, xpos[src], out_port(src), xpos[dst], in_port(dst), tag=tag)
     if riser:
         bx0, _, bx1, _ = _bbox(body, sym.blocks)
         for f, yl in floor_y.items():
             body += _line(bx0 - 24, yl, bx1 + 10, yl, "E-ANNO-RISR", "E-ASSUMED")
             body += _text(bx0 - 24, yl + 1.5, f"FLOOR {f}", TXT, layer="E-ANNO-RISR")
+    return body, sym.blocks, {"rows": _schedule_rows(spec, tags), "sym": sym}
 
-    bx0, by0, bx1, by1 = _bbox(body, sym.blocks)
-    need_w, need_h = bx1 - bx0 + 8, by1 - by0 + 8
-    sheet = spec["sheet"]
-    warnings: List[str] = []
-    if sheet is None:
-        for name in AUTO_SHEETS:
-            w, h = SHEETS_MM[name]
-            if need_w <= w - 30 - TITLE_W and need_h <= h - 20 - FOOT_H - STAMP_H:
-                sheet = name
-                break
-        else:
-            sheet = "A0"
-            warnings.append("diagram exceeds A0 at 1:1 drafting scale; split it into sheets")
+
+def _place(spec, tagged):
+    """Assemble at design size and fit it, with any feeder schedule, onto the smallest
+    plot. Returns (Drawing at full size) or raises DoesNotFit."""
+    sheet, reductions = spec["sheet"], tuple(spec["reductions"])
     W, H = SHEETS_MM[sheet]
-    vx0, vy0 = 20.0, 10.0 + FOOT_H
-    vx1, vy1 = W - 10.0 - TITLE_W, H - 10.0 - STAMP_H
-    if need_w > vx1 - vx0 or need_h > vy1 - vy0:
-        warnings.append(f"diagram ({need_w:.0f} x {need_h:.0f} mm) exceeds the {sheet} drawing area; "
-                        "pick a larger sheet or split it")
+    s = plot_scale(sheet, reductions)
+    Wd, Hd = W * s, H * s
+    body, blocks, extra = _assemble(spec, tagged)
+    rows, sym = extra["rows"], extra["sym"]
+    bx0, by0, bx1, by1 = _bbox(body, blocks)
+    dw, dh = bx1 - bx0 + 8, by1 - by0 + 8
+    ax0, ay0 = 20.0, 10.0 + FOOT_H
+    ax1, ay1 = Wd - 10.0 - TITLE_W, Hd - 10.0 - STAMP_H
+    aw, ah = ax1 - ax0, ay1 - ay0
+    smallest = reductions[-1] if reductions else sheet
+    if dw > aw or dh > ah:
+        raise DoesNotFit(
+            f"diagram needs {dw:.0f} x {dh:.0f} mm at legible size on the {smallest} plot, "
+            f"but that plot's drawing area is {aw:.0f} x {ah:.0f} mm. Split it into sheets "
+            "(e.g. one per bus), shorten labels, or drop the reduction with \"reduce_to\": [].")
+
+    schedule_at, second_sheet = None, False
+    if rows:
+        _, sw, sh = _schedule_size(rows)
+        if sw > aw - 6 or sh > ah - 6:
+            raise DoesNotFit(f"feeder schedule ({sw:.0f} x {sh:.0f} mm) does not fit the {smallest} "
+                             "plot's drawing area; split the diagram into sheets")
+        if dw + 6 + sw <= aw:
+            vp = (ax0, ay0, ax1 - sw - 6, ay1)
+            schedule_at = (ax1 - sw - 3, ay1 - 3)
+        elif dh + 6 + sh <= ah:
+            vp = (ax0, ay0, ax1, ay1 - sh - 6)
+            schedule_at = (ax0 + 3, ay1 - 3)
+        else:
+            vp = (ax0, ay0, ax1, ay1)
+            schedule_at, second_sheet = (ax0 + 3, ay1 - 3), True
+    else:
+        vp = (ax0, ay0, ax1, ay1)
+    vx0, vy0, vx1, vy1 = vp
     dx = vx0 + ((vx1 - vx0) - (bx1 - bx0)) / 2 - bx0
     dy = vy0 + ((vy1 - vy0) - (by1 - by0)) / 2 - by0
-    d = Drawing(sheet=sheet, width=W, height=H, layout_name=spec["title_block"]["drawing_no"],
-                viewport=(vx0, vy0, vx1, vy1), warnings=warnings)
-    d.prims += _translate(body, dx, dy)
-    d.prims += _sheet_frame(spec, sym, W, H, d)
-    d.blocks = sym.blocks
+
+    name = spec["title_block"]["drawing_no"]
+    sheets = (name, f"{name}-FS") if second_sheet else (name,)
+    d = Drawing(sheet=sheet, width=W, height=H, layout_name=name,
+                viewport=(vx0 / s, vy0 / s, vx1 / s, vy1 / s), reductions=reductions, min_plot_scale=s,
+                label_mode="tagged" if tagged else "inline", sheets=sheets, schedule_rows=len(rows))
+    paper: List[Prim] = []
+    if second_sheet:
+        tb = spec["title_block"]
+        s1 = {**spec, "title_block": {**tb, "sheet": "1 OF 2"}}
+        s2 = {**spec, "title_block": {**tb, "sheet": "2 OF 2", "drawing_no": f"{name}-FS",
+                                       "drawing_title": f"FEEDER SCHEDULE - {tb['drawing_title']}"}}
+        paper += _sheet_frame(s1, sym, Wd, Hd, d)
+        paper += _respace(_sheet_frame(s2, sym, Wd, Hd, d, legend=False)
+                          + _schedule_prims(rows, *schedule_at, space="paper"), "paper1")
+    else:
+        paper += _sheet_frame(spec, sym, Wd, Hd, d)
+        if rows:
+            paper += _schedule_prims(rows, *schedule_at, space="paper")
+    d.prims = _scale(_translate(body, dx, dy) + paper, 1 / s)
+    d.blocks = {k: _scale(v, 1 / s) for k, v in sym.blocks.items()}
+    d.warnings = list(dict.fromkeys(d.warnings))
     return d
+
+
+def build_drawing(spec_in: dict) -> Drawing:
+    """Lay the sheet out at its smallest plotted size (every text height is its printed
+    height on the reduction), then scale it up exactly to the sheet. label_mode 'auto'
+    uses inline labels when they fit without collisions, else feeder tags + schedule."""
+    spec = load_drawing_spec(spec_in)
+    mode = spec["label_mode"]
+    if mode in ("auto", "inline"):
+        try:
+            d = _place(spec, tagged=False)
+            if mode == "inline" or not text_overlaps(d):
+                return d
+        except DoesNotFit:
+            if mode == "inline":
+                raise
+    return _place(spec, tagged=True)
 
 
 # ---------------------------------------------------------------- sheet (paper space)
@@ -721,9 +956,31 @@ def _box(x0, y0, x1, y1, layer="G-ANNO-TTLB"):
     return _poly([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], layer, space="paper")
 
 
+def _wrap_width(s: str, width: float, h: float, indent: str = "") -> List[str]:
+    """Greedy word wrap by real glyph width (not character count)."""
+    lines, cur = [], ""
+    for word in s.split():
+        trial = f"{cur} {word}" if cur else (indent + word if lines else word)
+        if cur and text_width(trial, h) > width:
+            lines.append(cur)
+            cur = indent + word
+        else:
+            cur = trial
+    if cur:
+        lines.append(cur)
+    return lines
+
+
+def _fit(s: str, width: float, h: float) -> str:
+    """Truncate s so it fits width at text height h (real glyph widths)."""
+    while s and text_width(s, h) > width:
+        s = s[:-1]
+    return s
+
+
 def _field(x0, y0, w, h, label, value):
     """One title-strip cell: small label top-left, value wrapped below. Returns prims."""
-    p = _box(x0, y0, x0 + w, y0 + h) + _ptext(x0 + 1.2, y0 + h - 2.2, label, 1.4)
+    p = _box(x0, y0, x0 + w, y0 + h) + _ptext(x0 + 1.2, y0 + h - 2.2, label, TXT_CAPTION)
     max_chars = max(8, int((w - 2.4) / (2.0 * CHAR_W)))
     lines = textwrap.wrap(str(value), max_chars) or [""]
     ty = y0 + h - 5.2
@@ -733,7 +990,7 @@ def _field(x0, y0, w, h, label, value):
     return p
 
 
-def _sheet_frame(spec, sym: _Symbols, W, H, d: Drawing) -> List[Prim]:
+def _sheet_frame(spec, sym: _Symbols, W, H, d: Drawing, legend: bool = True) -> List[Prim]:
     tb = spec["title_block"]
     pee = tb.get("pee", {}) or {}
     blank = "_______________________"
@@ -780,7 +1037,7 @@ def _sheet_frame(spec, sym: _Symbols, W, H, d: Drawing) -> List[Prim]:
     seal_h = 52.0
     p += _box(x0, y, x1, y + seal_h)
     p += _ptext(x0 + tw / 2, y + seal_h - 4, "SIGNED AND SEALED BY", 1.8, align="center")
-    p += _ptext(x0 + tw / 2, y + seal_h - 6.8, "PROFESSIONAL ELECTRICAL ENGINEER (RA 7920)", 1.4, align="center")
+    p += _ptext(x0 + tw / 2, y + seal_h - 6.8, "PROFESSIONAL ELECTRICAL ENGINEER (RA 7920)", TXT_CAPTION, align="center")
     p += _circle(x0 + tw / 2, y + seal_h / 2 - 3, 18, "G-ANNO-TTLB", space="paper")
     p += _ptext(x0 + tw / 2, y + seal_h / 2 - 4, "NOT SEALED", 3.0, "E-ANNO-STMP", "center")
     y += seal_h
@@ -804,16 +1061,18 @@ def _sheet_frame(spec, sym: _Symbols, W, H, d: Drawing) -> List[Prim]:
         ry = y + i * row
         p += _line(x0, ry + row, x1, ry + row, "G-ANNO-TTLB", space="paper")
         vals = (str(r.get("rev", "")), str(r.get("date", "")),
-                str(r.get("description", ""))[: int((cols[3] - cols[2] - 2) / (1.6 * CHAR_W))],
-                str(r.get("by", ""))[:6])
+                _fit(str(r.get("description", "")), cols[3] - cols[2] - 2, TXT_SMALL),
+                _fit(str(r.get("by", "")), tw - (cols[3] - x0) - 2, TXT_SMALL))
         for cx, v in zip(cols, vals):
-            p += _ptext(cx + 1, ry + 1.5, v, 1.6)
+            p += _ptext(cx + 1, ry + 1.4, v, TXT_SMALL)
     hy = y + row * len(revs)
     for cx, v in zip(cols, ("REV", "DATE", "DESCRIPTION", "BY")):
-        p += _ptext(cx + 1, hy + 1.5, v, 1.6)
+        p += _ptext(cx + 1, hy + 1.4, v, TXT_CAPTION)
     for cx in cols[1:]:
         p += _line(cx, y, cx, hy + row, "G-ANNO-TTLB", space="paper")
     p += _ptext(x0 + 1, hy + row + 1.5, "REVISIONS", 2.0)
+    if not legend:
+        return p
 
     fx1 = x0
     p += _line(20, 10 + FOOT_H, fx1, 10 + FOOT_H, "G-ANNO-BRDR", space="paper")
@@ -837,16 +1096,21 @@ def _sheet_frame(spec, sym: _Symbols, W, H, d: Drawing) -> List[Prim]:
     p += _line(sx0, yy, sx0 + 16, yy, "E-ONEL-BUSS", space="paper")
     p += _ptext(sx0 + 19, yy - 0.8, "BUS", 1.8, "E-ANNO-LGND")
 
+    W_full, H_full = SHEETS_MM[spec["sheet"]]
+    size = "20 X 30 IN" if spec["sheet"] == "20X30IN" else spec["sheet"]
+    plot_note = f"ORIGINAL SHEET SIZE {size} ({W_full:.0f} X {H_full:.0f} MM)."
+    if spec["reductions"]:
+        plot_note += (f" LETTERING SIZED TO REMAIN LEGIBLE WHEN REDUCED TO "
+                      f"{', '.join(spec['reductions'])} ({d.min_plot_scale * 100:.0f}%).")
     notes = list(spec["notes"]) + [
         "ALL RATINGS ARE COPIED FROM THE SOURCE TOPOLOGY; THIS DRAWING DOES NOT SIZE OR VERIFY EQUIPMENT.",
-        "PLOT WITH MONOCHROME.CTB. LAYER LINEWEIGHTS APPLY."]
+        plot_note + " PLOT WITH MONOCHROME.CTB; LAYER LINEWEIGHTS APPLY."]
     nx = sx0 + 52
     if nx + 60 <= fx1 - 4:
         p += _ptext(nx, ly, "GENERAL NOTES", 2.5, "E-ANNO-LGND")
-        max_chars = int((fx1 - 4 - nx) / (1.8 * CHAR_W))
         ty, truncated = ly - 6, False
         for i, note in enumerate(notes, 1):
-            for line in textwrap.wrap(f"{i}. {note}", width=max_chars, subsequent_indent="   "):
+            for line in _wrap_width(f"{i}. {note}", fx1 - 4 - nx, TXT_SMALL, "   "):
                 if ty < 13:
                     truncated = True
                     break
@@ -899,7 +1163,8 @@ def text_overlaps(d: Drawing) -> List[Tuple[str, str]]:
         if p.kind == "text":
             boxes.append((p.text, _text_box(p.pts[0], p.pts[1], p.text, p.height, p.align)))
         for a in p.attribs:
-            boxes.append((a.text, _text_box(a.x, a.y, a.text, a.height, a.align)))
+            if not a.invisible:
+                boxes.append((a.text, _text_box(a.x, a.y, a.text, a.height, a.align)))
     hits = []
     for i in range(len(boxes)):
         for j in range(i + 1, len(boxes)):
@@ -933,16 +1198,26 @@ def _expand(p: Prim, blocks) -> List[Prim]:
         out.append(Prim(q.kind, p.layer, q.pts, q.text, q.height, q.align,
                         p.linetype if q.linetype == "BYLAYER" else q.linetype, q.closed, space=p.space))
     for a in p.attribs:
-        out.append(Prim("text", a.layer, (a.x, a.y), text=a.text, height=a.height, align=a.align, space=p.space))
+        if not a.invisible:
+            out.append(Prim("text", a.layer, (a.x, a.y), text=a.text, height=a.height, align=a.align, space=p.space))
     return out
 
 
-def write_svg(d: Drawing, path: str) -> None:
+def _space_name(sheet_index: int) -> str:
+    return "paper" if sheet_index == 0 else f"paper{sheet_index}"
+
+
+def write_svg(d: Drawing, path: str, sheet_index: int = 0) -> None:
+    """One SVG per sheet: sheet 0 is the diagram sheet (model + its paper space); later
+    sheets (e.g. the feeder schedule) are paper space only."""
     W, H = d.width, d.height
+    wanted = {_space_name(sheet_index)} | ({"model"} if sheet_index == 0 else set())
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{H}mm" '
            f'viewBox="0 0 {W} {H}" font-family="Arial, Helvetica, sans-serif">',
            f'<rect x="0" y="0" width="{W}" height="{H}" fill="#ffffff"/>']
     for prim in d.prims:
+        if prim.space not in wanted:
+            continue
         for p in _expand(prim, d.blocks):
             aci, lw, plots = LAYERS[p.layer]
             if not plots:
@@ -1016,24 +1291,32 @@ def build_cad_document(d: Drawing):
             ref = space.add_blockref(p.block, p.pts, dxfattribs=da)
             for a in p.attribs:
                 at = ref.add_attrib(a.tag, a.text, insert=(a.x, a.y),
-                                    dxfattribs={"layer": a.layer, "height": a.height, "style": TEXT_STYLE})
+                                    dxfattribs={"layer": a.layer, "height": a.height, "style": TEXT_STYLE,
+                                                "flags": 1 if a.invisible else 0})
                 at.set_placement((a.x, a.y), align=align[a.align])
 
+    s = 1 / d.min_plot_scale
     for name, prims in sorted(d.blocks.items()):
         blk = doc.blocks.new(name)
         for p in prims:
             emit(blk, p, in_block=True)
-        tags = ["TAG"] + [f"DESC{i}" for i in range(1, MAX_DESC + 1)] + ["STATUS"]
+        tags = ["TAG"] + [f"DESC{i}" for i in range(1, MAX_WRAPPED + 1)] + ["STATUS"]
         for i, tag in enumerate(tags):
-            blk.add_attdef(tag, insert=(SYM * 1.6, 1.0 - i * 2.7), text="", height=TXT_SMALL,
+            blk.add_attdef(tag, insert=(SYM * 1.6 * s, (1.0 - i * 2.7) * s), text="", height=TXT_SMALL * s,
                            dxfattribs={"layer": "0", "style": TEXT_STYLE, "prompt": tag})
 
     msp = doc.modelspace()
+    sheets = d.sheets or (d.layout_name,)
     layout = doc.layouts.get("Layout1")
-    doc.layouts.rename("Layout1", d.layout_name)
-    layout.page_setup(size=(d.width, d.height), margins=(0, 0, 0, 0), units="mm")
+    doc.layouts.rename("Layout1", sheets[0])
+    targets = {"model": msp, "paper": layout}
+    for i, name in enumerate(sheets[1:], 1):
+        targets[_space_name(i)] = doc.layouts.new(name)
+    for t in targets.values():
+        if t is not msp:
+            t.page_setup(size=(d.width, d.height), margins=(0, 0, 0, 0), units="mm")
     for p in d.prims:
-        emit(layout if p.space == "paper" else msp, p)
+        emit(targets[p.space], p)
     vx0, vy0, vx1, vy1 = d.viewport
     cx, cy, w, h = (vx0 + vx1) / 2, (vy0 + vy1) / 2, vx1 - vx0, vy1 - vy0
     layout.add_viewport(center=(cx, cy), size=(w, h), view_center_point=(cx, cy), view_height=h,

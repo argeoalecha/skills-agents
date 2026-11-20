@@ -19,7 +19,7 @@
   ],
   "nodes": [
     {"id": "UTIL", "type": "utility", "lines": ["13.8 kV, 3PH, 3W", "FAULT MVA: UNKNOWN"], "status": "unknown"},
-    {"id": "TX-1", "type": "transformer", "connection": "Dyn11", "lines": ["750 kVA, 13.8 kV - 400/230 V", "Dyn11, %Z 5.75 (ASSUMED)"], "status": "assumed"},
+    {"id": "TX-1", "type": "transformer", "connection": "Dyn11", "lines": ["750 kVA, 13.8 kV - 400/230 V", "Dyn11, %Z 5.75"], "status": "assumed"},
     {"id": "MSB", "type": "bus", "lines": ["MAIN SWITCHBOARD", "400/230 V, 3PH, 4W, 1600 A BUS"], "status": "verified"},
     {"id": "GEN-1", "type": "generator", "lines": ["500 kVA STANDBY", "400/230 V, 3PH, 4W"], "status": "verified"},
     {"id": "ATS-1", "type": "ats", "lines": ["800 A, 4-POLE"], "status": "verified"},

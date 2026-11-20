@@ -51,6 +51,9 @@ def main(argv=None) -> int:
         data["layout"] = args.layout
     try:
         drawing = lib.build_drawing(data)
+    except lib.DoesNotFit as exc:
+        print(f"does not fit legibly: {exc}", file=sys.stderr)
+        return 5
     except ValueError as exc:
         print(f"invalid drawing spec: {exc}", file=sys.stderr)
         return 2
@@ -65,16 +68,31 @@ def main(argv=None) -> int:
 
     stem = Path(args.out)
     stem.parent.mkdir(parents=True, exist_ok=True)
-    writers = {"dxf": lib.write_dxf, "dwg": lib.write_dwg, "svg": lib.write_svg}
+    written = []
     for f in sorted(formats):
-        writers[f](drawing, str(stem.with_suffix("." + f)))
-    print(f"sheet: {drawing.sheet} ({drawing.width:.0f} x {drawing.height:.0f} mm), layout: {drawing.layout_name}")
+        if f == "svg":
+            for i, name in enumerate(drawing.sheets):
+                path = stem.with_suffix(".svg") if i == 0 else stem.with_name(f"{name}.svg")
+                lib.write_svg(drawing, str(path), i)
+                written.append(path)
+        else:
+            path = stem.with_suffix("." + f)
+            {"dxf": lib.write_dxf, "dwg": lib.write_dwg}[f](drawing, str(path))
+            written.append(path)
+    print(f"sheet: {drawing.sheet} ({drawing.width:.0f} x {drawing.height:.0f} mm), "
+          f"layouts: {', '.join(drawing.sheets)}")
+    print(f"labels: {drawing.label_mode}" + (f" ({drawing.schedule_rows} feeders in the FEEDER SCHEDULE)"
+                                             if drawing.label_mode == "tagged" else ""))
+    if drawing.reductions:
+        print(f"legible when reduced to: {', '.join(drawing.reductions)} "
+              f"({drawing.min_plot_scale * 100:.0f}%); smallest printed text "
+              f"{lib.TXT_SMALL:.1f} mm, captions {lib.TXT_CAPTION:.1f} mm")
     print(f"blocks: {len(drawing.blocks)}, primitives: {len(drawing.prims)}")
     print(f"geometry digest: {lib.geometry_digest(drawing)}")
     for w in drawing.warnings:
         print(f"WARNING: {w}")
-    for f in sorted(formats):
-        print(f"wrote {stem.with_suffix('.' + f)}")
+    for path in written:
+        print(f"wrote {path}")
     return 0
 
 

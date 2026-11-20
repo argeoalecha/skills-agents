@@ -14,7 +14,7 @@ from typing import Literal
 STANDARD_BREAKER_RATINGS_A = [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80,
                                90, 100, 110, 125, 150, 175, 200, 225, 250,
                                300, 350, 400, 450, 500, 600, 700, 800, 1000,
-                               1200, 1600, 2000]
+                               1200, 1600, 2000, 2500, 3000, 4000, 5000, 6000]
 
 @dataclass
 class Load:
@@ -64,17 +64,20 @@ def fault_current_point_to_point(source_kva: float, source_voltage: float,
                                   transformer_impedance_pct: float,
                                   cable_impedance_ohm: float = 0.0) -> float:
     """
-    Simplified point-to-point available fault current at transformer
-    secondary, ignoring downstream cable impedance if not provided.
-    For coordination studies, chain this calc point-to-point through
-    each cable segment per IEEE 242 methodology.
+    Point-to-point available three-phase bolted fault current (A) at the
+    transformer secondary, or at the end of a downstream cable run when
+    cable_impedance_ohm (per-phase impedance magnitude of the run) is given.
+
+    Assumes an infinite utility source (no upstream impedance), which
+    overstates fault current: acceptable for an AIC sanity check, not for
+    minimum-fault protection pickup. Transformer and cable impedances are
+    added in series as magnitudes, which is algebraically identical to the
+    Bussmann point-to-point f-factor method (M = 1 / (1 + f)). For a
+    multi-bus study or anything an arc-flash study consumes, use
+    ee-short-circuit instead.
     """
-    full_load_amps = source_kva * 1000 / (source_voltage * 1.732)
-    if_transformer = full_load_amps / (transformer_impedance_pct / 100)
-    if cable_impedance_ohm > 0:
-        if_at_point = source_voltage / (1.732 * cable_impedance_ohm)
-        return min(if_transformer, if_at_point)
-    return if_transformer
+    z_transformer_ohm = (transformer_impedance_pct / 100) * source_voltage ** 2 / (source_kva * 1000)
+    return source_voltage / (1.732 * (z_transformer_ohm + cable_impedance_ohm))
 
 def continuous_derating_check(operating_amps: float, breaker_rating: int) -> dict:
     pct = (operating_amps / breaker_rating) * 100
@@ -86,7 +89,8 @@ if __name__ == "__main__":
     demand = demand_load_va(load)
     min_amps = min_conductor_ampacity(demand, voltage=230, phases=1, continuous=True)
     breaker = select_breaker(min_amps)
+    operating_amps = demand / 230
     print(f"Demand load: {demand} VA")
     print(f"Min conductor ampacity (125% continuous): {min_amps:.1f} A")
     print(f"Selected breaker: {breaker} A")
-    print(continuous_derating_check(min_amps, breaker))
+    print(continuous_derating_check(operating_amps, breaker))

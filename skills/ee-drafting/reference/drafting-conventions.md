@@ -6,19 +6,24 @@ that audit by construction.
 
 ## Symbols (ANSI/IEEE one-line style, IEEE Std 315 / ANSI Y32.2)
 
+Every symbol is a block named `E-SYM-<TYPE>` (transformers `E-SYM-TRANSFORMER-<VECTOR
+GROUP>`), geometry on layer 0 with BYBLOCK colour, linetype, and lineweight, so the
+insert's layer and status linetype govern it. Attributes: `TAG`, `DESC1`–`DESC6`,
+`STATUS`.
+
 | Type | Symbol |
 |---|---|
 | utility | Circle marked U |
 | generator | Circle marked G |
 | motor | Circle marked M |
 | meter | Small circle marked kWh |
-| transformer | Two overlapping circles (two-winding) |
+| transformer | Two overlapping circles; delta / wye glyphs and grounded-neutral mark from the vector group (e.g. Dyn11) |
 | ct | Small circle on the conductor |
 | breaker | Square (inline device) |
 | fuse | Rectangle with a centre line |
 | disconnect | Open blade between two contacts |
 | ats | Rectangle marked ATS |
-| bus | Double heavy horizontal bar |
+| bus | Heavy line on layer E-ONEL-BUSS (0.70 mm) |
 | panel | Rectangle with a diagonal |
 | load | Downward triangle |
 | ground | Three diminishing bars |
@@ -28,43 +33,51 @@ before drafting rather than mixing conventions on one sheet.
 
 ## Layers (US National CAD Standard pattern: discipline-major-minor)
 
-| Layer | Content | Colour (ACI) |
-|---|---|---|
-| E-ONEL-EQPM | Equipment symbols, bus bars | 7 |
-| E-ONEL-DEVC | Inline protective/metering devices | 5 |
-| E-ONEL-COND | Conductors | 7 |
-| E-ONEL-GRND | Grounding conductors and electrodes | 3 |
-| E-ANNO-TEXT | Equipment IDs and ratings | 7 |
-| E-ANNO-RISR | Riser floor lines and labels | 8 |
-| E-ANNO-LGND | Legend and general notes | 7 |
-| E-ANNO-STMP | Draft stamp, status tags, NOT SEALED | 1 |
-| G-ANNO-TTLB | Title, revision and seal blocks | 7 |
-| G-ANNO-BRDR | Sheet border | 7 |
+| Layer | Content | ACI | Lineweight |
+|---|---|---|---|
+| E-ONEL-EQPM | Equipment symbol inserts | 7 | 0.35 |
+| E-ONEL-DEVC | Inline protective/metering devices | 5 | 0.35 |
+| E-ONEL-COND | Conductors | 7 | 0.35 |
+| E-ONEL-BUSS | Buses | 7 | 0.70 |
+| E-ONEL-GRND | Grounding conductors and electrodes | 3 | 0.25 |
+| E-ANNO-TEXT | Labels | 7 | 0.25 |
+| E-ANNO-RISR | Riser floor lines and labels | 8 | 0.18 |
+| E-ANNO-LGND | Legend and general notes | 7 | 0.25 |
+| E-ANNO-STMP | Draft stamp, status tags, NOT SEALED | 1 | 0.35 |
+| G-ANNO-TTLB | Title strip, revision block, seal | 7 | 0.35 |
+| G-ANNO-BRDR | Sheet border | 7 | 0.70 |
+| G-ANNO-VPRT | Viewport frame (does not plot) | 8 | 0.18 |
 
-## Line types encode data status
+ACI 7 displays white on a dark model space and plots black. Plot with
+`monochrome.ctb`; lineweights come from the layers.
 
-| Status | Linetype | Meaning |
-|---|---|---|
-| verified | CONTINUOUS | Field-verified against the installation |
-| assumed | DASHED | Given as stated data, not observed |
-| unknown | DOT | Not known; requires a site visit or document |
+## Line types encode data status (defined in millimetres, LTSCALE 1)
 
-Non-verified equipment also carries a red (ASSUMED) or (UNKNOWN) tag under its label,
-so status survives a monochrome plot where linetypes may be hard to tell apart.
+| Status | Linetype | Pattern | Meaning |
+|---|---|---|---|
+| verified | CONTINUOUS | — | Field-verified against the installation |
+| assumed | E-ASSUMED | 4 mm dash, 2 mm gap | Given as stated data, not observed |
+| unknown | E-UNKNOWN | 0.4 mm dash, 1.2 mm gap | Not known; requires a site visit or document |
 
-## Sheet and title block
+True zero-length dots are avoided: some renderers and plotters drop them. Non-verified
+equipment also carries an (ASSUMED) / (UNKNOWN) STATUS attribute on E-ANNO-STMP, so
+status survives a monochrome plot.
 
-- ISO A-series landscape (A3 420x297 to A0 1189x841 mm), 20 mm binding margin, 10 mm
-  elsewhere.
-- Title block fields: project, client, drawing title, drawing no., revision, sheet,
-  date, survey date, scale (NTS for one-lines), drawn by, checked/sealed by (PEE).
+## Sheet and title strip (paper space)
+
+- Layout named after the drawing number; ISO A3–A0 landscape or 20 x 30 in; 20 mm
+  binding margin, 10 mm elsewhere; 1:1 viewport onto model space.
+- Right-hand title strip, bottom to top: drawing no. and sheet; revision and scale;
+  date and survey date; drawn and checked by; sheet contents / drawing title; location;
+  owner; project; PEE name; PRC Reg. No. / validity; PTR No. / date / place issued;
+  TIN; seal circle (NOT SEALED); draft stamp; revision block.
 - Survey date absent: shown as "NONE - NOT FIELD-VERIFIED" and raised as a warning.
-- Revision block above the title block, newest revision on top.
-- PEE seal box (RA 7920), drawn empty and marked NOT SEALED.
-- Draft stamp at the top of the sheet and in the title block.
+- Fields follow common Philippine electrical permit forms (PRC, PTR, TIN of the
+  signing PEE). LGU model title blocks vary — confirm against the local Office of the
+  Building Official before a permit submission.
 
 ## Text
 
-DXF text heights: 2.5 mm for IDs, 1.8 mm for ratings and notes, 5.0 mm for the sheet
-stamp. Text is upper case where the source data is upper case; the engine never
-rewrites source text.
+Style `E-TEXT`, Arial (`arial.ttf`). DXF height is cap height: 2.5 mm for equipment
+IDs, 1.8 mm for ratings and notes, 5.0 mm for the sheet stamp. Layout spacing and the
+collision check use real Arial glyph widths. The engine never rewrites source text.
